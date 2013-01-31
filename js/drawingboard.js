@@ -185,10 +185,8 @@ DrawingBoard.Control.Clear = function(drawingBoard) {
 	this.board = drawingBoard;
 	this.$el = $('<button class="drawing-board-button drawing-board-button-clear">Effacer tout</button>');
 	this.$el.on('click', function(e) {
-		if (confirm('Vraiment ?')) {
-			that.board.reset();
-			that.board.saveHistory();
-		}
+		that.board.reset();
+		that.board.saveHistory();
 		e.preventDefault();
 	});
 };
