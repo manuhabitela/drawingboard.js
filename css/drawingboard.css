@@ -1,0 +1,37 @@
+.drawing-board {
+	position: relative;
+	display: block;
+	margin: 0 auto;
+}
+
+.drawing-board-canvas {
+	margin: 10px 0;
+	border: 1px solid #ddd;
+	box-shadow: 0 2px 20px #ccc;
+}
+
+.drawing-board-button {
+	float: left;
+}
+
+.drawing-board-button-colors-rainbow {
+	height: 18px;
+	width: 410px;
+}
+
+.drawing-board-button-colors-picker:first-child {
+	margin-right: 10px;
+}
+
+.drawing-board-button-colors-picker {
+	display: inline-block;
+	width: 25px;
+	height: 18px;
+}
+
+.drawing-board-button-colors-current {
+	margin-right: 10px;
+	width: 54px;
+	height: 54px;
+	float: left;
+}

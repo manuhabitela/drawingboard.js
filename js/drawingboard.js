@@ -58,7 +58,7 @@ var DrawingBoard = function(selector, opts) {
 	this.opts = $.extend({ width: 600, height: 600, controls: ['Color', 'Clear', 'Size'] }, opts);
 	this.selector = selector;
 	this.$el = $(this.selector);
-	this.$el.css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( tim(tpl, this.opts) );
+	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( tim(tpl, this.opts) );
 	this.$canvas = this.$el.find('canvas');
 	this.canvas = this.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
@@ -77,7 +77,7 @@ var DrawingBoard = function(selector, opts) {
 DrawingBoard.prototype.reset = function() {
 	this.ctx.lineCap = "round";
 	this.ctx.save();
-	this.ctx.fillStyle = '#f1f1f1';
+	this.ctx.fillStyle = '#ffffff';
 	this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 	this.ctx.restore();
 };
