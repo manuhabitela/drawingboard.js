@@ -115,8 +115,14 @@ DrawingBoard.prototype.initDrawEvents = function() {
 		that._onMouseMove(e, that._getMouseCoordinates(e) );
 	});
 
+	this.$canvas.on('mouseover', function(e) {
+		that.inputCoords = that._getMouseCoordinates(e);
+		if (e.which !== 1)
+			that.isDrawing = false;
+	});
+
 	this.$canvas.on('mouseout', function(e) {
-		that.isDrawing = false;
+
 	});
 };
 
