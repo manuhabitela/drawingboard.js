@@ -9,7 +9,7 @@ var tim=function(){var e=/{{\s*([a-z0-9_][\\.a-z0-9_]*)\s*}}/gi;return function(
 var DrawingBoard = function(selector, opts) {
 	var that = this;
 	var tpl = '<div class="drawing-board-buttons"></div><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas>';
-	this.opts = $.extend({ width: 600, height: 600, controls: ['Clear'] }, opts);
+	this.opts = $.extend({ width: 600, height: 600, controls: ['Size', 'Clear'] }, opts);
 	this.selector = selector;
 	this.$el = $(this.selector);
 	this.$el.css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( tim(tpl, this.opts) );
@@ -139,4 +139,15 @@ DrawingBoard.Control.Clear = function(drawingBoard) {
 		}
 		e.preventDefault();
 	});
+};
+
+DrawingBoard.Control.Size = function(drawingBoard) {
+	var that = this;
+	this.board = drawingBoard;
+	this.$el = $('<input type="range" min="1" max="50" value="3" class=drawing-board-button-size>');
+	this.$el.on('change', function(e) {
+		that.board.ctx.lineWidth = $(this).val();
+		e.preventDefault();
+	});
+	this.board.ctx.lineWidth = this.$el.val();
 };
