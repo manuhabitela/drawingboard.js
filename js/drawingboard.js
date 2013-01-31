@@ -131,7 +131,7 @@ DrawingBoard.Control = {};
 DrawingBoard.Control.Clear = function(drawingBoard) {
 	var that = this;
 	this.board = drawingBoard;
-	this.$el = $('<button class=drawing-board-button-clear>Effacer tout</button>');
+	this.$el = $('<button class="drawing-board-button drawing-board-button-clear">Effacer tout</button>');
 	this.$el.on('click', function(e) {
 		if (confirm('Vraiment ?')) {
 			that.board.reset();
@@ -144,7 +144,7 @@ DrawingBoard.Control.Clear = function(drawingBoard) {
 DrawingBoard.Control.Size = function(drawingBoard) {
 	var that = this;
 	this.board = drawingBoard;
-	this.$el = $('<input type="range" min="1" max="50" value="3" class=drawing-board-button-size>');
+	this.$el = $('<input type="range" min="1" max="50" value="3" class="drawing-board-button drawing-board-button-size">');
 	this.$el.on('change', function(e) {
 		that.board.ctx.lineWidth = $(this).val();
 		e.preventDefault();
