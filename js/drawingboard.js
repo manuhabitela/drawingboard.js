@@ -55,16 +55,18 @@ DrawingBoard.prototype.initControls = function() {
 DrawingBoard.prototype.initDrawEvents = function() {
 	var that = this;
 	this.isDrawing = false;
+	this.inputCoords = { x: null, y: null };
+
 	this.$canvas.on('mousedown', function(e) {
-		that._onMouseDown( that._getMouseCoordinates(e) );
+		that._onMouseDown(e, that._getMouseCoordinates(e) );
 	});
 
 	this.$canvas.on('mouseup', function(e) {
-		that._onMouseUp( that._getMouseCoordinates(e) );
+		that._onMouseUp(e, that._getMouseCoordinates(e) );
 	});
 
 	this.$canvas.on('mousemove', function(e) {
-		that._onMouseMove( that._getMouseCoordinates(e) );
+		that._onMouseMove(e, that._getMouseCoordinates(e) );
 	});
 
 	this.$canvas.on('mouseout', function(e) {
@@ -89,27 +91,28 @@ DrawingBoard.prototype.saveHistory = function () {
 	}
 };
 
-DrawingBoard.prototype._onMouseDown = function(coords) {
-	this.ctx.beginPath();
-	this.ctx.moveTo(coords.x, coords.y);
+DrawingBoard.prototype._onMouseDown = function(e, coords) {
 	this.isDrawing = true;
+	this.inputCoords = coords;
 };
 
-DrawingBoard.prototype._onMouseMove = function(coords) {
+DrawingBoard.prototype._onMouseMove = function(e, coords) {
 	if (this.isDrawing) {
+		this.ctx.beginPath();
+		this.ctx.moveTo(this.inputCoords.x, this.inputCoords.y);
 		this.ctx.lineTo(coords.x, coords.y);
 		this.ctx.stroke();
+		this.ctx.closePath();
+
+		this.inputCoords = coords;
 	}
 };
 
-DrawingBoard.prototype._onMouseUp = function(coords) {
+DrawingBoard.prototype._onMouseUp = function(e, coords) {
 	if (this.isDrawing) {
 		this.isDrawing = false;
-		this.ctx.lineTo(coords.x, coords.y);
-		this.ctx.stroke();
+		this.saveHistory();
 	}
-	this.ctx.closePath();
-	this.saveHistory();
 };
 
 DrawingBoard.prototype._getMouseCoordinates = function(e) {
