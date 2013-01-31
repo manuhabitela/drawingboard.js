@@ -92,7 +92,7 @@ DrawingBoard.prototype.initHistoryEvents = function() {
 };
 
 DrawingBoard.prototype.initControls = function() {
-	for (var i = this.opts.controls.length - 1; i >= 0; i--) {
+	for (var i = 0; i < this.opts.controls.length; i++) {
 		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
 		this.addControl(c);
 	}
