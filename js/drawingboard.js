@@ -65,10 +65,6 @@ var DrawingBoard = function(selector, opts) {
 
 	this.reset();
 
-	if (window.localStorage && localStorage.getItem('curImg') !== null) {
-		this.restoreImg(localStorage.getItem('curImg'));
-	}
-
 	this.initHistoryEvents();
 	this.initDrawEvents();
 	this.initControls();
@@ -84,6 +80,9 @@ DrawingBoard.prototype.reset = function() {
 
 DrawingBoard.prototype.initHistoryEvents = function() {
 	var that = this;
+	if (window.localStorage && localStorage.getItem('curImg') !== null) {
+		this.restoreImg(localStorage.getItem('curImg'));
+	}
 	window.onpopstate = function(e) {
 		if (e.state && e.state.imageData) {
 			that.restoreImg(e.state.imageData);
