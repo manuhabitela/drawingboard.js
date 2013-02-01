@@ -9,7 +9,7 @@ var tim=function(){var e=/{{\s*([a-z0-9_][\\.a-z0-9_]*)\s*}}/gi;return function(
 var DrawingBoard = function(selector, opts) {
 	var that = this;
 	var tpl = '<div class="drawing-board-controls"></div><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas>';
-	this.opts = $.extend({ width: 600, height: 600, controls: ['Color', 'Size', 'Clear'] }, opts);
+	this.opts = $.extend({ width: 600, height: 600, controls: ['Color', 'Size', 'Clear', 'History'] }, opts);
 	this.selector = selector;
 	this.$el = $(this.selector);
 	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( tim(tpl, this.opts) );
@@ -19,35 +19,36 @@ var DrawingBoard = function(selector, opts) {
 
 	this.reset();
 
-	this.initHistoryEvents();
+	this.initHistory();
+	this.restoreLocalStorage();
 	this.initDrawEvents();
 	this.initControls();
 };
 
 DrawingBoard.prototype.reset = function() {
 	this.ctx.lineCap = "round";
+	this.ctx.lineJoin = "round";
 	this.ctx.save();
 	this.ctx.fillStyle = '#ffffff';
 	this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 	this.ctx.restore();
-};
-
-DrawingBoard.prototype.initHistoryEvents = function() {
-	var that = this;
-	if (window.localStorage && localStorage.getItem('curImg') !== null) {
-		this.restoreImg(localStorage.getItem('curImg'));
-	}
-	window.onpopstate = function(e) {
-		if (e.state && e.state.imageData) {
-			that.restoreImg(e.state.imageData);
-		}
-	};
+	this.saveLocalStorage();
 };
 
 DrawingBoard.prototype.initControls = function() {
 	for (var i = 0; i < this.opts.controls.length; i++) {
 		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
 		this.addControl(c);
+	}
+};
+
+DrawingBoard.prototype.initHistory = function() {
+	this.history = [];
+};
+
+DrawingBoard.prototype.restoreLocalStorage = function() {
+	if (window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
+		this.restoreImg(localStorage.getItem('drawing-board-image'));
 	}
 };
 
@@ -88,15 +89,32 @@ DrawingBoard.prototype.restoreImg = function(src) {
 	img.src = src;
 };
 
+DrawingBoard.prototype._getImage = function() {
+	return this.canvas.toDataURL("image/png");
+};
+
 DrawingBoard.prototype.saveHistory = function () {
-	if (window.history && window.history.pushState && window.localStorage) {
-		img = this.canvas.toDataURL("image/png");
-		history.pushState({ imageData: img }, "", window.location.href);
-		localStorage.setItem('curImg', img);
+	if (this.history === undefined) this.history = [];
+	while (this.history.length > 30) {
+		this.history.shift();
+	}
+	this.history.push(this._getImage());
+};
+
+DrawingBoard.prototype.goBackInHistory = function() {
+	if (this.history.length)
+		this.restoreImg(this.history.pop());
+	this.saveLocalStorage();
+};
+
+DrawingBoard.prototype.saveLocalStorage = function() {
+	if (window.localStorage) {
+		localStorage.setItem('drawing-board-image', this._getImage());
 	}
 };
 
 DrawingBoard.prototype._onMouseDown = function(e, coords) {
+	this.saveHistory();
 	this.isDrawing = true;
 	this.inputCoords = coords;
 };
@@ -116,7 +134,7 @@ DrawingBoard.prototype._onMouseMove = function(e, coords) {
 DrawingBoard.prototype._onMouseUp = function(e, coords) {
 	if (this.isDrawing) {
 		this.isDrawing = false;
-		this.saveHistory();
+		this.saveLocalStorage();
 	}
 };
 
@@ -136,10 +154,9 @@ DrawingBoard.Control = {};
 DrawingBoard.Control.Clear = function(drawingBoard) {
 	var that = this;
 	this.board = drawingBoard;
-	this.$el = $('<div class="drawing-board-control drawing-board-control-clear"><button>Effacer tout</button>');
+	this.$el = $('<div class="drawing-board-control drawing-board-control-clear"><button title="Effacer tout">×</button>');
 	this.$el.on('click', 'button', function(e) {
 		that.board.reset();
-		that.board.saveHistory();
 		e.preventDefault();
 	});
 };
@@ -211,7 +228,7 @@ DrawingBoard.Control.Color = function(drawingBoard) {
 		'<div class="drawing-board-control-colors-current" style="background-color: ' + this.board.ctx.strokeStyle + '"></div>' +
 		'<div class="drawing-board-control-colors-rainbows">';
 	var oneColorTpl = '<div class="drawing-board-control-colors-picker" data-color="{{color}}" style="background-color: {{color}}"></div>';
-	function fillWithRainbow(l) {
+	var fillWithRainbow = function(l) {
 		var i = 0;
 		var additionalColor = null;
 		el += '<div class="drawing-board-control-colors-rainbow">';
@@ -228,7 +245,7 @@ DrawingBoard.Control.Color = function(drawingBoard) {
 			i+=30;
 		}
 		el += '</div>';
-	}
+	};
 	fillWithRainbow(0.75);
 	fillWithRainbow(0.5);
 	fillWithRainbow(0.25);
@@ -238,6 +255,20 @@ DrawingBoard.Control.Color = function(drawingBoard) {
 	this.$el.on('click', '.drawing-board-control-colors-picker', function(e) {
 		that.board.ctx.strokeStyle = $(this).attr('data-color');
 		that.$el.find('.drawing-board-control-colors-current').css('background-color', $(this).attr('data-color'));
+		e.preventDefault();
+	});
+};
+
+DrawingBoard.Control.History = function(drawingBoard) {
+	this.board = drawingBoard;
+	var that = this;
+	var el = '<div class="drawing-board-control drawing-board-control-history">' +
+		'<button class="drawing-board-control-history-back" title="Annuler la dernière action">&larr;</button>' +
+		'<button class="drawing-board-control-history-forward" title="Recommencer la dernière action">&rarr;</button>' +
+		'</div>';
+	this.$el = $(el);
+	this.$el.on('click', '.drawing-board-control-history-back', function(e) {
+		that.board.goBackInHistory();
 		e.preventDefault();
 	});
 };

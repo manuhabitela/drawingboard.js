@@ -14,6 +14,18 @@
 	float: left;
 }
 
+.drawing-board-control button {
+	cursor: pointer;
+}
+
+
+.drawing-board-control-colors-current {
+	margin-right: 10px;
+	width: 54px;
+	height: 54px;
+	float: left;
+}
+
 .drawing-board-control-colors-rainbow {
 	height: 18px;
 	width: 320px;
@@ -27,6 +39,18 @@
 	display: inline-block;
 	width: 18px;
 	height: 18px;
+	cursor: pointer;
+}
+.drawing-board-control-colors-picker[data-color="rgba(255, 255, 255, 1)"] {
+	width: 16px;
+	height: 17px;
+	border: 1px solid #ccc;
+	border-bottom: none;
+}
+.drawing-board-control-colors-picker:hover {
+	width: 16px;
+	height: 16px;
+	border: 1px solid #555;
 }
 
 .drawing-board-control-size {
@@ -41,11 +65,18 @@
 	bottom: -25px;
 	left: 0;
 	opacity: .2;
+	pointer-events: none;
 }
 
-.drawing-board-control-colors-current {
-	margin-right: 10px;
-	width: 54px;
-	height: 54px;
-	float: left;
+.drawing-board-control-clear, .drawing-board-control-history {
+	float: right;
+}
+
+.drawing-board-control-clear button {
+	font-size: xx-large;
+	font-weight: bold;
+}
+.drawing-board-control-history button {
+	font-size: xx-large;
+	font-weight: bold;
 }
