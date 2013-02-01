@@ -10,26 +10,40 @@
 	box-shadow: 0 2px 20px #ccc;
 }
 
-.drawing-board-button {
+.drawing-board-control {
 	float: left;
 }
 
-.drawing-board-button-colors-rainbow {
+.drawing-board-control-colors-rainbow {
 	height: 18px;
-	width: 410px;
+	width: 320px;
 }
 
-.drawing-board-button-colors-picker:first-child {
+.drawing-board-control-colors-picker:first-child {
 	margin-right: 10px;
 }
 
-.drawing-board-button-colors-picker {
+.drawing-board-control-colors-picker {
 	display: inline-block;
-	width: 25px;
+	width: 18px;
 	height: 18px;
 }
 
-.drawing-board-button-colors-current {
+.drawing-board-control-size {
+	position: relative;
+	height: 30px;
+}
+
+.drawing-board-control-size-label {
+	background: #333;
+	display: inline-block;
+	position: absolute;
+	bottom: -25px;
+	left: 0;
+	opacity: .2;
+}
+
+.drawing-board-control-colors-current {
 	margin-right: 10px;
 	width: 54px;
 	height: 54px;

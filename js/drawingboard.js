@@ -6,56 +6,10 @@
 */
 var tim=function(){var e=/{{\s*([a-z0-9_][\\.a-z0-9_]*)\s*}}/gi;return function(f,g){return f.replace(e,function(h,i){for(var c=i.split("."),d=c.length,b=g,a=0;a<d;a++){b=b[c[a]];if(b===void 0)throw"tim: '"+c[a]+"' not found in "+h;if(a===d-1)return b}})}}();
 
-var Color = {
-	rgba: function(r, g, b, a) {
-		return {
-			r: r,
-			g: g,
-			b: b,
-			a: a,
-			toString: function() { return "rgba(" + r +", " + g + ", " + b + ", " + a + ")"; }
-		};
-	},
-	hsl: function(h, s, l) {
-		return {
-			h: h,
-			s: s,
-			l: l,
-			toString: function() { return "hsl(" + h +", " + s*100 + "%, " + l*100 + "%)"; }
-		};
-	},
-	hex2Rgba: function(hex) {
-		var num = parseInt(hex.substring(1), 16);
-		return Color.rgba(num >> 16, num >> 8 & 255, num & 255, 1);
-	},
-	//conversion function (modified a bit) taken from http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
-	hsl2Rgba: function(hsl) {
-		var h = hsl.h/360, s = hsl.s, l = hsl.l, r, g, b;
-		function hue2rgb(p, q, t) {
-			if(t < 0) t += 1;
-			if(t > 1) t -= 1;
-			if(t < 1/6) return p + (q - p) * 6 * t;
-			if(t < 1/2) return q;
-			if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-			return p;
-		}
-		if (s === 0) {
-			r = g = b = l; // achromatic
-		} else {
-			var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-			var p = 2 * l - q;
-			r = Math.floor( (hue2rgb(p, q, h + 1/3)) * 255);
-			g = Math.floor( (hue2rgb(p, q, h)) * 255);
-			b = Math.floor( (hue2rgb(p, q, h - 1/3)) * 255);
-		}
-		return Color.rgba(r, g, b, 1);
-	}
-};
-
 var DrawingBoard = function(selector, opts) {
 	var that = this;
-	var tpl = '<div class="drawing-board-buttons"></div><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas>';
-	this.opts = $.extend({ width: 600, height: 600, controls: ['Color', 'Clear', 'Size'] }, opts);
+	var tpl = '<div class="drawing-board-controls"></div><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas>';
+	this.opts = $.extend({ width: 600, height: 600, controls: ['Color', 'Size', 'Clear'] }, opts);
 	this.selector = selector;
 	this.$el = $(this.selector);
 	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( tim(tpl, this.opts) );
@@ -174,7 +128,7 @@ DrawingBoard.prototype._getMouseCoordinates = function(e) {
 };
 
 DrawingBoard.prototype.addControl = function(control) {
-	this.$el.find('.drawing-board-buttons').append(control.$el);
+	this.$el.find('.drawing-board-controls').append(control.$el);
 };
 
 DrawingBoard.Control = {};
@@ -182,8 +136,8 @@ DrawingBoard.Control = {};
 DrawingBoard.Control.Clear = function(drawingBoard) {
 	var that = this;
 	this.board = drawingBoard;
-	this.$el = $('<button class="drawing-board-button drawing-board-button-clear">Effacer tout</button>');
-	this.$el.on('click', function(e) {
+	this.$el = $('<div class="drawing-board-control drawing-board-control-clear"><button>Effacer tout</button>');
+	this.$el.on('click', 'button', function(e) {
 		that.board.reset();
 		that.board.saveHistory();
 		e.preventDefault();
@@ -191,28 +145,76 @@ DrawingBoard.Control.Clear = function(drawingBoard) {
 };
 
 DrawingBoard.Control.Size = function(drawingBoard) {
-	var that = this;
 	this.board = drawingBoard;
-	this.$el = $('<input type="range" min="1" max="50" value="3" class="drawing-board-button drawing-board-button-size">');
-	this.$el.on('change', function(e) {
-		that.board.ctx.lineWidth = $(this).val();
+	var that = this;
+	var tpl = '<div class="drawing-board-control drawing-board-control-size" title="Taille du pinceau : 10">' +
+		'<input type="range" min="1" max="50" value="10" class="drawing-board-control-size-input">' +
+		'<span class="drawing-board-control-size-label"></span>' +
+		'</div>';
+	function updateView(val) {
+		that.board.ctx.lineWidth = val;
+		that.$el.find('.drawing-board-control-size-label').css({
+			width: val + 'px',
+			height: val + 'px',
+			borderRadius: val + 'px'
+		});
+		that.$el.attr('title', 'Taille du pinceau : ' + val);
+	}
+	this.$el = $(tpl);
+	this.$el.on('change', 'input', function(e) {
+		updateView($(this).val());
 		e.preventDefault();
 	});
-	this.board.ctx.lineWidth = this.$el.val();
+	updateView(this.$el.find('input').val());
+};
+
+Color = {
+	rgba: function(r, g, b, a) {
+		return { r: r, g: g, b: b, a: a, toString: function() { return "rgba(" + r +", " + g + ", " + b + ", " + a + ")"; } };
+	},
+	hsl: function(h, s, l) {
+		return { h: h, s: s, l: l, toString: function() { return "hsl(" + h +", " + s*100 + "%, " + l*100 + "%)"; } };
+	},
+	hex2Rgba: function(hex) {
+		var num = parseInt(hex.substring(1), 16);
+		return Color.rgba(num >> 16, num >> 8 & 255, num & 255, 1);
+	},
+	//conversion function (modified a bit) taken from http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+	hsl2Rgba: function(hsl) {
+		var h = hsl.h/360, s = hsl.s, l = hsl.l, r, g, b;
+		function hue2rgb(p, q, t) {
+			if(t < 0) t += 1;
+			if(t > 1) t -= 1;
+			if(t < 1/6) return p + (q - p) * 6 * t;
+			if(t < 1/2) return q;
+			if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+			return p;
+		}
+		if (s === 0) {
+			r = g = b = l; // achromatic
+		} else {
+			var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+			var p = 2 * l - q;
+			r = Math.floor( (hue2rgb(p, q, h + 1/3)) * 255);
+			g = Math.floor( (hue2rgb(p, q, h)) * 255);
+			b = Math.floor( (hue2rgb(p, q, h - 1/3)) * 255);
+		}
+		return Color.rgba(r, g, b, 1);
+	}
 };
 
 DrawingBoard.Control.Color = function(drawingBoard) {
 	this.board = drawingBoard;
 	this.board.ctx.strokeStyle = "rgba(255, 191, 127, 1)";
 	var that = this;
-	var el = '<div class="drawing-board-button drawing-board-button-colors">' +
-		'<div class="drawing-board-button-colors-current" style="background-color: ' + this.board.ctx.strokeStyle + '"></div>' +
-		'<div class="drawing-board-button-colors-rainbows">';
-	var oneColorTpl = '<div class="drawing-board-button-colors-picker" data-color="{{color}}" style="background-color: {{color}}"></div>';
+	var el = '<div class="drawing-board-control drawing-board-control-colors">' +
+		'<div class="drawing-board-control-colors-current" style="background-color: ' + this.board.ctx.strokeStyle + '"></div>' +
+		'<div class="drawing-board-control-colors-rainbows">';
+	var oneColorTpl = '<div class="drawing-board-control-colors-picker" data-color="{{color}}" style="background-color: {{color}}"></div>';
 	function fillWithRainbow(l) {
 		var i = 0;
 		var additionalColor = null;
-		el += '<div class="drawing-board-button-colors-rainbow">';
+		el += '<div class="drawing-board-control-colors-rainbow">';
 		if (l == 0.25)
 			additionalColor = Color.rgba(0, 0, 0, 1);
 		if (l == 0.5)
@@ -233,10 +235,9 @@ DrawingBoard.Control.Color = function(drawingBoard) {
 	el += '</div>';
 
 	this.$el = $(el);
-	this.$el.on('click', '.drawing-board-button-colors-picker', function(e) {
+	this.$el.on('click', '.drawing-board-control-colors-picker', function(e) {
 		that.board.ctx.strokeStyle = $(this).attr('data-color');
-		that.$el.find('.drawing-board-button-colors-current').css('background-color', $(this).attr('data-color'));
+		that.$el.find('.drawing-board-control-colors-current').css('background-color', $(this).attr('data-color'));
 		e.preventDefault();
 	});
-	this.board.ctx.lineWidth = this.$el.val();
 };
