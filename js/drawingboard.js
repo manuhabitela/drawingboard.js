@@ -31,20 +31,46 @@ DrawingBoard.prototype.reset = function() {
 	this.ctx.restore();
 };
 
-DrawingBoard.prototype.initControls = function() {
-	for (var i = 0; i < this.opts.controls.length; i++) {
-		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
-		this.addControl(c);
-	}
-};
-
 DrawingBoard.prototype.initHistory = function() {
 	this.history = [];
+};
+
+DrawingBoard.prototype.saveHistory = function () {
+	if (this.history === undefined) this.history = [];
+	while (this.history.length > 30) {
+		this.history.shift();
+	}
+	this.history.push(this.getImg());
+};
+
+DrawingBoard.prototype.goBackInHistory = function() {
+	if (this.history.length)
+		this.restoreImg(this.history.pop());
+	this.saveLocalStorage();
+};
+
+DrawingBoard.prototype.restoreImg = function(src) {
+	var that = this;
+	img = new Image();
+	img.onload = function () {
+		that.ctx.drawImage(img, 0, 0);
+	};
+	img.src = src;
+};
+
+DrawingBoard.prototype.getImg = function() {
+	return this.canvas.toDataURL("image/png");
 };
 
 DrawingBoard.prototype.restoreLocalStorage = function() {
 	if (window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
 		this.restoreImg(localStorage.getItem('drawing-board-image'));
+	}
+};
+
+DrawingBoard.prototype.saveLocalStorage = function() {
+	if (window.localStorage) {
+		localStorage.setItem('drawing-board-image', this.getImg());
 	}
 };
 
@@ -73,39 +99,6 @@ DrawingBoard.prototype.initDrawEvents = function() {
 
 	});
 	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
-};
-
-DrawingBoard.prototype.restoreImg = function(src) {
-	var that = this;
-	img = new Image();
-	img.onload = function () {
-		that.ctx.drawImage(img, 0, 0);
-	};
-	img.src = src;
-};
-
-DrawingBoard.prototype._getImage = function() {
-	return this.canvas.toDataURL("image/png");
-};
-
-DrawingBoard.prototype.saveHistory = function () {
-	if (this.history === undefined) this.history = [];
-	while (this.history.length > 30) {
-		this.history.shift();
-	}
-	this.history.push(this._getImage());
-};
-
-DrawingBoard.prototype.goBackInHistory = function() {
-	if (this.history.length)
-		this.restoreImg(this.history.pop());
-	this.saveLocalStorage();
-};
-
-DrawingBoard.prototype.saveLocalStorage = function() {
-	if (window.localStorage) {
-		localStorage.setItem('drawing-board-image', this._getImage());
-	}
 };
 
 DrawingBoard.prototype.draw = function() {
@@ -160,6 +153,13 @@ DrawingBoard.prototype._getMidInputCoords = function(coords) {
 		x: this.oldInputCoords.x + coords.x>>1,
 		y: this.oldInputCoords.y + coords.y>>1
 	};
+};
+
+DrawingBoard.prototype.initControls = function() {
+	for (var i = 0; i < this.opts.controls.length; i++) {
+		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
+		this.addControl(c);
+	}
 };
 
 DrawingBoard.prototype.addControl = function(control) {
