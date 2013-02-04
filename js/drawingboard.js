@@ -124,7 +124,7 @@ DrawingBoard.prototype.draw = function() {
 		this.ctx.moveTo(midPoint.x, midPoint.y);
 		this.ctx.quadraticCurveTo(this.oldInputCoords.x, this.oldInputCoords.y, this.midInputCoords.x, this.midInputCoords.y);
 		this.ctx.stroke();
-		
+
 		this.oldInputCoords = this.inputCoords;
 		this.midInputCoords = midPoint;
 	}
@@ -158,7 +158,10 @@ DrawingBoard.prototype._getInputCoords = function(e) {
 };
 
 DrawingBoard.prototype._getMidInputCoords = function(coords) {
-	return { x: this.oldInputCoords.x + coords.x>>1, y: this.oldInputCoords.y + coords.y>>1 };
+	return {
+		x: this.oldInputCoords.x + coords.x>>1,
+		y: this.oldInputCoords.y + coords.y>>1
+	};
 };
 
 DrawingBoard.prototype.addControl = function(control) {
