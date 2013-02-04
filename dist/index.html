@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="fr" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="fr" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="fr" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="fr" class="no-js"> <!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title></title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+		
+		<link rel="stylesheet" href="drawingboard.min.css">
+	</head>
+	<body>
+		<div class="drawing-board"></div>
+
+		<script>document.write('<script src=../lib/' + ('__proto__' in {} ? 'zepto' : 'jquery') + '.min.js><\/script>')</script>
+		<script src="../lib/rAF.js"></script>
+		<script src="drawingboard.min.js"></script>
+		<script>
+		(function() {
+			var t = new DrawingBoard('.drawing-board');
+		})();
+		</script>
+	</body>
+</html>
