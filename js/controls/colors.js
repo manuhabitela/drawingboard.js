@@ -68,9 +68,9 @@ DrawingBoard.Control.Colors.prototype = {
 		if (l == 0.75)
 			additionalColor = this.rgba(255, 255, 255, 1);
 		if (additionalColor !== null)
-			this.el += tim(oneColorTpl, {color: additionalColor.toString() });
+			this.el += DrawingBoard.Utils.tpl(oneColorTpl, {color: additionalColor.toString() });
 		while (i <= 330) {
-			this.el += tim(oneColorTpl, {color: this.hsl2Rgba(this.hsl(i-60, 1, l)).toString() });
+			this.el += DrawingBoard.Utils.tpl(oneColorTpl, {color: this.hsl2Rgba(this.hsl(i-60, 1, l)).toString() });
 			i+=30;
 		}
 		this.el += '</div>';

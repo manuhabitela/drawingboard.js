@@ -1,11 +1,3 @@
-/*!
-* Tim (lite)
-*   github.com/premasagar/tim
-*//*
-	A tiny, secure JavaScript micro-templating script.
-*/
-var tim=function(){var e=/{{\s*([a-z0-9_][\\.a-z0-9_]*)\s*}}/gi;return function(f,g){return f.replace(e,function(h,i){for(var c=i.split("."),d=c.length,b=g,a=0;a<d;a++){b=b[c[a]];if(b===void 0)throw"tim: '"+c[a]+"' not found in "+h;if(a===d-1)return b}})}}();
-
 var DrawingBoard = function(selector, opts) {
 	var that = this;
 	var tpl = '<div class="drawing-board-controls"></div><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas>';
@@ -16,7 +8,8 @@ var DrawingBoard = function(selector, opts) {
 	}, opts);
 	this.selector = selector;
 	this.$el = $(this.selector);
-	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( tim(tpl, this.opts) );
+	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( DrawingBoard.Utils.tpl(tpl, this.opts) );
+
 	this.$canvas = this.$el.find('canvas');
 	this.canvas = this.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
