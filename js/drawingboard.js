@@ -56,6 +56,7 @@ DrawingBoard.prototype.initDrawEvents = function() {
 	var that = this;
 	this.isDrawing = false;
 	this.inputCoords = { x: null, y: null };
+	this.mouseCoords = { x: null, y: null };
 	this.midInputCoords = this.inputCoords;
 
 	this.$canvas.on('mousedown', function(e) {
@@ -79,6 +80,7 @@ DrawingBoard.prototype.initDrawEvents = function() {
 	this.$canvas.on('mouseout', function(e) {
 
 	});
+	webkitRequestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 };
 
 DrawingBoard.prototype.restoreImg = function(src) {
@@ -114,6 +116,22 @@ DrawingBoard.prototype.saveLocalStorage = function() {
 	}
 };
 
+DrawingBoard.prototype.draw = function() {
+	if (this.isDrawing) {
+		this.ctx.beginPath();
+		var midPoint = {x: this.inputCoords.x + this.mouseCoords.x>>1, y: this.inputCoords.y + this.mouseCoords.y>>1 };
+		this.ctx.moveTo(midPoint.x, midPoint.y);
+		this.ctx.quadraticCurveTo(this.inputCoords.x, this.inputCoords.y, this.midInputCoords.x, this.midInputCoords.y);
+		this.ctx.stroke();
+
+
+		this.inputCoords = this.mouseCoords;
+		this.midInputCoords = midPoint;
+	}
+
+	webkitRequestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+};
+
 DrawingBoard.prototype._onMouseDown = function(e, coords) {
 	this.saveHistory();
 	this.isDrawing = true;
@@ -122,17 +140,7 @@ DrawingBoard.prototype._onMouseDown = function(e, coords) {
 };
 
 DrawingBoard.prototype._onMouseMove = function(e, coords) {
-	if (this.isDrawing) {
-		this.ctx.beginPath();
-		var midPoint = {x: this.inputCoords.x + coords.x>>1, y: this.inputCoords.y + coords.y>>1 };
-		this.ctx.moveTo(midPoint.x, midPoint.y);
-		this.ctx.quadraticCurveTo(this.inputCoords.x, this.inputCoords.y, this.midInputCoords.x, this.midInputCoords.y);
-		this.ctx.stroke();
-		
-
-		this.inputCoords = coords;
-		this.midInputCoords = midPoint;
-	}
+	this.mouseCoords = coords;
 };
 
 DrawingBoard.prototype._onMouseUp = function(e, coords) {
