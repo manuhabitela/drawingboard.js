@@ -73,9 +73,7 @@ DrawingBoard.prototype.initDrawEvents = function() {
 	});
 
 	this.$canvas.on('mouseover', function(e) {
-		that.oldInputCoords = that._getInputCoords(e);
-		if (e.which !== 1)
-			that.isDrawing = false;
+		that._onMouseOver(e, that._getInputCoords(e) );
 	});
 
 	this.$canvas.on('mouseout', function(e) {
@@ -148,6 +146,13 @@ DrawingBoard.prototype._onMouseUp = function(e, coords) {
 		this.isDrawing = false;
 		this.saveLocalStorage();
 	}
+};
+
+DrawingBoard.prototype._onMouseOver = function(e, coords) {
+	this.oldInputCoords = this._getInputCoords(e);
+	this.midInputCoords = this._getMidInputCoords(this.oldInputCoords);
+	if (e.which !== 1)
+		this.isDrawing = false;
 };
 
 DrawingBoard.prototype._getInputCoords = function(e) {
