@@ -84,7 +84,7 @@ DrawingBoard.prototype.initDrawEvents = function() {
 	this.$canvas.on('mouseout', function(e) {
 
 	});
-	webkitRequestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 };
 
 DrawingBoard.prototype.restoreImg = function(src) {
@@ -133,7 +133,7 @@ DrawingBoard.prototype.draw = function() {
 		this.midInputCoords = midPoint;
 	}
 
-	webkitRequestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 };
 
 DrawingBoard.prototype._onMouseDown = function(e, coords) {
