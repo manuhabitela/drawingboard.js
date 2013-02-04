@@ -56,6 +56,7 @@ DrawingBoard.prototype.initDrawEvents = function() {
 	var that = this;
 	this.isDrawing = false;
 	this.inputCoords = { x: null, y: null };
+	this.midInputCoords = this.inputCoords;
 
 	this.$canvas.on('mousedown', function(e) {
 		that._onMouseDown(e, that._getMouseCoordinates(e) );
@@ -117,17 +118,20 @@ DrawingBoard.prototype._onMouseDown = function(e, coords) {
 	this.saveHistory();
 	this.isDrawing = true;
 	this.inputCoords = coords;
+	this.midInputCoords = {x: this.inputCoords.x + coords.x>>1, y: this.inputCoords.y + coords.y>>1 };
 };
 
 DrawingBoard.prototype._onMouseMove = function(e, coords) {
 	if (this.isDrawing) {
 		this.ctx.beginPath();
-		this.ctx.moveTo(this.inputCoords.x, this.inputCoords.y);
-		this.ctx.lineTo(coords.x, coords.y);
+		var midPoint = {x: this.inputCoords.x + coords.x>>1, y: this.inputCoords.y + coords.y>>1 };
+		this.ctx.moveTo(midPoint.x, midPoint.y);
+		this.ctx.quadraticCurveTo(this.inputCoords.x, this.inputCoords.y, this.midInputCoords.x, this.midInputCoords.y);
 		this.ctx.stroke();
-		this.ctx.closePath();
+		
 
 		this.inputCoords = coords;
+		this.midInputCoords = midPoint;
 	}
 };
 
