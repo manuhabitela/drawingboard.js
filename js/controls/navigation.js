@@ -31,6 +31,7 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	if (this.opts.resetButton) {
 		this.$el.on('click', '.drawing-board-control-navigation-reset', function(e) {
 			that.board.reset();
+			that.board.saveLocalStorage();
 			e.preventDefault();
 		});
 	}

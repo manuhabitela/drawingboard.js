@@ -36,7 +36,6 @@ DrawingBoard.prototype.reset = function() {
 	this.ctx.fillStyle = '#ffffff';
 	this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 	this.ctx.restore();
-	this.saveLocalStorage();
 };
 
 DrawingBoard.prototype.initControls = function() {
