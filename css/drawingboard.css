@@ -6,7 +6,7 @@
 
 .drawing-board-control button { cursor: pointer; }
 
-.drawing-board-control-colors-current { margin-right: 10px; width: 54px; height: 54px; float: left; }
+.drawing-board-control-colors-current { margin-right: 10px; width: 53px; height: 53px; border: 1px solid #cccccc; cursor: pointer; float: left; }
 
 .drawing-board-control-colors-rainbow { height: 18px; width: 320px; }
 

@@ -18,7 +18,16 @@ DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 	this.$el = $(this.el);
 	this.$el.on('click', '.drawing-board-control-colors-picker', function(e) {
 		that.board.ctx.strokeStyle = $(this).attr('data-color');
-		that.$el.find('.drawing-board-control-colors-current').css('background-color', $(this).attr('data-color'));
+		that.$el.find('.drawing-board-control-colors-current')
+			.css('background-color', $(this).attr('data-color'))
+			.attr('data-color', $(this).attr('data-color'));
+		e.preventDefault();
+	});
+
+	this.$el.on('click', '.drawing-board-control-colors-current', function(e) {
+		if (confirm("Remplir la feuille avec cette couleur ?")) {
+			that.board.reset($(this).attr('data-color'));
+		}
 		e.preventDefault();
 	});
 };
