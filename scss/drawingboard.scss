@@ -1,0 +1,22 @@
+.drawing-board {
+	position: relative;
+	display: block;
+	margin: 0 auto;
+}
+
+.drawing-board-canvas {
+	margin: 10px 0;
+	border: 1px solid #ddd;
+}
+
+.drawing-board-control {
+	float: left;
+}
+
+.drawing-board-control button {
+	cursor: pointer;
+}
+
+@import "controls/colors";
+@import "controls/navigation";
+@import "controls/size";

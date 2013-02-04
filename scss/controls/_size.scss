@@ -1,0 +1,14 @@
+.drawing-board-control-size {
+	position: relative;
+	height: 30px;
+}
+
+.drawing-board-control-size-label {
+	background: #333;
+	display: inline-block;
+	position: absolute;
+	bottom: -25px;
+	left: 0;
+	opacity: .2;
+	pointer-events: none;
+}
