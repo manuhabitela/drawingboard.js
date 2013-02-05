@@ -4,3 +4,5 @@
 *.sublime-workspace
 *en conflit*
 node_modules
+sftp-config.json
+todo.txt
