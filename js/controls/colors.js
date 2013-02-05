@@ -25,9 +25,7 @@ DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 	});
 
 	this.$el.on('click', '.drawing-board-control-colors-current', function(e) {
-		if (confirm("Remplir la feuille avec cette couleur ?")) {
-			that.board.reset($(this).attr('data-color'));
-		}
+		that.board.reset($(this).attr('data-color'));
 		e.preventDefault();
 	});
 };

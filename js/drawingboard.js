@@ -22,11 +22,12 @@ var DrawingBoard = function(selector, opts) {
 	this.initControls();
 };
 
-DrawingBoard.prototype.reset = function() {
+DrawingBoard.prototype.reset = function(color) {
+	color = color || "#ffffff";
 	this.ctx.lineCap = "round";
 	this.ctx.lineJoin = "round";
 	this.ctx.save();
-	this.ctx.fillStyle = '#ffffff';
+	this.ctx.fillStyle = color;
 	this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 	this.ctx.restore();
 };
