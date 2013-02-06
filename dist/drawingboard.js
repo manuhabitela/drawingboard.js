@@ -1,24 +1,22 @@
-/*!
-* Tim (lite)
-*   github.com/premasagar/tim
-*//*
-	A tiny, secure JavaScript micro-templating script.
-*/
-var tim=function(){var e=/{{\s*([a-z0-9_][\\.a-z0-9_]*)\s*}}/gi;return function(f,g){return f.replace(e,function(h,i){for(var c=i.split("."),d=c.length,b=g,a=0;a<d;a++){b=b[c[a]];if(b===void 0)throw"tim: '"+c[a]+"' not found in "+h;if(a===d-1)return b}})}}();
-
 var DrawingBoard = function(selector, opts) {
 	var that = this;
-	var tpl = '<div class="drawing-board-controls"></div><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas>';
+	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas><div class="drawing-board-cursor hidden"></div></div>';
 	this.opts = $.extend({
 		width: 600,
 		height: 600,
-		controls: ['Colors', 'Size', 'Clear', 'History']
+		controls: ['Colors', 'Size', 'Navigation']
 	}, opts);
 	this.selector = selector;
 	this.$el = $(this.selector);
-	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( tim(tpl, this.opts) );
-	this.$canvas = this.$el.find('canvas');
-	this.canvas = this.$canvas.get(0);
+	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( DrawingBoard.Utils.tpl(tpl, this.opts) );
+
+	//mise en cache des éléments jQuery
+	this.dom = {
+		$canvas: this.$el.find('canvas'),
+		$cursor: this.$el.find('.drawing-board-cursor'),
+		$controls: this.$el.find('.drawing-board-controls')
+	};
+	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
 
 	this.reset();
@@ -29,64 +27,51 @@ var DrawingBoard = function(selector, opts) {
 	this.initControls();
 };
 
-DrawingBoard.prototype.reset = function() {
+DrawingBoard.prototype.reset = function(color) {
+	color = color || "#ffffff";
 	this.ctx.lineCap = "round";
 	this.ctx.lineJoin = "round";
 	this.ctx.save();
-	this.ctx.fillStyle = '#ffffff';
+	this.ctx.fillStyle = color;
 	this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 	this.ctx.restore();
-	this.saveLocalStorage();
-};
-
-DrawingBoard.prototype.initControls = function() {
-	for (var i = 0; i < this.opts.controls.length; i++) {
-		if (window['DrawingBoard']['Control'][this.opts.controls[i]]) {
-			var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
-			this.addControl(c);
-		}
-	}
 };
 
 DrawingBoard.prototype.initHistory = function() {
-	this.history = [];
+	this.history = {
+		values: [],
+		position: 0
+	};
+	this.saveHistory();
 };
 
-DrawingBoard.prototype.restoreLocalStorage = function() {
-	if (window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
-		this.restoreImg(localStorage.getItem('drawing-board-image'));
+DrawingBoard.prototype.saveHistory = function () {
+	while (this.history.values.length > 30) {
+		this.history.values.shift();
 	}
+	if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
+		this.history = this.history.values.slice(0, this.history.position+1);
+	} else {
+		this.history.position = this.history.values.length+1;
+	}
+	this.history.values.push(this.getImg());
 };
 
-DrawingBoard.prototype.initDrawEvents = function() {
-	var that = this;
-	this.isDrawing = false;
-	this.inputCoords = { x: null, y: null };
-	this.mouseCoords = { x: null, y: null };
-	this.midInputCoords = this.inputCoords;
+DrawingBoard.prototype._goThroughHistory = function(goForth) {
+	var pos = goForth ? this.history.position+1 : this.history.position-1;
+	if (this.history.values.length && this.history[pos] !== undefined) {
+		this.history.position = pos;
+		this.restoreImg(this.history[this.history.position]);
+	}
+	this.saveLocalStorage();
+};
 
-	this.$canvas.on('mousedown', function(e) {
-		that._onMouseDown(e, that._getMouseCoordinates(e) );
-	});
+DrawingBoard.prototype.goBackInHistory = function() {
+	this._goThroughHistory(false);
+};
 
-	this.$canvas.on('mouseup', function(e) {
-		that._onMouseUp(e, that._getMouseCoordinates(e) );
-	});
-
-	this.$canvas.on('mousemove', function(e) {
-		that._onMouseMove(e, that._getMouseCoordinates(e) );
-	});
-
-	this.$canvas.on('mouseover', function(e) {
-		that.inputCoords = that._getMouseCoordinates(e);
-		if (e.which !== 1)
-			that.isDrawing = false;
-	});
-
-	this.$canvas.on('mouseout', function(e) {
-
-	});
-	webkitRequestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+DrawingBoard.prototype.goForthInHistory = function() {
+	this._goThroughHistory(true);
 };
 
 DrawingBoard.prototype.restoreImg = function(src) {
@@ -98,77 +83,186 @@ DrawingBoard.prototype.restoreImg = function(src) {
 	img.src = src;
 };
 
-DrawingBoard.prototype._getImage = function() {
+DrawingBoard.prototype.getImg = function() {
 	return this.canvas.toDataURL("image/png");
 };
 
-DrawingBoard.prototype.saveHistory = function () {
-	if (this.history === undefined) this.history = [];
-	while (this.history.length > 30) {
-		this.history.shift();
+DrawingBoard.prototype.restoreLocalStorage = function() {
+	if (window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
+		this.restoreImg(localStorage.getItem('drawing-board-image'));
 	}
-	this.history.push(this._getImage());
-};
-
-DrawingBoard.prototype.goBackInHistory = function() {
-	if (this.history.length)
-		this.restoreImg(this.history.pop());
-	this.saveLocalStorage();
 };
 
 DrawingBoard.prototype.saveLocalStorage = function() {
 	if (window.localStorage) {
-		localStorage.setItem('drawing-board-image', this._getImage());
+		localStorage.setItem('drawing-board-image', this.getImg());
 	}
+};
+
+DrawingBoard.prototype.initDrawEvents = function() {
+	var that = this;
+	this.isDrawing = false;
+	this.coords = {};
+	this.coords.old = this.coords.current = this.coords.oldMid = { x: null, y: null };
+
+	this.dom.$canvas.on('mousedown touchstart', function(e) {
+		that._onInputStart(e, that._getInputCoords(e) );
+	});
+
+	this.dom.$canvas.on('mousemove touchmove', function(e) {
+		that._onInputMove(e, that._getInputCoords(e) );
+	});
+
+	this.dom.$canvas.on('mousemove', function(e) {
+
+	});
+
+	this.dom.$canvas.on('mouseup touchend', function(e) {
+		that._onInputStop(e, that._getInputCoords(e) );
+	});
+
+	this.dom.$canvas.on('mouseover', function(e) {
+		that._onMouseOver(e, that._getInputCoords(e) );
+	});
+
+	this.dom.$canvas.on('mouseout', function(e) {
+
+	});
+	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 };
 
 DrawingBoard.prototype.draw = function() {
+	if (this.ctx.lineWidth > 10 && this.dom.$canvas.is(':hover')) {
+		this.dom.$canvas.css('cursor', 'none');
+		this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
+		var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
+		this.dom.$cursor.css({ 'transform': transform, '-webkit-transform': transform, '-ms-transform': transform });
+		this.dom.$cursor.removeClass('drawing-board-utils-hidden');
+	} else {
+		this.dom.$canvas.css('cursor', 'crosshair');
+		this.dom.$cursor.addClass('drawing-board-utils-hidden');
+	}
+
 	if (this.isDrawing) {
+		var currentMid = this._getMidInputCoords(this.coords.current);
 		this.ctx.beginPath();
-		var midPoint = {x: this.inputCoords.x + this.mouseCoords.x>>1, y: this.inputCoords.y + this.mouseCoords.y>>1 };
-		this.ctx.moveTo(midPoint.x, midPoint.y);
-		this.ctx.quadraticCurveTo(this.inputCoords.x, this.inputCoords.y, this.midInputCoords.x, this.midInputCoords.y);
+		this.ctx.moveTo(currentMid.x, currentMid.y);
+		this.ctx.quadraticCurveTo(this.coords.old.x, this.coords.old.y, this.coords.oldMid.x, this.coords.oldMid.y);
 		this.ctx.stroke();
 
-
-		this.inputCoords = this.mouseCoords;
-		this.midInputCoords = midPoint;
+		this.coords.old = this.coords.current;
+		this.coords.oldMid = currentMid;
 	}
 
-	webkitRequestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 };
 
-DrawingBoard.prototype._onMouseDown = function(e, coords) {
-	this.saveHistory();
+DrawingBoard.prototype._onInputStart = function(e, coords) {
+	this.coords.old = coords;
+	this.coords.oldMid = this._getMidInputCoords(coords);
 	this.isDrawing = true;
-	this.inputCoords = coords;
-	this.midInputCoords = {x: this.inputCoords.x + coords.x>>1, y: this.inputCoords.y + coords.y>>1 };
+
+	e.preventDefault();
 };
 
-DrawingBoard.prototype._onMouseMove = function(e, coords) {
-	this.mouseCoords = coords;
+DrawingBoard.prototype._onInputMove = function(e, coords) {
+	this.coords.current = coords;
+
+	e.preventDefault();
 };
 
-DrawingBoard.prototype._onMouseUp = function(e, coords) {
-	if (this.isDrawing) {
+DrawingBoard.prototype._onInputStop = function(e, coords) {
+	if (this.isDrawing && (!e.touches || e.touches.length === 0)) {
 		this.isDrawing = false;
+		this.saveHistory();
 		this.saveLocalStorage();
+
+		e.preventDefault();
 	}
 };
 
-DrawingBoard.prototype._getMouseCoordinates = function(e) {
+DrawingBoard.prototype._onMouseOver = function(e, coords) {
+	this.coords.old = this._getInputCoords(e);
+	this.coords.oldMid = this._getMidInputCoords(this.coords.old);
+	if (e.which !== 1)
+		this.isDrawing = false;
+};
+
+DrawingBoard.prototype._getInputCoords = function(e) {
+	var x, y;
+	if (e.touches && e.touches.length == 1) {
+		x = e.touches[0].pageX;
+		y = e.touches[0].pageY;
+	} else {
+		x = e.pageX;
+		y = e.pageY;
+	}
 	return {
-		x: e.pageX - this.$canvas.offset().left,
-		y: e.pageY - this.$canvas.offset().top
+		x: x - this.dom.$canvas.offset().left,
+		y: y - this.dom.$canvas.offset().top
 	};
 };
 
+DrawingBoard.prototype._getMidInputCoords = function(coords) {
+	return {
+		x: this.coords.old.x + coords.x>>1,
+		y: this.coords.old.y + coords.y>>1
+	};
+};
+
+DrawingBoard.prototype.initControls = function() {
+	for (var i = 0; i < this.opts.controls.length; i++) {
+		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
+		this.addControl(c);
+	}
+};
+
 DrawingBoard.prototype.addControl = function(control) {
-	this.$el.find('.drawing-board-controls').append(control.$el);
+	this.dom.$controls.append(control.$el);
 };
 
 DrawingBoard.Control = {};
+DrawingBoard.Utils = {};
 
+/*!
+* Tim (lite)
+*   github.com/premasagar/tim
+*//*
+	A tiny, secure JavaScript micro-templating script.
+*/
+DrawingBoard.Utils.tpl = (function(){
+    "use strict";
+
+    var start   = "{{",
+        end     = "}}",
+        path    = "[a-z0-9_][\\.a-z0-9_]*", // e.g. config.person.name
+        pattern = new RegExp(start + "\\s*("+ path +")\\s*" + end, "gi"),
+        undef;
+    
+    return function(template, data){
+        // Merge data into the template string
+        return template.replace(pattern, function(tag, token){
+            var path = token.split("."),
+                len = path.length,
+                lookup = data,
+                i = 0;
+
+            for (; i < len; i++){
+                lookup = lookup[path[i]];
+                
+                // Property not found
+                if (lookup === undef){
+                    throw "tim: '" + path[i] + "' not found in " + tag;
+                }
+                
+                // Return the required value
+                if (i === len - 1){
+                    return lookup;
+                }
+            }
+        });
+    };
+}());
 DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 	this.board = drawingBoard;
 	this.opts = $.extend({
@@ -189,7 +283,14 @@ DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 	this.$el = $(this.el);
 	this.$el.on('click', '.drawing-board-control-colors-picker', function(e) {
 		that.board.ctx.strokeStyle = $(this).attr('data-color');
-		that.$el.find('.drawing-board-control-colors-current').css('background-color', $(this).attr('data-color'));
+		that.$el.find('.drawing-board-control-colors-current')
+			.css('background-color', $(this).attr('data-color'))
+			.attr('data-color', $(this).attr('data-color'));
+		e.preventDefault();
+	});
+
+	this.$el.on('click', '.drawing-board-control-colors-current', function(e) {
+		that.board.reset($(this).attr('data-color'));
 		e.preventDefault();
 	});
 };
@@ -239,9 +340,9 @@ DrawingBoard.Control.Colors.prototype = {
 		if (l == 0.75)
 			additionalColor = this.rgba(255, 255, 255, 1);
 		if (additionalColor !== null)
-			this.el += tim(oneColorTpl, {color: additionalColor.toString() });
+			this.el += DrawingBoard.Utils.tpl(oneColorTpl, {color: additionalColor.toString() });
 		while (i <= 330) {
-			this.el += tim(oneColorTpl, {color: this.hsl2Rgba(this.hsl(i-60, 1, l)).toString() });
+			this.el += DrawingBoard.Utils.tpl(oneColorTpl, {color: this.hsl2Rgba(this.hsl(i-60, 1, l)).toString() });
 			i+=30;
 		}
 		this.el += '</div>';
@@ -272,7 +373,7 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 
 	if (this.opts.forwardButton) {
 		this.$el.on('click', '.drawing-board-control-navigation-forward', function(e) {
-			//that.board.goForwardInHistory();
+			that.board.goForthInHistory();
 			e.preventDefault();
 		});
 	}
@@ -280,6 +381,8 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	if (this.opts.resetButton) {
 		this.$el.on('click', '.drawing-board-control-navigation-reset', function(e) {
 			that.board.reset();
+			that.board.saveLocalStorage();
+			that.board.saveHistory();
 			e.preventDefault();
 		});
 	}
