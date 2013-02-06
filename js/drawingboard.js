@@ -38,21 +38,40 @@ DrawingBoard.prototype.reset = function(color) {
 };
 
 DrawingBoard.prototype.initHistory = function() {
-	this.history = [];
+	this.history = {
+		values: [],
+		position: 0
+	};
+	this.saveHistory();
 };
 
 DrawingBoard.prototype.saveHistory = function () {
-	if (this.history === undefined) this.history = [];
-	while (this.history.length > 30) {
-		this.history.shift();
+	while (this.history.values.length > 30) {
+		this.history.values.shift();
 	}
-	this.history.push(this.getImg());
+	if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
+		this.history = this.history.values.slice(0, this.history.position+1);
+	} else {
+		this.history.position = this.history.values.length+1;
+	}
+	this.history.values.push(this.getImg());
+};
+
+DrawingBoard.prototype._goThroughHistory = function(goForth) {
+	var pos = goForth ? this.history.position+1 : this.history.position-1;
+	if (this.history.values.length && this.history[pos] !== undefined) {
+		this.history.position = pos;
+		this.restoreImg(this.history[this.history.position]);
+	}
+	this.saveLocalStorage();
 };
 
 DrawingBoard.prototype.goBackInHistory = function() {
-	if (this.history.length)
-		this.restoreImg(this.history.pop());
-	this.saveLocalStorage();
+	this._goThroughHistory(false);
+};
+
+DrawingBoard.prototype.goForthInHistory = function() {
+	this._goThroughHistory(true);
 };
 
 DrawingBoard.prototype.restoreImg = function(src) {

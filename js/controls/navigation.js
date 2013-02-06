@@ -23,7 +23,7 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 
 	if (this.opts.forwardButton) {
 		this.$el.on('click', '.drawing-board-control-navigation-forward', function(e) {
-			//that.board.goForwardInHistory();
+			that.board.goForthInHistory();
 			e.preventDefault();
 		});
 	}
@@ -32,6 +32,7 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 		this.$el.on('click', '.drawing-board-control-navigation-reset', function(e) {
 			that.board.reset();
 			that.board.saveLocalStorage();
+			that.board.saveHistory();
 			e.preventDefault();
 		});
 	}
