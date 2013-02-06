@@ -10,8 +10,13 @@ var DrawingBoard = function(selector, opts) {
 	this.$el = $(this.selector);
 	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( DrawingBoard.Utils.tpl(tpl, this.opts) );
 
-	this.$canvas = this.$el.find('canvas');
-	this.canvas = this.$canvas.get(0);
+	//mise en cache des éléments jQuery
+	this.dom = {
+		$canvas: this.$el.find('canvas'),
+		$cursor: this.$el.find('.drawing-board-cursor'),
+		$controls: this.$el.find('.drawing-board-controls')
+	};
+	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
 
 	this.reset();
@@ -81,23 +86,27 @@ DrawingBoard.prototype.initDrawEvents = function() {
 	this.coords = {};
 	this.coords.old = this.coords.current = this.coords.oldMid = { x: null, y: null };
 
-	this.$canvas.on('mousedown', function(e) {
-		that._onMouseDown(e, that._getInputCoords(e) );
+	this.dom.$canvas.on('mousedown touchstart', function(e) {
+		that._onInputStart(e, that._getInputCoords(e) );
 	});
 
-	this.$canvas.on('mouseup', function(e) {
-		that._onMouseUp(e, that._getInputCoords(e) );
+	this.dom.$canvas.on('mousemove touchmove', function(e) {
+		that._onInputMove(e, that._getInputCoords(e) );
 	});
 
-	this.$canvas.on('mousemove', function(e) {
-		that._onMouseMove(e, that._getInputCoords(e) );
+	this.dom.$canvas.on('mousemove', function(e) {
+
 	});
 
-	this.$canvas.on('mouseover', function(e) {
+	this.dom.$canvas.on('mouseup touchend', function(e) {
+		that._onInputStop(e, that._getInputCoords(e) );
+	});
+
+	this.dom.$canvas.on('mouseover', function(e) {
 		that._onMouseOver(e, that._getInputCoords(e) );
 	});
 
-	this.$canvas.on('mouseout', function(e) {
+	this.dom.$canvas.on('mouseout', function(e) {
 
 	});
 	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
@@ -118,21 +127,27 @@ DrawingBoard.prototype.draw = function() {
 	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 };
 
-DrawingBoard.prototype._onMouseDown = function(e, coords) {
-	this.saveHistory();
+DrawingBoard.prototype._onInputStart = function(e, coords) {
 	this.coords.old = coords;
 	this.coords.oldMid = this._getMidInputCoords(coords);
 	this.isDrawing = true;
+
+	e.preventDefault();
 };
 
-DrawingBoard.prototype._onMouseMove = function(e, coords) {
+DrawingBoard.prototype._onInputMove = function(e, coords) {
 	this.coords.current = coords;
+
+	e.preventDefault();
 };
 
-DrawingBoard.prototype._onMouseUp = function(e, coords) {
-	if (this.isDrawing) {
+DrawingBoard.prototype._onInputStop = function(e, coords) {
+	if (this.isDrawing && (!e.touches || e.touches.length === 0)) {
 		this.isDrawing = false;
+		this.saveHistory();
 		this.saveLocalStorage();
+
+		e.preventDefault();
 	}
 };
 
@@ -144,9 +159,17 @@ DrawingBoard.prototype._onMouseOver = function(e, coords) {
 };
 
 DrawingBoard.prototype._getInputCoords = function(e) {
+	var x, y;
+	if (e.touches && e.touches.length == 1) {
+		x = e.touches[0].pageX;
+		y = e.touches[0].pageY;
+	} else {
+		x = e.pageX;
+		y = e.pageY;
+	}
 	return {
-		x: e.pageX - this.$canvas.offset().left,
-		y: e.pageY - this.$canvas.offset().top
+		x: x - this.dom.$canvas.offset().left,
+		y: y - this.dom.$canvas.offset().top
 	};
 };
 
@@ -165,7 +188,7 @@ DrawingBoard.prototype.initControls = function() {
 };
 
 DrawingBoard.prototype.addControl = function(control) {
-	this.$el.find('.drawing-board-controls').append(control.$el);
+	this.dom.$controls.append(control.$el);
 };
 
 DrawingBoard.Control = {};
