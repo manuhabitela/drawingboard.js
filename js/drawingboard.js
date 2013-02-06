@@ -78,7 +78,8 @@ DrawingBoard.prototype.saveLocalStorage = function() {
 DrawingBoard.prototype.initDrawEvents = function() {
 	var that = this;
 	this.isDrawing = false;
-	this.oldInputCoords = this.inputCoords = this.oldInputCoords = { x: null, y: null };
+	this.coords = {};
+	this.coords.old = this.coords.current = this.coords.oldMid = { x: null, y: null };
 
 	this.$canvas.on('mousedown', function(e) {
 		that._onMouseDown(e, that._getInputCoords(e) );
@@ -104,14 +105,14 @@ DrawingBoard.prototype.initDrawEvents = function() {
 
 DrawingBoard.prototype.draw = function() {
 	if (this.isDrawing) {
+		var currentMid = this._getMidInputCoords(this.coords.current);
 		this.ctx.beginPath();
-		var midPoint = this._getMidInputCoords(this.inputCoords);
-		this.ctx.moveTo(midPoint.x, midPoint.y);
-		this.ctx.quadraticCurveTo(this.oldInputCoords.x, this.oldInputCoords.y, this.midInputCoords.x, this.midInputCoords.y);
+		this.ctx.moveTo(currentMid.x, currentMid.y);
+		this.ctx.quadraticCurveTo(this.coords.old.x, this.coords.old.y, this.coords.oldMid.x, this.coords.oldMid.y);
 		this.ctx.stroke();
 
-		this.oldInputCoords = this.inputCoords;
-		this.midInputCoords = midPoint;
+		this.coords.old = this.coords.current;
+		this.coords.oldMid = currentMid;
 	}
 
 	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
@@ -119,13 +120,13 @@ DrawingBoard.prototype.draw = function() {
 
 DrawingBoard.prototype._onMouseDown = function(e, coords) {
 	this.saveHistory();
+	this.coords.old = coords;
+	this.coords.oldMid = this._getMidInputCoords(coords);
 	this.isDrawing = true;
-	this.oldInputCoords = coords;
-	this.midInputCoords = this._getMidInputCoords(coords);
 };
 
 DrawingBoard.prototype._onMouseMove = function(e, coords) {
-	this.inputCoords = coords;
+	this.coords.current = coords;
 };
 
 DrawingBoard.prototype._onMouseUp = function(e, coords) {
@@ -136,8 +137,8 @@ DrawingBoard.prototype._onMouseUp = function(e, coords) {
 };
 
 DrawingBoard.prototype._onMouseOver = function(e, coords) {
-	this.oldInputCoords = this._getInputCoords(e);
-	this.midInputCoords = this._getMidInputCoords(this.oldInputCoords);
+	this.coords.old = this._getInputCoords(e);
+	this.coords.oldMid = this._getMidInputCoords(this.coords.old);
 	if (e.which !== 1)
 		this.isDrawing = false;
 };
@@ -151,8 +152,8 @@ DrawingBoard.prototype._getInputCoords = function(e) {
 
 DrawingBoard.prototype._getMidInputCoords = function(coords) {
 	return {
-		x: this.oldInputCoords.x + coords.x>>1,
-		y: this.oldInputCoords.y + coords.y>>1
+		x: this.coords.old.x + coords.x>>1,
+		y: this.coords.old.y + coords.y>>1
 	};
 };
 
