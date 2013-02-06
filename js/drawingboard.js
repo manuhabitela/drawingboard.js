@@ -1,6 +1,6 @@
 var DrawingBoard = function(selector, opts) {
 	var that = this;
-	var tpl = '<div class="drawing-board-controls"></div><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas>';
+	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas><div class="drawing-board-cursor hidden"></div></div>';
 	this.opts = $.extend({
 		width: 600,
 		height: 600,
@@ -113,6 +113,17 @@ DrawingBoard.prototype.initDrawEvents = function() {
 };
 
 DrawingBoard.prototype.draw = function() {
+	if (this.ctx.lineWidth > 10 && this.dom.$canvas.is(':hover')) {
+		this.dom.$canvas.css('cursor', 'none');
+		this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
+		var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
+		this.dom.$cursor.css({ 'transform': transform, '-webkit-transform': transform, '-ms-transform': transform });
+		this.dom.$cursor.removeClass('drawing-board-utils-hidden');
+	} else {
+		this.dom.$canvas.css('cursor', 'crosshair');
+		this.dom.$cursor.addClass('drawing-board-utils-hidden');
+	}
+
 	if (this.isDrawing) {
 		var currentMid = this._getMidInputCoords(this.coords.current);
 		this.ctx.beginPath();

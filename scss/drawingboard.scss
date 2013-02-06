@@ -1,12 +1,31 @@
+.drawing-board-utils-hidden {
+	display: none;
+}
+
 .drawing-board {
 	position: relative;
 	display: block;
 	margin: 0 auto;
 }
 
-.drawing-board-canvas {
+.drawing-board-canvas-wrapper {
+	position: relative;
 	margin: 10px 0;
+}
+
+.drawing-board-canvas {
 	border: 1px solid #ddd;
+	cursor: crosshair;
+}
+
+.drawing-board-controls:before,
+.drawing-board-controls:after {
+    content: " ";
+    display: table;
+}
+
+.drawing-board-controls:after {
+    clear: both;
 }
 
 .drawing-board-control {
@@ -15,6 +34,16 @@
 
 .drawing-board-control button {
 	cursor: pointer;
+}
+
+.drawing-board-cursor {
+	position: absolute;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+	border-radius: 50%;
+	background: #ccc;
+	background: rgba(#000, 0.2);
 }
 
 @import "controls/colors";
