@@ -50,7 +50,8 @@ DrawingBoard.prototype.saveHistory = function () {
 		this.history.values.shift();
 	}
 	if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
-		this.history = this.history.values.slice(0, this.history.position+1);
+		this.history.values = this.history.values.slice(0, this.history.position);
+		this.history.position++;
 	} else {
 		this.history.position = this.history.values.length+1;
 	}
@@ -59,9 +60,9 @@ DrawingBoard.prototype.saveHistory = function () {
 
 DrawingBoard.prototype._goThroughHistory = function(goForth) {
 	var pos = goForth ? this.history.position+1 : this.history.position-1;
-	if (this.history.values.length && this.history[pos] !== undefined) {
+	if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 		this.history.position = pos;
-		this.restoreImg(this.history[this.history.position]);
+		this.restoreImg(this.history.values[this.history.position-1]);
 	}
 	this.saveLocalStorage();
 };
