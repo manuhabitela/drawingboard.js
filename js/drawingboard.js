@@ -19,7 +19,7 @@ var DrawingBoard = function(selector, opts) {
 	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
 
-	this.reset();
+	this.reset({ history: false, localStorage: false });
 
 	this.initHistory();
 	this.restoreLocalStorage();
@@ -27,14 +27,22 @@ var DrawingBoard = function(selector, opts) {
 	this.initControls();
 };
 
-DrawingBoard.prototype.reset = function(color) {
-	color = color || "#ffffff";
+DrawingBoard.prototype.reset = function(opts) {
+	opts = $.extend({
+		color: "#ffffff",
+		history: true,
+		localStorage: true
+	}, opts);
+	
 	this.ctx.lineCap = "round";
 	this.ctx.lineJoin = "round";
 	this.ctx.save();
-	this.ctx.fillStyle = color;
+	this.ctx.fillStyle = opts.color;
 	this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 	this.ctx.restore();
+
+	if (opts.history) this.saveHistory();
+	if (opts.localStorage) this.saveLocalStorage();
 };
 
 DrawingBoard.prototype.initHistory = function() {

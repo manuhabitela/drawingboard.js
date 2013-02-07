@@ -1,7 +1,7 @@
 DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 	this.board = drawingBoard;
 	this.opts = $.extend({
-		defaultColor: "rgba(255, 191, 127, 1)"
+		defaultColor: "rgba(0, 0, 0, 1)"
 	}, opts);
 
 	this.board.ctx.strokeStyle = this.opts.defaultColor;
@@ -25,7 +25,7 @@ DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 	});
 
 	this.$el.on('click', '.drawing-board-control-colors-current', function(e) {
-		that.board.reset($(this).attr('data-color'));
+		that.board.reset({ color: $(this).attr('data-color') });
 		e.preventDefault();
 	});
 };
