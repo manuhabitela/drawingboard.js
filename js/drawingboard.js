@@ -8,7 +8,7 @@ var DrawingBoard = function(selector, opts) {
 	}, opts);
 	this.selector = selector;
 	this.$el = $(this.selector);
-	this.$el.addClass('drawing-board').css({ width: this.opts.width + 'px', height: this.opts.height + 'px'}).append( DrawingBoard.Utils.tpl(tpl, this.opts) );
+	this.$el.addClass('drawing-board').css({ width: this.opts.width+2 + 'px', height: this.opts.height+2 + 'px'}).append( DrawingBoard.Utils.tpl(tpl, this.opts) );
 
 	//mise en cache des éléments jQuery
 	this.dom = {
