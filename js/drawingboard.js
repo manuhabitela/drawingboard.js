@@ -4,7 +4,8 @@ var DrawingBoard = function(selector, opts) {
 	this.opts = $.extend({
 		width: 600,
 		height: 600,
-		controls: ['Colors', 'Size', 'Navigation']
+		controls: ['Colors', 'Size', 'Navigation'],
+		defaultBgColor: "#ffffff"
 	}, opts);
 	this.selector = selector;
 	this.$el = $(this.selector);
@@ -29,11 +30,11 @@ var DrawingBoard = function(selector, opts) {
 
 DrawingBoard.prototype.reset = function(opts) {
 	opts = $.extend({
-		color: "#ffffff",
+		color: this.opts.defaultBgColor,
 		history: true,
 		localStorage: true
 	}, opts);
-	
+
 	this.ctx.lineCap = "round";
 	this.ctx.lineJoin = "round";
 	this.ctx.save();
