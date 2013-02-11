@@ -116,7 +116,7 @@ DrawingBoard.prototype.initDrawEvents = function() {
 	var that = this;
 	this.isDrawing = false;
 	this.coords = {};
-	this.coords.old = this.coords.current = this.coords.oldMid = { x: null, y: null };
+	this.coords.old = this.coords.current = this.coords.oldMid = { x: 0, y: 0 };
 
 	this.dom.$canvas.on('mousedown touchstart', function(e) {
 		that._onInputStart(e, that._getInputCoords(e) );
@@ -171,7 +171,7 @@ DrawingBoard.prototype.draw = function() {
 };
 
 DrawingBoard.prototype._onInputStart = function(e, coords) {
-	this.coords.old = coords;
+	this.coords.current = this.coords.old = coords;
 	this.coords.oldMid = this._getMidInputCoords(coords);
 	this.isDrawing = true;
 
