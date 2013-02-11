@@ -67,6 +67,9 @@ DrawingBoard.prototype.saveHistory = function () {
 };
 
 DrawingBoard.prototype._goThroughHistory = function(goForth) {
+	if ((goForth && this.history.position == this.history.values.length) ||
+		(!goForth && this.history.position == 1))
+		return;
 	var pos = goForth ? this.history.position+1 : this.history.position-1;
 	if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 		this.history.position = pos;
