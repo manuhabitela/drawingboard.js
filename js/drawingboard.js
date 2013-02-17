@@ -3,7 +3,8 @@ var DrawingBoard = function(id, opts) {
 	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
 	this.opts = $.extend({
 		controls: ['Colors', 'Size', 'Navigation'],
-		defaultBgColor: "#ffffff"
+		defaultBgColor: "#ffffff",
+		localStorage: true
 	}, opts);
 	this.$el = $(document.getElementById(id));
 	if (!this.$el.length)
@@ -106,13 +107,13 @@ DrawingBoard.prototype.getImg = function() {
 };
 
 DrawingBoard.prototype.restoreLocalStorage = function() {
-	if (window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
+	if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
 		this.restoreImg(localStorage.getItem('drawing-board-image'));
 	}
 };
 
 DrawingBoard.prototype.saveLocalStorage = function() {
-	if (window.localStorage) {
+	if (this.opts.localStorage && window.localStorage) {
 		localStorage.setItem('drawing-board-image', this.getImg());
 	}
 };
