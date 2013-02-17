@@ -30,8 +30,8 @@ var DrawingBoard = function(id, opts) {
 };
 
 DrawingBoard.prototype._updateSize = function() {
-	this.canvas.width = this.$el.width();
-	this.canvas.height = this.$el.height() - this.dom.$controls.height();
+	this.canvas.width = this.$el.width() - 2;
+	this.canvas.height = this.$el.height() - this.dom.$controls.height() - 12;
 };
 
 DrawingBoard.prototype.reset = function(opts) {
