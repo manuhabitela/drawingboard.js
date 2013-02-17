@@ -1,17 +1,14 @@
 var DrawingBoard = function(id, opts) {
 	var that = this;
-	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas><div class="drawing-board-cursor hidden"></div></div>';
+	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
 	this.opts = $.extend({
-		width: 600,
-		height: 600,
 		controls: ['Colors', 'Size', 'Navigation'],
 		defaultBgColor: "#ffffff"
 	}, opts);
-	this.$el.addClass('drawing-board').css({ width: this.opts.width+2 + 'px', height: this.opts.height+2 + 'px'}).append( DrawingBoard.Utils.tpl(tpl, this.opts) );
-
 	this.$el = $(document.getElementById(id));
 	if (!this.$el.length)
 		return false;
+	this.$el.addClass('drawing-board').append( DrawingBoard.Utils.tpl(tpl, this.opts) );
 	this.dom = {
 		$canvas: this.$el.find('canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
@@ -20,12 +17,20 @@ var DrawingBoard = function(id, opts) {
 	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
 
+	this.initControls();
 	this.reset({ history: false, localStorage: false });
-
 	this.initHistory();
 	this.restoreLocalStorage();
 	this.initDrawEvents();
-	this.initControls();
+
+	$(window).on('resize', function(e) {
+		that._updateSize();
+	});
+};
+
+DrawingBoard.prototype._updateSize = function() {
+	this.canvas.width = this.$el.width();
+	this.canvas.height = this.$el.height() - this.dom.$controls.height();
 };
 
 DrawingBoard.prototype.reset = function(opts) {
@@ -34,7 +39,7 @@ DrawingBoard.prototype.reset = function(opts) {
 		history: true,
 		localStorage: true
 	}, opts);
-
+	this._updateSize();
 	this.ctx.lineCap = "round";
 	this.ctx.lineJoin = "round";
 	this.ctx.save();
