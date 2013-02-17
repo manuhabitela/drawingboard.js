@@ -19,7 +19,7 @@
 
 		<noscript>JavaScript requis :(</noscript>
 
-		<div class="drawing-board"></div>
+		<div id="container"></div>
 
 		<script>document.write('<script src=../lib/' + ('__proto__' in {} ? 'zepto' : 'jquery') + '.min.js><\/script>')</script>
 		<script src="../lib/rAF.js"></script>
@@ -30,7 +30,7 @@
 		<script src="../js/controls/size.js"></script>
 		<script>
 		(function() {
-			daboard = new DrawingBoard('.drawing-board');
+			daboard = new DrawingBoard('container');
 		})();</script>
 		<!--<script>
 			var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];

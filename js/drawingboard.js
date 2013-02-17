@@ -1,4 +1,4 @@
-var DrawingBoard = function(selector, opts) {
+var DrawingBoard = function(id, opts) {
 	var that = this;
 	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas" width={{width}} height={{height}}></canvas><div class="drawing-board-cursor hidden"></div></div>';
 	this.opts = $.extend({
@@ -7,11 +7,11 @@ var DrawingBoard = function(selector, opts) {
 		controls: ['Colors', 'Size', 'Navigation'],
 		defaultBgColor: "#ffffff"
 	}, opts);
-	this.selector = selector;
-	this.$el = $(this.selector);
 	this.$el.addClass('drawing-board').css({ width: this.opts.width+2 + 'px', height: this.opts.height+2 + 'px'}).append( DrawingBoard.Utils.tpl(tpl, this.opts) );
 
-	//mise en cache des éléments jQuery
+	this.$el = $(document.getElementById(id));
+	if (!this.$el.length)
+		return false;
 	this.dom = {
 		$canvas: this.$el.find('canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
