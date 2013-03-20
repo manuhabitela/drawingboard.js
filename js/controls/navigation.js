@@ -1,5 +1,5 @@
 DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
-	this.board = drawingBoard;
+	this.board = drawingBoard || null;
 	this.opts = $.extend({
 		backButton: true,
 		forwardButton: true,

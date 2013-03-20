@@ -1,5 +1,5 @@
 DrawingBoard.Control.Size = function(drawingBoard) {
-	this.board = drawingBoard;
+	this.board = drawingBoard || null;
 	var that = this;
 	var tpl = '<div class="drawing-board-control drawing-board-control-size" title="Taille du pinceau : 10">' +
 		'<input type="range" min="1" max="50" value="10" class="drawing-board-control-size-input">' +

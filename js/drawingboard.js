@@ -256,6 +256,8 @@ DrawingBoard.prototype.initControls = function() {
 };
 
 DrawingBoard.prototype.addControl = function(control) {
+	if (!control.board)
+		control.board = this;
 	this.dom.$controls.append(control.$el);
 };
 
