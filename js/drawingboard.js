@@ -11,6 +11,7 @@ var DrawingBoard = function(id, opts) {
 		return false;
 	this.$el.addClass('drawing-board').append( DrawingBoard.Utils.tpl(tpl, this.opts) );
 	this.dom = {
+		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
 		$canvas: this.$el.find('canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
@@ -23,15 +24,6 @@ var DrawingBoard = function(id, opts) {
 	this.initHistory();
 	this.restoreLocalStorage();
 	this.initDrawEvents();
-
-	$(window).on('resize', function(e) {
-		that._updateSize();
-	});
-};
-
-DrawingBoard.prototype._updateSize = function() {
-	this.canvas.width = this.$el.width() - 2;
-	this.canvas.height = this.$el.height() - this.dom.$controls.height() - 12;
 };
 
 DrawingBoard.prototype.reset = function(opts) {
@@ -40,7 +32,20 @@ DrawingBoard.prototype.reset = function(opts) {
 		history: true,
 		localStorage: true
 	}, opts);
-	this._updateSize();
+	//I know.
+	var width = this.$el.width()
+		- DrawingBoard.Utils.elementBorderWidth(this.$el)
+		- DrawingBoard.Utils.elementBorderWidth(this.dom.$canvasWrapper, true, true);
+	var height = this.$el.height()
+		- DrawingBoard.Utils.elementBorderHeight(this.$el)
+		- this.dom.$controls.height()
+		- DrawingBoard.Utils.elementBorderHeight(this.dom.$controls, false, true)
+		- parseInt(this.dom.$controls.css('margin-bottom').replace('px', ''), 10)
+		- DrawingBoard.Utils.elementBorderHeight(this.dom.$canvasWrapper);
+	this.dom.$canvasWrapper.css('width', width + 'px');
+	this.dom.$canvasWrapper.css('height', height + 'px');
+	this.canvas.width = width;
+	this.canvas.height = height;
 	this.ctx.lineCap = "round";
 	this.ctx.lineJoin = "round";
 	this.ctx.save();
