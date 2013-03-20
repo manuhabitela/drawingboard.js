@@ -8,9 +8,9 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 
 	var that = this;
 	var el = '<div class="drawing-board-control drawing-board-control-navigation">';
-	if (this.opts.backButton) el += '<button class="drawing-board-control-navigation-back" title="Annuler la dernière action">&larr;</button>';
-	if (this.opts.forwardButton) el += '<button class="drawing-board-control-navigation-forward" title="Recommencer la dernière action">&rarr;</button>';
-	if (this.opts.resetButton) el += '<button class="drawing-board-control-navigation-reset" title="Effacer tout">×</button>';
+	if (this.opts.backButton) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
+	if (this.opts.forwardButton) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
+	if (this.opts.resetButton) el += '<button class="drawing-board-control-navigation-reset">×</button>';
 	el += '</div>';
 	this.$el = $(el);
 
