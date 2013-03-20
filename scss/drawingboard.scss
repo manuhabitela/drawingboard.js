@@ -59,9 +59,9 @@
 	border-collapse: separate;
 	vertical-align: top;
 	font-size: 16px;
-}
+} 
 
-.drawing-board-control button {
+.drawing-board-control > button {
 	@extend %btn;
 }
 

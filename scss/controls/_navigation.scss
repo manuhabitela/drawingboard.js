@@ -2,6 +2,10 @@
 	
 }
 
-.drawing-board-control-navigation button {
+.drawing-board-control-navigation > button {
 	font-weight: bold;
+	margin-right: 3px;
+	&:last-child {
+		margin-right: 0;
+	}
 }

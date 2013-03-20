@@ -1,6 +1,5 @@
 module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-mincss');
-	grunt.loadNpmTasks('grunt-contrib-watch');
 
 	grunt.initConfig({
 		concat: {
@@ -20,16 +19,6 @@ module.exports = function(grunt) {
 				files: {
 					'dist/drawingboard.min.css': ['css/drawingboard.css']
 				}
-			}
-		},
-		watch: {
-			scripts: {
-				files: ['lib/*.js', 'js/**/*.js'],
-				tasks: ['concat']
-			},
-			css: {
-				files: ['css/*.css'],
-				tasks: ['mincss']
 			}
 		}
 	});

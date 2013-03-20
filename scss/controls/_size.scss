@@ -5,10 +5,11 @@
 	@extend %box;
 	position: relative;
 	height: 44px;
+	width: 100px;
 }
 
 .drawing-board-control-size-input {
-	width: 100px;
+	width: 100%;
 }
 
 .drawing-board-control-size-label {

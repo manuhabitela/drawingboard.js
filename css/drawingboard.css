@@ -1,8 +1,8 @@
-.drawing-board-control button, .drawing-board-control-size { overflow: hidden; border: none; background-color: #eee; padding: 4px 8px; border: 1px solid #cccccc; box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); -webkit-box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); font-size: 1.5em; line-height: 1.5em; height: 54px; }
+.drawing-board-control > button, .drawing-board-control-size .drawing-board-control-inner { overflow: hidden; border: none; background-color: #eee; padding: 4px 8px; border: 1px solid #cccccc; box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); -webkit-box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); font-size: 1.5em; line-height: 1.5em; height: 54px; }
 
-.drawing-board-control button { cursor: pointer; }
-.drawing-board-control button:hover { background-color: #ddd; }
-.drawing-board-control button:active { box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); -webkit-box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); background-color: #ddd; }
+.drawing-board-control > button { cursor: pointer; }
+.drawing-board-control > button:hover { background-color: #ddd; }
+.drawing-board-control > button:active { box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); -webkit-box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); background-color: #ddd; }
 
 .drawing-board-utils-hidden { display: none; }
 
@@ -34,10 +34,11 @@
 
 .drawing-board-control-colors-picker:hover { width: 16px; height: 16px; border: 1px solid #555555; }
 
-.drawing-board-control-navigation button { font-weight: bold; }
+.drawing-board-control-navigation > button { font-weight: bold; margin-right: 3px; }
+.drawing-board-control-navigation > button:last-child { margin-right: 0; }
 
-.drawing-board-control-size { position: relative; height: 44px; }
+.drawing-board-control-size .drawing-board-control-inner { position: relative; height: 44px; width: 100px; }
 
-.drawing-board-control-size-input { width: 100px; }
+.drawing-board-control-size-input { width: 100%; }
 
 .drawing-board-control-size-label { background: #333; display: inline-block; position: absolute; bottom: 4px; left: 8px; opacity: .2; pointer-events: none; z-index: 10; }
