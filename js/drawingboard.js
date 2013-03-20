@@ -139,6 +139,7 @@ DrawingBoard.prototype.saveLocalStorage = function() {
 DrawingBoard.prototype.initDrawEvents = function() {
 	var that = this;
 	this.isDrawing = false;
+	this.isMouseHovering = false;
 	this.coords = {};
 	this.coords.old = this.coords.current = this.coords.oldMid = { x: 0, y: 0 };
 
@@ -163,13 +164,14 @@ DrawingBoard.prototype.initDrawEvents = function() {
 	});
 
 	this.dom.$canvas.on('mouseout', function(e) {
+		that._onMouseOut(e, that._getInputCoords(e) );
 
 	});
 	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 };
 
 DrawingBoard.prototype.draw = function() {
-	if (this.ctx.lineWidth > 10 && this.dom.$canvas.is(':hover')) {
+	if (this.ctx.lineWidth > 10 && this.isMouseHovering) {
 		this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
 		var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
 		this.dom.$cursor.css({ 'transform': transform, '-webkit-transform': transform, '-ms-transform': transform });
@@ -218,10 +220,15 @@ DrawingBoard.prototype._onInputStop = function(e, coords) {
 };
 
 DrawingBoard.prototype._onMouseOver = function(e, coords) {
+	this.isMouseHovering = true;
 	this.coords.old = this._getInputCoords(e);
 	this.coords.oldMid = this._getMidInputCoords(this.coords.old);
 	if (e.which !== 1)
 		this.isDrawing = false;
+};
+
+DrawingBoard.prototype._onMouseOut = function(e, coords) {
+	this.isMouseHovering = false;
 };
 
 DrawingBoard.prototype._getInputCoords = function(e) {
