@@ -12,11 +12,20 @@
 
 		<link rel="stylesheet" href="../css/drawingboard.css">
 		<style>
-		#container {
+		html, body, #container {
 			margin: 0;
-			width: 500px;
-			height: 500px;
-		}</style>
+			padding: 0;
+		}
+		body {
+			background: #dedede;
+		}
+		#container {
+			margin: 10px auto;
+			max-width: 100%;
+			width: 700px;
+			height: 600px;
+		}
+		</style>
 	</head>
 	<body>
 		<!--[if lte IE 7]>
@@ -27,22 +36,28 @@
 
 		<div id="container"></div>
 
-		<script>document.write('<script src=../lib/' + ('__proto__' in {} ? 'zepto' : 'jquery') + '.min.js><\/script>')</script>
+		
+		<script src="../lib/jquery.min.js"></script>
 		<script src="../lib/rAF.js"></script>
+
 		<script src="../js/drawingboard.js"></script>
 		<script src="../js/utils.js"></script>
 		<script src="../js/controls/colors.js"></script>
 		<script src="../js/controls/navigation.js"></script>
 		<script src="../js/controls/size.js"></script>
+		<script src="../js/controls/download.js"></script>
 		<script>
-		(function() {
-			daboard = new DrawingBoard('container');
-		})();</script>
-		<!--<script>
-			var _gaq=[['_setAccount','UA-XXXXX-X'],['_trackPageview']];
+			daBoard = new DrawingBoard('container');
+			daBoard.addControl( new DrawingBoard.Control.Download() );
+		</script>
+
+
+
+		<script>
+			var _gaq=[['_setAccount','UA-13184829-2'],['_trackPageview']];
 			(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
 			g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
 			s.parentNode.insertBefore(g,s)}(document,'script'));
-		</script>-->
+		</script>
 	</body>
 </html>
