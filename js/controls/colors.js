@@ -6,7 +6,7 @@ DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 
 	this.board.ctx.strokeStyle = this.opts.defaultColor;
 	this.el = '<div class="drawing-board-control drawing-board-control-colors">' +
-		'<div class="drawing-board-control-colors-current" style="background-color: ' + this.board.ctx.strokeStyle + '"></div>' +
+		'<div class="drawing-board-control-colors-current" style="background-color: ' + this.board.ctx.strokeStyle + '" data-color="' + this.board.ctx.strokeStyle + '"></div>' +
 		'<div class="drawing-board-control-colors-rainbows">';
 	var that = this;
 
