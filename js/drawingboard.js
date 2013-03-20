@@ -55,6 +55,13 @@ DrawingBoard.prototype.reset = function(opts) {
 
 	if (opts.history) this.saveHistory();
 	if (opts.localStorage) this.saveLocalStorage();
+	if (this.controls) {
+		for (var i = this.controls.length - 1; i >= 0; i--) {
+			if (typeof this.controls[i].reset == "function") {
+				this.controls[i].reset();
+			}
+		}
+	}
 };
 
 DrawingBoard.prototype.initHistory = function() {
@@ -234,8 +241,10 @@ DrawingBoard.prototype._getMidInputCoords = function(coords) {
 };
 
 DrawingBoard.prototype.initControls = function() {
+	this.controls = [];
 	for (var i = 0; i < this.opts.controls.length; i++) {
 		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
+		this.controls.push(c);
 		this.addControl(c);
 	}
 };
