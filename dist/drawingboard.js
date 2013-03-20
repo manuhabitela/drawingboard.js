@@ -11,6 +11,7 @@ var DrawingBoard = function(id, opts) {
 		return false;
 	this.$el.addClass('drawing-board').append( DrawingBoard.Utils.tpl(tpl, this.opts) );
 	this.dom = {
+		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
 		$canvas: this.$el.find('canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
@@ -23,15 +24,6 @@ var DrawingBoard = function(id, opts) {
 	this.initHistory();
 	this.restoreLocalStorage();
 	this.initDrawEvents();
-
-	$(window).on('resize', function(e) {
-		that._updateSize();
-	});
-};
-
-DrawingBoard.prototype._updateSize = function() {
-	this.canvas.width = this.$el.width();
-	this.canvas.height = this.$el.height() - this.dom.$controls.height();
 };
 
 DrawingBoard.prototype.reset = function(opts) {
@@ -40,7 +32,20 @@ DrawingBoard.prototype.reset = function(opts) {
 		history: true,
 		localStorage: true
 	}, opts);
-	this._updateSize();
+	//I know.
+	var width = this.$el.width()
+		- DrawingBoard.Utils.elementBorderWidth(this.$el)
+		- DrawingBoard.Utils.elementBorderWidth(this.dom.$canvasWrapper, true, true);
+	var height = this.$el.height()
+		- DrawingBoard.Utils.elementBorderHeight(this.$el)
+		- this.dom.$controls.height()
+		- DrawingBoard.Utils.elementBorderHeight(this.dom.$controls, false, true)
+		- parseInt(this.dom.$controls.css('margin-bottom').replace('px', ''), 10)
+		- DrawingBoard.Utils.elementBorderHeight(this.dom.$canvasWrapper);
+	this.dom.$canvasWrapper.css('width', width + 'px');
+	this.dom.$canvasWrapper.css('height', height + 'px');
+	this.canvas.width = width;
+	this.canvas.height = height;
 	this.ctx.lineCap = "round";
 	this.ctx.lineJoin = "round";
 	this.ctx.save();
@@ -50,6 +55,13 @@ DrawingBoard.prototype.reset = function(opts) {
 
 	if (opts.history) this.saveHistory();
 	if (opts.localStorage) this.saveLocalStorage();
+	if (this.controls) {
+		for (var i = this.controls.length - 1; i >= 0; i--) {
+			if (typeof this.controls[i].reset == "function") {
+				this.controls[i].reset();
+			}
+		}
+	}
 };
 
 DrawingBoard.prototype.initHistory = function() {
@@ -104,6 +116,12 @@ DrawingBoard.prototype.restoreImg = function(src) {
 
 DrawingBoard.prototype.getImg = function() {
 	return this.canvas.toDataURL("image/png");
+};
+
+DrawingBoard.prototype.downloadImg = function() {
+	var img = this.getImg();
+	img = img.replace("image/png", "image/octet-stream");
+	window.location.href = img;
 };
 
 DrawingBoard.prototype.restoreLocalStorage = function() {
@@ -229,13 +247,17 @@ DrawingBoard.prototype._getMidInputCoords = function(coords) {
 };
 
 DrawingBoard.prototype.initControls = function() {
+	this.controls = [];
 	for (var i = 0; i < this.opts.controls.length; i++) {
 		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
+		this.controls.push(c);
 		this.addControl(c);
 	}
 };
 
 DrawingBoard.prototype.addControl = function(control) {
+	if (!control.board)
+		control.board = this;
 	this.dom.$controls.append(control.$el);
 };
 
@@ -249,47 +271,75 @@ DrawingBoard.Utils = {};
 	A tiny, secure JavaScript micro-templating script.
 */
 DrawingBoard.Utils.tpl = (function(){
-    "use strict";
+	"use strict";
 
-    var start   = "{{",
-        end     = "}}",
-        path    = "[a-z0-9_][\\.a-z0-9_]*", // e.g. config.person.name
-        pattern = new RegExp(start + "\\s*("+ path +")\\s*" + end, "gi"),
-        undef;
-    
-    return function(template, data){
-        // Merge data into the template string
-        return template.replace(pattern, function(tag, token){
-            var path = token.split("."),
-                len = path.length,
-                lookup = data,
-                i = 0;
+	var start   = "{{",
+		end     = "}}",
+		path    = "[a-z0-9_][\\.a-z0-9_]*", // e.g. config.person.name
+		pattern = new RegExp(start + "\\s*("+ path +")\\s*" + end, "gi"),
+		undef;
 
-            for (; i < len; i++){
-                lookup = lookup[path[i]];
-                
-                // Property not found
-                if (lookup === undef){
-                    throw "tim: '" + path[i] + "' not found in " + tag;
-                }
-                
-                // Return the required value
-                if (i === len - 1){
-                    return lookup;
-                }
-            }
-        });
-    };
+	return function(template, data){
+		// Merge data into the template string
+		return template.replace(pattern, function(tag, token){
+			var path = token.split("."),
+				len = path.length,
+				lookup = data,
+				i = 0;
+
+			for (; i < len; i++){
+				lookup = lookup[path[i]];
+
+				// Property not found
+				if (lookup === undef){
+					throw "tim: '" + path[i] + "' not found in " + tag;
+				}
+
+				// Return the required value
+				if (i === len - 1){
+					return lookup;
+				}
+			}
+		});
+	};
 }());
+
+//I know.
+DrawingBoard.Utils._elementBorderSize = function($el, withPadding, withMargin, direction) {
+	withPadding = !!withPadding || true;
+	withMargin = !!withMargin || false;
+	var width = 0,
+		props;
+	if (direction == "width") {
+		props = ['border-left-width', 'border-right-width'];
+		if (withPadding) props.push('padding-left', 'padding-right');
+		if (withMargin) props.push('margin-left', 'margin-right');
+	} else {
+		props = ['border-top-width', 'border-bottom-width'];
+		if (withPadding) props.push('padding-top', 'padding-bottom');
+		if (withMargin) props.push('margin-top', 'margin-bottom');
+	}
+	for (var i = props.length - 1; i >= 0; i--)
+		width += parseInt($el.css(props[i]).replace('px', ''), 10);
+	return width;
+};
+
+DrawingBoard.Utils.elementBorderWidth = function($el, withPadding, withMargin) {
+	return DrawingBoard.Utils._elementBorderSize($el, withPadding, withMargin, 'width');
+};
+
+DrawingBoard.Utils.elementBorderHeight = function($el, withPadding, withMargin) {
+	return DrawingBoard.Utils._elementBorderSize($el, withPadding, withMargin, 'height');
+};
 DrawingBoard.Control.Colors = function(drawingBoard, opts) {
-	this.board = drawingBoard;
+	this.board = drawingBoard || null;
 	this.opts = $.extend({
 		defaultColor: "rgba(0, 0, 0, 1)"
 	}, opts);
 
 	this.board.ctx.strokeStyle = this.opts.defaultColor;
 	this.el = '<div class="drawing-board-control drawing-board-control-colors">' +
-		'<div class="drawing-board-control-colors-current" style="background-color: ' + this.board.ctx.strokeStyle + '"></div>' +
+		'<div class="drawing-board-control-colors-current" style="background-color: ' + this.board.ctx.strokeStyle + '" data-color="' + this.board.ctx.strokeStyle + '"></div>' +
 		'<div class="drawing-board-control-colors-rainbows">';
 	var that = this;
 
@@ -367,7 +417,7 @@ DrawingBoard.Control.Colors.prototype = {
 	}
 };
 DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
-	this.board = drawingBoard;
+	this.board = drawingBoard || null;
 	this.opts = $.extend({
 		backButton: true,
 		forwardButton: true,
@@ -376,9 +426,9 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 
 	var that = this;
 	var el = '<div class="drawing-board-control drawing-board-control-navigation">';
-	if (this.opts.backButton) el += '<button class="drawing-board-control-navigation-back" title="Annuler la dernière action">&larr;</button>';
-	if (this.opts.forwardButton) el += '<button class="drawing-board-control-navigation-forward" title="Recommencer la dernière action">&rarr;</button>';
-	if (this.opts.resetButton) el += '<button class="drawing-board-control-navigation-reset" title="Effacer tout">×</button>';
+	if (this.opts.backButton) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
+	if (this.opts.forwardButton) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
+	if (this.opts.resetButton) el += '<button class="drawing-board-control-navigation-reset">×</button>';
 	el += '</div>';
 	this.$el = $(el);
 
@@ -404,27 +454,30 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	}
 };
 DrawingBoard.Control.Size = function(drawingBoard) {
-	this.board = drawingBoard;
+	this.board = drawingBoard || null;
 	var that = this;
-	var tpl = '<div class="drawing-board-control drawing-board-control-size" title="Taille du pinceau : 10">' +
+	var tpl = '<div class="drawing-board-control drawing-board-control-size">' +
 		'<input type="range" min="1" max="50" value="10" class="drawing-board-control-size-input">' +
 		'<span class="drawing-board-control-size-label"></span>' +
 		'</div>';
-	
+
 	this.$el = $(tpl);
 	this.$el.on('change', 'input', function(e) {
 		that.updateView($(this).val());
 		e.preventDefault();
 	});
-	this.updateView(this.$el.find('input').val());
 };
 
-DrawingBoard.Control.Size.prototype.updateView = function(val) {
-	this.board.ctx.lineWidth = val;
-	this.$el.find('.drawing-board-control-size-label').css({
-		width: val + 'px',
-		height: val + 'px',
-		borderRadius: val + 'px'
-	});
-	this.$el.attr('title', 'Taille du pinceau : ' + val);
+DrawingBoard.Control.Size.prototype = {
+	reset: function() {
+		this.updateView(this.$el.find('input').val());
+	},
+	updateView: function(val) {
+		this.board.ctx.lineWidth = val;
+		this.$el.find('.drawing-board-control-size-label').css({
+			width: val + 'px',
+			height: val + 'px',
+			borderRadius: val + 'px'
+		});
+	}
 };
