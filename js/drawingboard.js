@@ -118,6 +118,12 @@ DrawingBoard.prototype.getImg = function() {
 	return this.canvas.toDataURL("image/png");
 };
 
+DrawingBoard.prototype.downloadImg = function() {
+	var img = this.getImg();
+	img = img.replace("image/png", "image/octet-stream");
+	window.location.href = img;
+};
+
 DrawingBoard.prototype.restoreLocalStorage = function() {
 	if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
 		this.restoreImg(localStorage.getItem('drawing-board-image'));
