@@ -1,14 +1,20 @@
 .drawing-board-control-size {
+	@extend %box;
 	position: relative;
-	height: 30px;
+	height: 44px;
+}
+
+.drawing-board-control-size-input {
+	width: 100px;
 }
 
 .drawing-board-control-size-label {
 	background: #333;
 	display: inline-block;
 	position: absolute;
-	bottom: -24px;
-	left: 2px;
+	bottom: 4px;
+	left: 8px;
 	opacity: .2;
 	pointer-events: none;
+	z-index: 10;
 }
