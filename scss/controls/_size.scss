@@ -1,4 +1,7 @@
 .drawing-board-control-size {
+}
+
+.drawing-board-control-size .drawing-board-control-inner {
 	@extend %box;
 	position: relative;
 	height: 44px;
