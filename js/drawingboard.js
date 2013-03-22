@@ -9,6 +9,7 @@ var DrawingBoard = function(id, opts) {
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
 
+	this.id = id;
 	this.$el = $(document.getElementById(id));
 	if (!this.$el.length)
 		return false;
@@ -111,15 +112,15 @@ DrawingBoard.prototype.downloadImg = function() {
 };
 
 DrawingBoard.prototype.restoreLocalStorage = function() {
-	if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
-		this.restoreImg(localStorage.getItem('drawing-board-image'));
+	if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image-' + this.id) !== null) {
+		this.restoreImg(localStorage.getItem('drawing-board-image-' + this.id));
 		this.ev.trigger('board:restoreLocalStorage', localStorage.getItem('drawing-board-image-' + this.id));
 	}
 };
 
 DrawingBoard.prototype.saveLocalStorage = function() {
 	if (this.opts.localStorage && window.localStorage) {
-		localStorage.setItem('drawing-board-image', this.getImg());
+		localStorage.setItem('drawing-board-image-' + this.id, this.getImg());
 		this.ev.trigger('board:saveLocalStorage', this.getImg());
 	}
 };
