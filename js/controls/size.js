@@ -11,12 +11,15 @@ DrawingBoard.Control.Size = function(drawingBoard) {
 		that.updateView($(this).val());
 		e.preventDefault();
 	});
+
+	this.board.ev.bind('board:reset', $.proxy(function(opts) { this.onBoardReset(opts); }, this));
 };
 
 DrawingBoard.Control.Size.prototype = {
-	reset: function() {
+	onBoardReset: function(opts) {
 		this.updateView(this.$el.find('input').val());
 	},
+
 	updateView: function(val) {
 		this.board.ctx.lineWidth = val;
 		this.$el.find('.drawing-board-control-size-label').css({

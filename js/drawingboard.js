@@ -6,6 +6,9 @@ var DrawingBoard = function(id, opts) {
 		defaultBgColor: "#ffffff",
 		localStorage: true
 	}, opts);
+
+	this.ev = new DrawingBoard.Utils.MicroEvent();
+
 	this.$el = $(document.getElementById(id));
 	if (!this.$el.length)
 		return false;
@@ -20,8 +23,7 @@ var DrawingBoard = function(id, opts) {
 	this.ctx = this.canvas.getContext('2d');
 
 	this.initControls();
-	this.reset({ history: false, localStorage: false });
-	this.initHistory();
+	this.reset({ localStorage: false });
 	this.restoreLocalStorage();
 	this.initDrawEvents();
 };
@@ -53,57 +55,41 @@ DrawingBoard.prototype.reset = function(opts) {
 	this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 	this.ctx.restore();
 
-	if (opts.history) this.saveHistory();
 	if (opts.localStorage) this.saveLocalStorage();
-	if (this.controls) {
-		for (var i = this.controls.length - 1; i >= 0; i--) {
-			if (typeof this.controls[i].reset == "function") {
-				this.controls[i].reset();
-			}
-		}
+
+	this.ev.trigger('board:reset', opts);
+};
+
+
+
+/**
+ * Controls:
+ * the drawing board can has various UI elements to control it.
+ * one control is represented by a class in the namespace DrawingBoard.Control
+ * it must have a $el property (jQuery object), representing the html element to append on the drawing board at initialization.
+ * if it has a reset method, it will be called by the reset method of the drawing board
+ *
+ * An example control is given in controls/example.js.
+ */
+
+DrawingBoard.prototype.initControls = function() {
+	this.controls = [];
+	for (var i = 0; i < this.opts.controls.length; i++) {
+		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
+		this.controls.push(c);
+		this.addControl(c);
 	}
 };
 
-DrawingBoard.prototype.initHistory = function() {
-	this.history = {
-		values: [],
-		position: 0
-	};
-	this.saveHistory();
+DrawingBoard.prototype.addControl = function(control) {
+	if (!control.board)
+		control.board = this;
+	if (!this.controls)
+		this.controls = [];
+	this.controls.push(control);
+	this.dom.$controls.append(control.$el);
 };
 
-DrawingBoard.prototype.saveHistory = function () {
-	while (this.history.values.length > 30) {
-		this.history.values.shift();
-	}
-	if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
-		this.history.values = this.history.values.slice(0, this.history.position);
-		this.history.position++;
-	} else {
-		this.history.position = this.history.values.length+1;
-	}
-	this.history.values.push(this.getImg());
-};
-
-DrawingBoard.prototype._goThroughHistory = function(goForth) {
-	if ((goForth && this.history.position == this.history.values.length) ||
-		(!goForth && this.history.position == 1))
-		return;
-	var pos = goForth ? this.history.position+1 : this.history.position-1;
-	if (this.history.values.length && this.history.values[pos-1] !== undefined) {
-		this.history.position = pos;
-		this.restoreImg(this.history.values[this.history.position-1]);
-	}
-	this.saveLocalStorage();
-};
-
-DrawingBoard.prototype.goBackInHistory = function() {
-	this._goThroughHistory(false);
-};
-
-DrawingBoard.prototype.goForthInHistory = function() {
-	this._goThroughHistory(true);
-};
 
 DrawingBoard.prototype.restoreImg = function(src) {
 	var that = this;
@@ -127,12 +113,14 @@ DrawingBoard.prototype.downloadImg = function() {
 DrawingBoard.prototype.restoreLocalStorage = function() {
 	if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
 		this.restoreImg(localStorage.getItem('drawing-board-image'));
+		this.ev.trigger('board:restoreLocalStorage', localStorage.getItem('drawing-board-image-' + this.id));
 	}
 };
 
 DrawingBoard.prototype.saveLocalStorage = function() {
 	if (this.opts.localStorage && window.localStorage) {
 		localStorage.setItem('drawing-board-image', this.getImg());
+		this.ev.trigger('board:saveLocalStorage', this.getImg());
 	}
 };
 
@@ -200,21 +188,24 @@ DrawingBoard.prototype._onInputStart = function(e, coords) {
 	this.coords.oldMid = this._getMidInputCoords(coords);
 	this.isDrawing = true;
 
+	this.ev.trigger('board:startDrawing', {e: e, coords: coords});
 	e.preventDefault();
 };
 
 DrawingBoard.prototype._onInputMove = function(e, coords) {
 	this.coords.current = coords;
 
+	this.ev.trigger('board:drawing', {e: e, coords: coords});
 	e.preventDefault();
 };
 
 DrawingBoard.prototype._onInputStop = function(e, coords) {
 	if (this.isDrawing && (!e.touches || e.touches.length === 0)) {
 		this.isDrawing = false;
-		this.saveHistory();
+
 		this.saveLocalStorage();
 
+		this.ev.trigger('board:stopDrawing', {e: e, coords: coords});
 		e.preventDefault();
 	}
 };
@@ -225,10 +216,14 @@ DrawingBoard.prototype._onMouseOver = function(e, coords) {
 	this.coords.oldMid = this._getMidInputCoords(this.coords.old);
 	if (e.which !== 1)
 		this.isDrawing = false;
+
+	this.ev.trigger('board:mouseOver', {e: e, coords: coords});
 };
 
 DrawingBoard.prototype._onMouseOut = function(e, coords) {
 	this.isMouseHovering = false;
+
+	this.ev.trigger('board:mouseOut', {e: e, coords: coords});
 };
 
 DrawingBoard.prototype._getInputCoords = function(e) {
@@ -251,21 +246,6 @@ DrawingBoard.prototype._getMidInputCoords = function(coords) {
 		x: this.coords.old.x + coords.x>>1,
 		y: this.coords.old.y + coords.y>>1
 	};
-};
-
-DrawingBoard.prototype.initControls = function() {
-	this.controls = [];
-	for (var i = 0; i < this.opts.controls.length; i++) {
-		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
-		this.controls.push(c);
-		this.addControl(c);
-	}
-};
-
-DrawingBoard.prototype.addControl = function(control) {
-	if (!control.board)
-		control.board = this;
-	this.dom.$controls.append(control.$el);
 };
 
 DrawingBoard.Control = {};
