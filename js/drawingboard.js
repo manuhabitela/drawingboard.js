@@ -1,3 +1,11 @@
+/**
+ * pass the id of the html element to put the drawing board into
+ * and some options : {
+ *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
+ *	defaultBgColor: initial background color of the drawing board. "#ffffff" (white) by default
+ *	localStorage: true or false (true by default). If true, store the current drawing in localstorage and restore it when you come back
+ * }
+ */
 DrawingBoard = function(id, opts) {
 	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
 
@@ -31,6 +39,14 @@ DrawingBoard = function(id, opts) {
 	this.initDrawEvents();
 };
 
+/**
+ * reset the drawing board and its controls
+ * - recalculates canvas size
+ * - change background color based on default one or given one in the opts object
+ * - store the reseted drawing board in localstorage if opts.localStorage is true (it is by default)
+ *
+ * all the controls that have a "reset" method are reseted too if opts.controls is true (false by default)
+ */
 DrawingBoard.prototype.reset = function(opts) {
 	opts = $.extend({
 		color: this.opts.defaultBgColor,
@@ -97,6 +113,11 @@ DrawingBoard.prototype.addControl = function(control) {
 };
 
 
+
+/**
+ * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
+ */
+
 DrawingBoard.prototype.restoreImg = function(src) {
 	img = new Image();
 	img.onload = $.proxy(function() {
@@ -115,6 +136,12 @@ DrawingBoard.prototype.downloadImg = function() {
 	window.location.href = img;
 };
 
+
+
+/**
+ * localStorage handling : save and restore
+ */
+
 DrawingBoard.prototype.restoreLocalStorage = function() {
 	if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image-' + this.id) !== null) {
 		this.restoreImg(localStorage.getItem('drawing-board-image-' + this.id));
@@ -128,6 +155,12 @@ DrawingBoard.prototype.saveLocalStorage = function() {
 		this.ev.trigger('board:saveLocalStorage', this.getImg());
 	}
 };
+
+
+
+/**
+ * Drawing handling, with mouse or touch
+ */
 
 DrawingBoard.prototype.initDrawEvents = function() {
 	this.isDrawing = false;
@@ -163,6 +196,7 @@ DrawingBoard.prototype.initDrawEvents = function() {
 };
 
 DrawingBoard.prototype.draw = function() {
+	//if the pencil size is big (>10), the small crosshair makes a friend: a circle of the size of the pencil
 	if (this.ctx.lineWidth > 10 && this.isMouseHovering) {
 		this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
 		var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
