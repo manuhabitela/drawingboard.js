@@ -52,7 +52,7 @@
 		<script src="../lib/rAF.js"></script>
 
 		<!-- an input[type=range] poyfill is more than recommanded if you want to use the default "size" control;
-			without the polyfill the input will be of type text
+			without the polyfill the input will be of type text in IE, Firefox and others http://caniuse.com/#feat=input-range
 			here is an example of the implementation of https://github.com/freqdec/fd-slider -->
 		<script src="../lib/yepnope.js"></script>
 		<script>
@@ -105,7 +105,8 @@
 			daBoard = new DrawingBoard('board');
 
 			//if you want to add some controls, this is easy:
-			daBoard.addControl( new DrawingBoard.Control.Download() );
+			var downloadControl = new DrawingBoard.Control.Download(daBoard);
+			daBoard.addControl(downloadControl);
 
 			//look at ../js/drawingboard.js source to see what controls are added by default and the options you can pass to the drawingboard when you create it
 		</script>

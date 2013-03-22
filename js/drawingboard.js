@@ -1,6 +1,6 @@
-var DrawingBoard = function(id, opts) {
-	var that = this;
+DrawingBoard = function(id, opts) {
 	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
+
 	this.opts = $.extend({
 		controls: ['Colors', 'Size', 'Navigation'],
 		defaultBgColor: "#ffffff",
@@ -13,13 +13,15 @@ var DrawingBoard = function(id, opts) {
 	this.$el = $(document.getElementById(id));
 	if (!this.$el.length)
 		return false;
-	this.$el.addClass('drawing-board').append( DrawingBoard.Utils.tpl(tpl, this.opts) );
+
+	this.$el.addClass('drawing-board').append(tpl);
 	this.dom = {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
-		$canvas: this.$el.find('canvas'),
+		$canvas: this.$el.find('.drawing-board-canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
 	};
+
 	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
 
@@ -35,20 +37,23 @@ DrawingBoard.prototype.reset = function(opts) {
 		history: true,
 		localStorage: true
 	}, opts);
+
+
 	//I know.
-	var width = this.$el.width()
-		- DrawingBoard.Utils.elementBorderWidth(this.$el)
-		- DrawingBoard.Utils.elementBorderWidth(this.dom.$canvasWrapper, true, true);
-	var height = this.$el.height()
-		- DrawingBoard.Utils.elementBorderHeight(this.$el)
-		- this.dom.$controls.height()
-		- DrawingBoard.Utils.elementBorderHeight(this.dom.$controls, false, true)
-		- parseInt(this.dom.$controls.css('margin-bottom').replace('px', ''), 10)
-		- DrawingBoard.Utils.elementBorderHeight(this.dom.$canvasWrapper);
+	var width = this.$el.width() -
+		DrawingBoard.Utils.elementBorderWidth(this.$el) -
+		DrawingBoard.Utils.elementBorderWidth(this.dom.$canvasWrapper, true, true);
+	var height = this.$el.height() -
+		DrawingBoard.Utils.elementBorderHeight(this.$el) -
+		this.dom.$controls.height() -
+		DrawingBoard.Utils.elementBorderHeight(this.dom.$controls, false, true) -
+		parseInt(this.dom.$controls.css('margin-bottom').replace('px', ''), 10) -
+		DrawingBoard.Utils.elementBorderHeight(this.dom.$canvasWrapper);
 	this.dom.$canvasWrapper.css('width', width + 'px');
 	this.dom.$canvasWrapper.css('height', height + 'px');
 	this.canvas.width = width;
 	this.canvas.height = height;
+
 	this.ctx.lineCap = "round";
 	this.ctx.lineJoin = "round";
 	this.ctx.save();
@@ -93,11 +98,10 @@ DrawingBoard.prototype.addControl = function(control) {
 
 
 DrawingBoard.prototype.restoreImg = function(src) {
-	var that = this;
 	img = new Image();
-	img.onload = function () {
-		that.ctx.drawImage(img, 0, 0);
-	};
+	img.onload = $.proxy(function() {
+		this.ctx.drawImage(img, 0, 0);
+	}, this);
 	img.src = src;
 };
 
@@ -126,36 +130,35 @@ DrawingBoard.prototype.saveLocalStorage = function() {
 };
 
 DrawingBoard.prototype.initDrawEvents = function() {
-	var that = this;
 	this.isDrawing = false;
 	this.isMouseHovering = false;
 	this.coords = {};
 	this.coords.old = this.coords.current = this.coords.oldMid = { x: 0, y: 0 };
 
-	this.dom.$canvas.on('mousedown touchstart', function(e) {
-		that._onInputStart(e, that._getInputCoords(e) );
-	});
+	this.dom.$canvas.on('mousedown touchstart', $.proxy(function(e) {
+		this._onInputStart(e, this._getInputCoords(e) );
+	}, this));
 
-	this.dom.$canvas.on('mousemove touchmove', function(e) {
-		that._onInputMove(e, that._getInputCoords(e) );
-	});
+	this.dom.$canvas.on('mousemove touchmove', $.proxy(function(e) {
+		this._onInputMove(e, this._getInputCoords(e) );
+	}, this));
 
-	this.dom.$canvas.on('mousemove', function(e) {
+	this.dom.$canvas.on('mousemove', $.proxy(function(e) {
 
-	});
+	}, this));
 
-	this.dom.$canvas.on('mouseup touchend', function(e) {
-		that._onInputStop(e, that._getInputCoords(e) );
-	});
+	this.dom.$canvas.on('mouseup touchend', $.proxy(function(e) {
+		this._onInputStop(e, this._getInputCoords(e) );
+	}, this));
 
-	this.dom.$canvas.on('mouseover', function(e) {
-		that._onMouseOver(e, that._getInputCoords(e) );
-	});
+	this.dom.$canvas.on('mouseover', $.proxy(function(e) {
+		this._onMouseOver(e, this._getInputCoords(e) );
+	}, this));
 
-	this.dom.$canvas.on('mouseout', function(e) {
-		that._onMouseOut(e, that._getInputCoords(e) );
+	this.dom.$canvas.on('mouseout', $.proxy(function(e) {
+		this._onMouseOut(e, this._getInputCoords(e) );
 
-	});
+	}, this));
 	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 };
 
@@ -166,7 +169,6 @@ DrawingBoard.prototype.draw = function() {
 		this.dom.$cursor.css({ 'transform': transform, '-webkit-transform': transform, '-ms-transform': transform });
 		this.dom.$cursor.removeClass('drawing-board-utils-hidden');
 	} else {
-		this.dom.$canvas.css('cursor', 'crosshair');
 		this.dom.$cursor.addClass('drawing-board-utils-hidden');
 	}
 
