@@ -1,3 +1,5 @@
+DrawingBoard = {};
+
 /**
  * pass the id of the html element to put the drawing board into
  * and some options : {
@@ -6,7 +8,7 @@
  *	localStorage: true or false (true by default). If true, store the current drawing in localstorage and restore it when you come back
  * }
  */
-DrawingBoard = function(id, opts) {
+DrawingBoard.Board = function(id, opts) {
 	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
 
 	this.opts = $.extend({
@@ -40,7 +42,7 @@ DrawingBoard = function(id, opts) {
 };
 
 
-DrawingBoard.prototype = {
+DrawingBoard.Board.prototype = {
 
 	/**
 	 * reset the drawing board and its controls
