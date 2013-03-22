@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -10,7 +7,10 @@
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
 
+		<!-- in a production environment, you can include the minified css. It contains the css of the board and the default controls (size, nav, colors):
+		<link rel="stylesheet" href="../dist/drawingboard.min.css"> -->
 		<link rel="stylesheet" href="../css/drawingboard.css">
+
 		<style>
 		html, body, #board {
 			margin: 0;
@@ -43,7 +43,7 @@
 		<em> ctrl + u !</em>
 		<div id="board"></div>
 
-		<!-- // libs // -->
+		<!-- // (more or less) required libs // -->
 
 		<!-- jquery, zepto, or another jquery api compatible lib is required -->
 		<script src="../lib/jquery.min.js"></script>
@@ -90,8 +90,8 @@
 
 		<!-- // drawingboard // -->
 
-		<!-- in a production environment, just include this one script. It is minified and it contains all the default controls:
-		<script src="../dist/drawingboard.min.js"></script> -->
+		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors): -->
+		<!-- <script src="../dist/drawingboard.min.js"></script> -->
 
 		<script src="../js/drawingboard.js"></script>
 		<script src="../js/board.js"></script>
