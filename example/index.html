@@ -93,6 +93,7 @@
 		<!-- in a production environment, just include this one script. It is minified and it contains all the default controls:
 		<script src="../dist/drawingboard.min.js"></script> -->
 
+		<script src="../js/drawingboard.js"></script>
 		<script src="../js/board.js"></script>
 		<script src="../js/utils.js"></script>
 		<script src="../js/controls/colors.js"></script>
@@ -102,7 +103,7 @@
 
 		<script>
 			//create the drawingboard by passing it the #id of the wanted container
-			daBoard = new DrawingBoard('board');
+			daBoard = new DrawingBoard.Board('board');
 
 			//if you want to add some controls, this is easy:
 			var downloadControl = new DrawingBoard.Control.Download(daBoard);

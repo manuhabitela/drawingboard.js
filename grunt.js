@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		concat: {
 			dist: {
-				src: ['js/drawingboard.js', 'js/utils.js', 'js/controls/colors.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js'],
+				src: ['js/drawingboard.js', 'js/board.js', 'js/utils.js', 'js/controls/colors.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js'],
 				dest: 'dist/drawingboard.js'
 			}
 		},

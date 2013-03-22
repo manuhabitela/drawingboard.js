@@ -1,5 +1,3 @@
-DrawingBoard = {};
-
 /**
  * pass the id of the html element to put the drawing board into
  * and some options : {
@@ -289,5 +287,3 @@ DrawingBoard.Board.prototype = {
 		};
 	}
 };
-
-DrawingBoard.Control = {};

@@ -1,274 +1,297 @@
-var DrawingBoard = function(id, opts) {
-	var that = this;
+window.DrawingBoard = {
+	Board: {},
+	Utils: {},
+	Control: {}
+};
+/**
+ * pass the id of the html element to put the drawing board into
+ * and some options : {
+ *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
+ *	defaultBgColor: initial background color of the drawing board. "#ffffff" (white) by default
+ *	localStorage: true or false (true by default). If true, store the current drawing in localstorage and restore it when you come back
+ * }
+ */
+DrawingBoard.Board = function(id, opts) {
 	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
+
 	this.opts = $.extend({
 		controls: ['Colors', 'Size', 'Navigation'],
 		defaultBgColor: "#ffffff",
 		localStorage: true
 	}, opts);
+
+	this.ev = new DrawingBoard.Utils.MicroEvent();
+
+	this.id = id;
 	this.$el = $(document.getElementById(id));
 	if (!this.$el.length)
 		return false;
-	this.$el.addClass('drawing-board').append( DrawingBoard.Utils.tpl(tpl, this.opts) );
+
+	this.$el.addClass('drawing-board').append(tpl);
 	this.dom = {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
-		$canvas: this.$el.find('canvas'),
+		$canvas: this.$el.find('.drawing-board-canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
 	};
+
 	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
 
 	this.initControls();
-	this.reset({ history: false, localStorage: false });
-	this.initHistory();
+	this.reset({ localStorage: false });
 	this.restoreLocalStorage();
 	this.initDrawEvents();
 };
 
-DrawingBoard.prototype.reset = function(opts) {
-	opts = $.extend({
-		color: this.opts.defaultBgColor,
-		history: true,
-		localStorage: true
-	}, opts);
-	//I know.
-	var width = this.$el.width()
-		- DrawingBoard.Utils.elementBorderWidth(this.$el)
-		- DrawingBoard.Utils.elementBorderWidth(this.dom.$canvasWrapper, true, true);
-	var height = this.$el.height()
-		- DrawingBoard.Utils.elementBorderHeight(this.$el)
-		- this.dom.$controls.height()
-		- DrawingBoard.Utils.elementBorderHeight(this.dom.$controls, false, true)
-		- parseInt(this.dom.$controls.css('margin-bottom').replace('px', ''), 10)
-		- DrawingBoard.Utils.elementBorderHeight(this.dom.$canvasWrapper);
-	this.dom.$canvasWrapper.css('width', width + 'px');
-	this.dom.$canvasWrapper.css('height', height + 'px');
-	this.canvas.width = width;
-	this.canvas.height = height;
-	this.ctx.lineCap = "round";
-	this.ctx.lineJoin = "round";
-	this.ctx.save();
-	this.ctx.fillStyle = opts.color;
-	this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-	this.ctx.restore();
 
-	if (opts.history) this.saveHistory();
-	if (opts.localStorage) this.saveLocalStorage();
-	if (this.controls) {
-		for (var i = this.controls.length - 1; i >= 0; i--) {
-			if (typeof this.controls[i].reset == "function") {
-				this.controls[i].reset();
-			}
+DrawingBoard.Board.prototype = {
+
+	/**
+	 * reset the drawing board and its controls
+	 * - recalculates canvas size
+	 * - change background color based on default one or given one in the opts object
+	 * - store the reseted drawing board in localstorage if opts.localStorage is true (it is by default)
+	 *
+	 * all the controls that have a "reset" method are reseted too if opts.controls is true (false by default)
+	 */
+	reset: function(opts) {
+		opts = $.extend({
+			color: this.opts.defaultBgColor,
+			history: true,
+			localStorage: true
+		}, opts);
+
+		//I know.
+		var width = this.$el.width() -
+			DrawingBoard.Utils.elementBorderWidth(this.$el) -
+			DrawingBoard.Utils.elementBorderWidth(this.dom.$canvasWrapper, true, true);
+		var height = this.$el.height() -
+			DrawingBoard.Utils.elementBorderHeight(this.$el) -
+			this.dom.$controls.height() -
+			DrawingBoard.Utils.elementBorderHeight(this.dom.$controls, false, true) -
+			parseInt(this.dom.$controls.css('margin-bottom').replace('px', ''), 10) -
+			DrawingBoard.Utils.elementBorderHeight(this.dom.$canvasWrapper);
+		this.dom.$canvasWrapper.css('width', width + 'px');
+		this.dom.$canvasWrapper.css('height', height + 'px');
+		this.canvas.width = width;
+		this.canvas.height = height;
+
+		this.ctx.lineCap = "round";
+		this.ctx.lineJoin = "round";
+		this.ctx.save();
+		this.ctx.fillStyle = opts.color;
+		this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+		this.ctx.restore();
+
+		if (opts.localStorage) this.saveLocalStorage();
+
+		this.ev.trigger('board:reset', opts);
+	},
+
+
+
+	/**
+	 * Controls:
+	 * the drawing board can has various UI elements to control it.
+	 * one control is represented by a class in the namespace DrawingBoard.Control
+	 * it must have a $el property (jQuery object), representing the html element to append on the drawing board at initialization.
+	 * if it has a reset method, it will be called by the reset method of the drawing board
+	 *
+	 * An example control is given in controls/example.js.
+	 */
+
+	initControls: function() {
+		this.controls = [];
+		for (var i = 0; i < this.opts.controls.length; i++) {
+			var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
+			this.controls.push(c);
+			this.addControl(c);
 		}
-	}
-};
+	},
 
-DrawingBoard.prototype.initHistory = function() {
-	this.history = {
-		values: [],
-		position: 0
-	};
-	this.saveHistory();
-};
+	addControl: function(control) {
+		if (!control.board)
+			control.board = this;
+		if (!this.controls)
+			this.controls = [];
+		this.controls.push(control);
+		this.dom.$controls.append(control.$el);
+	},
 
-DrawingBoard.prototype.saveHistory = function () {
-	while (this.history.values.length > 30) {
-		this.history.values.shift();
-	}
-	if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
-		this.history.values = this.history.values.slice(0, this.history.position);
-		this.history.position++;
-	} else {
-		this.history.position = this.history.values.length+1;
-	}
-	this.history.values.push(this.getImg());
-};
 
-DrawingBoard.prototype._goThroughHistory = function(goForth) {
-	if ((goForth && this.history.position == this.history.values.length) ||
-		(!goForth && this.history.position == 1))
-		return;
-	var pos = goForth ? this.history.position+1 : this.history.position-1;
-	if (this.history.values.length && this.history.values[pos-1] !== undefined) {
-		this.history.position = pos;
-		this.restoreImg(this.history.values[this.history.position-1]);
-	}
-	this.saveLocalStorage();
-};
 
-DrawingBoard.prototype.goBackInHistory = function() {
-	this._goThroughHistory(false);
-};
+	/**
+	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
+	 */
 
-DrawingBoard.prototype.goForthInHistory = function() {
-	this._goThroughHistory(true);
-};
+	restoreImg: function(src) {
+		img = new Image();
+		img.onload = $.proxy(function() {
+			this.ctx.drawImage(img, 0, 0);
+		}, this);
+		img.src = src;
+	},
 
-DrawingBoard.prototype.restoreImg = function(src) {
-	var that = this;
-	img = new Image();
-	img.onload = function () {
-		that.ctx.drawImage(img, 0, 0);
-	};
-	img.src = src;
-};
+	getImg: function() {
+		return this.canvas.toDataURL("image/png");
+	},
 
-DrawingBoard.prototype.getImg = function() {
-	return this.canvas.toDataURL("image/png");
-};
+	downloadImg: function() {
+		var img = this.getImg();
+		img = img.replace("image/png", "image/octet-stream");
+		window.location.href = img;
+	},
 
-DrawingBoard.prototype.downloadImg = function() {
-	var img = this.getImg();
-	img = img.replace("image/png", "image/octet-stream");
-	window.location.href = img;
-};
 
-DrawingBoard.prototype.restoreLocalStorage = function() {
-	if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image') !== null) {
-		this.restoreImg(localStorage.getItem('drawing-board-image'));
-	}
-};
 
-DrawingBoard.prototype.saveLocalStorage = function() {
-	if (this.opts.localStorage && window.localStorage) {
-		localStorage.setItem('drawing-board-image', this.getImg());
-	}
-};
+	/**
+	 * localStorage handling : save and restore
+	 */
 
-DrawingBoard.prototype.initDrawEvents = function() {
-	var that = this;
-	this.isDrawing = false;
-	this.isMouseHovering = false;
-	this.coords = {};
-	this.coords.old = this.coords.current = this.coords.oldMid = { x: 0, y: 0 };
+	restoreLocalStorage: function() {
+		if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image-' + this.id) !== null) {
+			this.restoreImg(localStorage.getItem('drawing-board-image-' + this.id));
+			this.ev.trigger('board:restoreLocalStorage', localStorage.getItem('drawing-board-image-' + this.id));
+		}
+	},
 
-	this.dom.$canvas.on('mousedown touchstart', function(e) {
-		that._onInputStart(e, that._getInputCoords(e) );
-	});
+	saveLocalStorage: function() {
+		if (this.opts.localStorage && window.localStorage) {
+			localStorage.setItem('drawing-board-image-' + this.id, this.getImg());
+			this.ev.trigger('board:saveLocalStorage', this.getImg());
+		}
+	},
 
-	this.dom.$canvas.on('mousemove touchmove', function(e) {
-		that._onInputMove(e, that._getInputCoords(e) );
-	});
 
-	this.dom.$canvas.on('mousemove', function(e) {
 
-	});
+	/**
+	 * Drawing handling, with mouse or touch
+	 */
 
-	this.dom.$canvas.on('mouseup touchend', function(e) {
-		that._onInputStop(e, that._getInputCoords(e) );
-	});
-
-	this.dom.$canvas.on('mouseover', function(e) {
-		that._onMouseOver(e, that._getInputCoords(e) );
-	});
-
-	this.dom.$canvas.on('mouseout', function(e) {
-		that._onMouseOut(e, that._getInputCoords(e) );
-
-	});
-	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
-};
-
-DrawingBoard.prototype.draw = function() {
-	if (this.ctx.lineWidth > 10 && this.isMouseHovering) {
-		this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
-		var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
-		this.dom.$cursor.css({ 'transform': transform, '-webkit-transform': transform, '-ms-transform': transform });
-		this.dom.$cursor.removeClass('drawing-board-utils-hidden');
-	} else {
-		this.dom.$canvas.css('cursor', 'crosshair');
-		this.dom.$cursor.addClass('drawing-board-utils-hidden');
-	}
-
-	if (this.isDrawing) {
-		var currentMid = this._getMidInputCoords(this.coords.current);
-		this.ctx.beginPath();
-		this.ctx.moveTo(currentMid.x, currentMid.y);
-		this.ctx.quadraticCurveTo(this.coords.old.x, this.coords.old.y, this.coords.oldMid.x, this.coords.oldMid.y);
-		this.ctx.stroke();
-
-		this.coords.old = this.coords.current;
-		this.coords.oldMid = currentMid;
-	}
-
-	requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
-};
-
-DrawingBoard.prototype._onInputStart = function(e, coords) {
-	this.coords.current = this.coords.old = coords;
-	this.coords.oldMid = this._getMidInputCoords(coords);
-	this.isDrawing = true;
-
-	e.preventDefault();
-};
-
-DrawingBoard.prototype._onInputMove = function(e, coords) {
-	this.coords.current = coords;
-
-	e.preventDefault();
-};
-
-DrawingBoard.prototype._onInputStop = function(e, coords) {
-	if (this.isDrawing && (!e.touches || e.touches.length === 0)) {
+	initDrawEvents: function() {
 		this.isDrawing = false;
-		this.saveHistory();
-		this.saveLocalStorage();
+		this.isMouseHovering = false;
+		this.coords = {};
+		this.coords.old = this.coords.current = this.coords.oldMid = { x: 0, y: 0 };
 
+		this.dom.$canvas.on('mousedown touchstart', $.proxy(function(e) {
+			this._onInputStart(e, this._getInputCoords(e) );
+		}, this));
+
+		this.dom.$canvas.on('mousemove touchmove', $.proxy(function(e) {
+			this._onInputMove(e, this._getInputCoords(e) );
+		}, this));
+
+		this.dom.$canvas.on('mousemove', $.proxy(function(e) {
+
+		}, this));
+
+		this.dom.$canvas.on('mouseup touchend', $.proxy(function(e) {
+			this._onInputStop(e, this._getInputCoords(e) );
+		}, this));
+
+		this.dom.$canvas.on('mouseover', $.proxy(function(e) {
+			this._onMouseOver(e, this._getInputCoords(e) );
+		}, this));
+
+		this.dom.$canvas.on('mouseout', $.proxy(function(e) {
+			this._onMouseOut(e, this._getInputCoords(e) );
+
+		}, this));
+		requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+	},
+
+	draw: function() {
+		//if the pencil size is big (>10), the small crosshair makes a friend: a circle of the size of the pencil
+		if (this.ctx.lineWidth > 10 && this.isMouseHovering) {
+			this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
+			var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
+			this.dom.$cursor.css({ 'transform': transform, '-webkit-transform': transform, '-ms-transform': transform });
+			this.dom.$cursor.removeClass('drawing-board-utils-hidden');
+		} else {
+			this.dom.$cursor.addClass('drawing-board-utils-hidden');
+		}
+
+		if (this.isDrawing) {
+			var currentMid = this._getMidInputCoords(this.coords.current);
+			this.ctx.beginPath();
+			this.ctx.moveTo(currentMid.x, currentMid.y);
+			this.ctx.quadraticCurveTo(this.coords.old.x, this.coords.old.y, this.coords.oldMid.x, this.coords.oldMid.y);
+			this.ctx.stroke();
+
+			this.coords.old = this.coords.current;
+			this.coords.oldMid = currentMid;
+		}
+
+		requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+	},
+
+	_onInputStart: function(e, coords) {
+		this.coords.current = this.coords.old = coords;
+		this.coords.oldMid = this._getMidInputCoords(coords);
+		this.isDrawing = true;
+
+		this.ev.trigger('board:startDrawing', {e: e, coords: coords});
 		e.preventDefault();
+	},
+
+	_onInputMove: function(e, coords) {
+		this.coords.current = coords;
+
+		this.ev.trigger('board:drawing', {e: e, coords: coords});
+		e.preventDefault();
+	},
+
+	_onInputStop: function(e, coords) {
+		if (this.isDrawing && (!e.touches || e.touches.length === 0)) {
+			this.isDrawing = false;
+
+			this.saveLocalStorage();
+
+			this.ev.trigger('board:stopDrawing', {e: e, coords: coords});
+			e.preventDefault();
+		}
+	},
+
+	_onMouseOver: function(e, coords) {
+		this.isMouseHovering = true;
+		this.coords.old = this._getInputCoords(e);
+		this.coords.oldMid = this._getMidInputCoords(this.coords.old);
+		if (e.which !== 1)
+			this.isDrawing = false;
+
+		this.ev.trigger('board:mouseOver', {e: e, coords: coords});
+	},
+
+	_onMouseOut: function(e, coords) {
+		this.isMouseHovering = false;
+
+		this.ev.trigger('board:mouseOut', {e: e, coords: coords});
+	},
+
+	_getInputCoords: function(e) {
+		var x, y;
+		if (e.touches && e.touches.length == 1) {
+			x = e.touches[0].pageX;
+			y = e.touches[0].pageY;
+		} else {
+			x = e.pageX;
+			y = e.pageY;
+		}
+		return {
+			x: x - this.dom.$canvas.offset().left,
+			y: y - this.dom.$canvas.offset().top
+		};
+	},
+
+	_getMidInputCoords: function(coords) {
+		return {
+			x: this.coords.old.x + coords.x>>1,
+			y: this.coords.old.y + coords.y>>1
+		};
 	}
 };
-
-DrawingBoard.prototype._onMouseOver = function(e, coords) {
-	this.isMouseHovering = true;
-	this.coords.old = this._getInputCoords(e);
-	this.coords.oldMid = this._getMidInputCoords(this.coords.old);
-	if (e.which !== 1)
-		this.isDrawing = false;
-};
-
-DrawingBoard.prototype._onMouseOut = function(e, coords) {
-	this.isMouseHovering = false;
-};
-
-DrawingBoard.prototype._getInputCoords = function(e) {
-	var x, y;
-	if (e.touches && e.touches.length == 1) {
-		x = e.touches[0].pageX;
-		y = e.touches[0].pageY;
-	} else {
-		x = e.pageX;
-		y = e.pageY;
-	}
-	return {
-		x: x - this.dom.$canvas.offset().left,
-		y: y - this.dom.$canvas.offset().top
-	};
-};
-
-DrawingBoard.prototype._getMidInputCoords = function(coords) {
-	return {
-		x: this.coords.old.x + coords.x>>1,
-		y: this.coords.old.y + coords.y>>1
-	};
-};
-
-DrawingBoard.prototype.initControls = function() {
-	this.controls = [];
-	for (var i = 0; i < this.opts.controls.length; i++) {
-		var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
-		this.controls.push(c);
-		this.addControl(c);
-	}
-};
-
-DrawingBoard.prototype.addControl = function(control) {
-	if (!control.board)
-		control.board = this;
-	this.dom.$controls.append(control.$el);
-};
-
-DrawingBoard.Control = {};
 DrawingBoard.Utils = {};
 
 /*!
@@ -310,6 +333,40 @@ DrawingBoard.Utils.tpl = (function(){
 		});
 	};
 }());
+
+/**
+ * https://github.com/jeromeetienne/microevent.js
+ * MicroEvent - to make any js object an event emitter (server or browser)
+ * 
+ * - pure javascript - server compatible, browser compatible
+ * - dont rely on the browser doms
+ * - super simple - you get it immediatly, no mistery, no magic involved
+ *
+ * - create a MicroEventDebug with goodies to debug
+ *   - make it safer to use
+*/
+DrawingBoard.Utils.MicroEvent = function(){};
+
+DrawingBoard.Utils.MicroEvent.prototype = {
+	bind : function(event, fct){
+		this._events = this._events || {};
+		this._events[event] = this._events[event]	|| [];
+		this._events[event].push(fct);
+	},
+	unbind : function(event, fct){
+		this._events = this._events || {};
+		if( event in this._events === false  )	return;
+		this._events[event].splice(this._events[event].indexOf(fct), 1);
+	},
+	trigger : function(event /* , args... */){
+		this._events = this._events || {};
+		if( event in this._events === false  )	return;
+		for(var i = 0; i < this._events[event].length; i++){
+			this._events[event][i].apply(this, Array.prototype.slice.call(arguments, 1));
+		}
+	}
+};
+
 
 //I know.
 DrawingBoard.Utils._elementBorderSize = function($el, withPadding, withMargin, direction) {
@@ -425,13 +482,19 @@ DrawingBoard.Control.Colors.prototype = {
 };
 DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	this.board = drawingBoard || null;
+
 	this.opts = $.extend({
 		backButton: true,
 		forwardButton: true,
 		resetButton: true
 	}, opts);
 
-	var that = this;
+	this.history = {
+		values: [],
+		position: 0
+	};
+	this.saveHistory();
+
 	var el = '<div class="drawing-board-control drawing-board-control-navigation">';
 	if (this.opts.backButton) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
 	if (this.opts.forwardButton) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
@@ -440,24 +503,67 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	this.$el = $(el);
 
 	if (this.opts.backButton) {
-		this.$el.on('click', '.drawing-board-control-navigation-back', function(e) {
-			that.board.goBackInHistory();
+		this.$el.on('click', '.drawing-board-control-navigation-back', $.proxy(function(e) {
+			this.goBackInHistory();
 			e.preventDefault();
-		});
+		}, this));
 	}
 
 	if (this.opts.forwardButton) {
-		this.$el.on('click', '.drawing-board-control-navigation-forward', function(e) {
-			that.board.goForthInHistory();
+		this.$el.on('click', '.drawing-board-control-navigation-forward', $.proxy(function(e) {
+			this.goForthInHistory();
 			e.preventDefault();
-		});
+		}, this));
 	}
 
 	if (this.opts.resetButton) {
-		this.$el.on('click', '.drawing-board-control-navigation-reset', function(e) {
-			that.board.reset();
+		this.$el.on('click', '.drawing-board-control-navigation-reset', $.proxy(function(e) {
+			this.board.reset();
 			e.preventDefault();
-		});
+		}, this));
+	}
+
+	this.board.ev.bind('board:stopDrawing', $.proxy(function(e) { this.saveHistory(); }, this));
+	this.board.ev.bind('board:reset', $.proxy(function(opts) { this.onBoardReset(opts); }, this));
+};
+
+DrawingBoard.Control.Navigation.prototype = {
+	saveHistory: function () {
+		while (this.history.values.length > 30) {
+			this.history.values.shift();
+		}
+		if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
+			this.history.values = this.history.values.slice(0, this.history.position);
+			this.history.position++;
+		} else {
+			this.history.position = this.history.values.length+1;
+		}
+		this.history.values.push(this.board.getImg());
+	},
+
+	_goThroughHistory: function(goForth) {
+		if ((goForth && this.history.position == this.history.values.length) ||
+			(!goForth && this.history.position == 1))
+			return;
+		var pos = goForth ? this.history.position+1 : this.history.position-1;
+		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
+			this.history.position = pos;
+			this.board.restoreImg(this.history.values[this.history.position-1]);
+		}
+		this.board.saveLocalStorage();
+	},
+
+	goBackInHistory: function() {
+		this._goThroughHistory(false);
+	},
+
+	goForthInHistory: function() {
+		this._goThroughHistory(true);
+	},
+
+	onBoardReset: function(opts) {
+		if (opts.history)
+			this.saveHistory();
 	}
 };
 DrawingBoard.Control.Size = function(drawingBoard) {
@@ -473,12 +579,15 @@ DrawingBoard.Control.Size = function(drawingBoard) {
 		that.updateView($(this).val());
 		e.preventDefault();
 	});
+
+	this.board.ev.bind('board:reset', $.proxy(function(opts) { this.onBoardReset(opts); }, this));
 };
 
 DrawingBoard.Control.Size.prototype = {
-	reset: function() {
+	onBoardReset: function(opts) {
 		this.updateView(this.$el.find('input').val());
 	},
+
 	updateView: function(val) {
 		this.board.ctx.lineWidth = val;
 		this.$el.find('.drawing-board-control-size-label').css({
@@ -490,13 +599,13 @@ DrawingBoard.Control.Size.prototype = {
 };
 DrawingBoard.Control.Download = function(drawingBoard) {
 	this.board = drawingBoard || null;
-	var that = this;
+
 	var el = '<div class="drawing-board-control drawing-board-control-download">';
 	el += '<button class="drawing-board-control-download-button">⤓</button>';
 	el += '</div>';
 	this.$el = $(el);
-	this.$el.on('click', '.drawing-board-control-download-button', function(e) {
-		that.board.downloadImg();
+	this.$el.on('click', '.drawing-board-control-download-button', $.proxy(function(e) {
+		this.board.downloadImg();
 		e.preventDefault();
-	});
+	}, this));
 };
