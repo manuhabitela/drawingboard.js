@@ -2,7 +2,7 @@ DrawingBoard.Control.Size = function(drawingBoard) {
 	this.board = drawingBoard || null;
 	var that = this;
 	var tpl = '<div class="drawing-board-control drawing-board-control-size"><div class="drawing-board-control-inner">' +
-		'<input type="range" min="1" max="50" value="10" step="1" class="drawing-board-control-size-input">' +
+		'<input type="range" min="1" max="50" value="' + this.board.opts.size + '" step="1" class="drawing-board-control-size-input">' +
 		'<span class="drawing-board-control-size-label"></span>' +
 		'</div></div>';
 

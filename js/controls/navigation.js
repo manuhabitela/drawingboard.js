@@ -2,9 +2,9 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	this.board = drawingBoard || null;
 
 	this.opts = $.extend({
-		backButton: true,
-		forwardButton: true,
-		resetButton: true
+		back: true,
+		forward: true,
+		reset: true
 	}, opts);
 
 	this.history = {
@@ -14,27 +14,27 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	this.saveHistory();
 
 	var el = '<div class="drawing-board-control drawing-board-control-navigation">';
-	if (this.opts.backButton) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
-	if (this.opts.forwardButton) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
-	if (this.opts.resetButton) el += '<button class="drawing-board-control-navigation-reset">×</button>';
+	if (this.opts.back) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
+	if (this.opts.forward) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
+	if (this.opts.reset) el += '<button class="drawing-board-control-navigation-reset">×</button>';
 	el += '</div>';
 	this.$el = $(el);
 
-	if (this.opts.backButton) {
+	if (this.opts.back) {
 		this.$el.on('click', '.drawing-board-control-navigation-back', $.proxy(function(e) {
 			this.goBackInHistory();
 			e.preventDefault();
 		}, this));
 	}
 
-	if (this.opts.forwardButton) {
+	if (this.opts.forward) {
 		this.$el.on('click', '.drawing-board-control-navigation-forward', $.proxy(function(e) {
 			this.goForthInHistory();
 			e.preventDefault();
 		}, this));
 	}
 
-	if (this.opts.resetButton) {
+	if (this.opts.reset) {
 		this.$el.on('click', '.drawing-board-control-navigation-reset', $.proxy(function(e) {
 			this.board.reset();
 			e.preventDefault();
