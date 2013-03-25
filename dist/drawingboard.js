@@ -8,7 +8,7 @@ window.DrawingBoard = {
  * and some options : {
  *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
  *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
- *	localStorage: true or false (true by default). If true, store the current drawing in localstorage and restore it when you come back
+ *	localStorage: true or false (false by default). If true, store the current drawing in localstorage and restore it when you come back
  * }
  */
 DrawingBoard.Board = function(id, opts) {
@@ -17,7 +17,7 @@ DrawingBoard.Board = function(id, opts) {
 	this.opts = $.extend({
 		controls: ['Color', 'Size', 'Navigation'],
 		background: "#ffffff",
-		localStorage: true,
+		localStorage: false,
 		color: "#000000",
 		size: 3
 	}, opts);
