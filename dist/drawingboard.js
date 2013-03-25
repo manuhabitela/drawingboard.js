@@ -7,7 +7,7 @@ window.DrawingBoard = {
  * pass the id of the html element to put the drawing board into
  * and some options : {
  *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
- *	defaultBgColor: initial background color of the drawing board. "#ffffff" (white) by default
+ *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
  *	localStorage: true or false (true by default). If true, store the current drawing in localstorage and restore it when you come back
  * }
  */
@@ -15,9 +15,11 @@ DrawingBoard.Board = function(id, opts) {
 	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
 
 	this.opts = $.extend({
-		controls: ['Colors', 'Size', 'Navigation'],
-		defaultBgColor: "#ffffff",
-		localStorage: true
+		controls: ['Color', 'Size', 'Navigation'],
+		background: "#ffffff",
+		localStorage: true,
+		color: "#000000",
+		size: 3
 	}, opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
@@ -50,17 +52,20 @@ DrawingBoard.Board.prototype = {
 	/**
 	 * reset the drawing board and its controls
 	 * - recalculates canvas size
-	 * - change background color based on default one or given one in the opts object
+	 * - change background based on default one or given one in the opts object
 	 * - store the reseted drawing board in localstorage if opts.localStorage is true (it is by default)
-	 *
-	 * all the controls that have a "reset" method are reseted too if opts.controls is true (false by default)
 	 */
 	reset: function(opts) {
 		opts = $.extend({
-			color: this.opts.defaultBgColor,
+			background: this.opts.background,
+			color: this.opts.color,
+			size: this.opts.size,
 			history: true,
 			localStorage: true
 		}, opts);
+
+		var bgIsColor = (opts.background.charAt(0) == '#' && (opts.background.length == 7 || opts.background.length == 4 )) ||
+				(opts.background.substring(0, 3) == 'rgb');
 
 		//I know.
 		var width = this.$el.width() -
@@ -77,12 +82,18 @@ DrawingBoard.Board.prototype = {
 		this.canvas.width = width;
 		this.canvas.height = height;
 
+		this.ctx.strokeStyle = opts.color;
+		this.ctx.lineWidth = opts.size;
 		this.ctx.lineCap = "round";
 		this.ctx.lineJoin = "round";
 		this.ctx.save();
-		this.ctx.fillStyle = opts.color;
+		if (bgIsColor)
+			this.ctx.fillStyle = opts.background;
 		this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		this.ctx.restore();
+
+		if (!bgIsColor)
+			this.setImg(this.opts.background);
 
 		if (opts.localStorage) this.saveLocalStorage();
 
@@ -103,6 +114,7 @@ DrawingBoard.Board.prototype = {
 
 	initControls: function() {
 		this.controls = [];
+		if (!this.opts.controls.length) return false;
 		for (var i = 0; i < this.opts.controls.length; i++) {
 			var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
 			this.controls.push(c);
@@ -125,7 +137,7 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	restoreImg: function(src) {
+	setImg: function(src) {
 		img = new Image();
 		img.onload = $.proxy(function() {
 			this.ctx.drawImage(img, 0, 0);
@@ -151,7 +163,7 @@ DrawingBoard.Board.prototype = {
 
 	restoreLocalStorage: function() {
 		if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image-' + this.id) !== null) {
-			this.restoreImg(localStorage.getItem('drawing-board-image-' + this.id));
+			this.setImg(localStorage.getItem('drawing-board-image-' + this.id));
 			this.ev.trigger('board:restoreLocalStorage', localStorage.getItem('drawing-board-image-' + this.id));
 		}
 	},
@@ -395,7 +407,33 @@ DrawingBoard.Utils.elementBorderWidth = function($el, withPadding, withMargin) {
 DrawingBoard.Utils.elementBorderHeight = function($el, withPadding, withMargin) {
 	return DrawingBoard.Utils._elementBorderSize($el, withPadding, withMargin, 'height');
 };
-DrawingBoard.Control.Colors = function(drawingBoard, opts) {
+
+//included requestAnimationFrame (https://gist.github.com/paulirish/1579671) polyfill since it's really light
+//remove it and rebuild the minified files with grunt if you don't need it
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+DrawingBoard.Control.Color = function(drawingBoard, opts) {
 	this.board = drawingBoard || null;
 	this.opts = $.extend({
 		defaultColor: "rgba(0, 0, 0, 1)"
@@ -422,12 +460,17 @@ DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 	});
 
 	this.$el.on('click', '.drawing-board-control-colors-current', function(e) {
-		that.board.reset({ color: $(this).attr('data-color') });
+		that.board.reset({ background: $(this).attr('data-color') });
 		e.preventDefault();
 	});
+
+	this.board.ev.bind('board:reset', $.proxy(function(opts) { this.onBoardReset(opts); }, this));
 };
 
-DrawingBoard.Control.Colors.prototype = {
+DrawingBoard.Control.Color.prototype = {
+	onBoardReset: function(opts) {
+		this.board.ctx.strokeStyle = this.$el.find('.drawing-board-control-colors-current').attr('data-color');
+	},
 	rgba: function(r, g, b, a) {
 		return { r: r, g: g, b: b, a: a, toString: function() { return "rgba(" + r +", " + g + ", " + b + ", " + a + ")"; } };
 	},
@@ -484,9 +527,9 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	this.board = drawingBoard || null;
 
 	this.opts = $.extend({
-		backButton: true,
-		forwardButton: true,
-		resetButton: true
+		back: true,
+		forward: true,
+		reset: true
 	}, opts);
 
 	this.history = {
@@ -496,27 +539,27 @@ DrawingBoard.Control.Navigation = function(drawingBoard, opts) {
 	this.saveHistory();
 
 	var el = '<div class="drawing-board-control drawing-board-control-navigation">';
-	if (this.opts.backButton) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
-	if (this.opts.forwardButton) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
-	if (this.opts.resetButton) el += '<button class="drawing-board-control-navigation-reset">×</button>';
+	if (this.opts.back) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
+	if (this.opts.forward) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
+	if (this.opts.reset) el += '<button class="drawing-board-control-navigation-reset">×</button>';
 	el += '</div>';
 	this.$el = $(el);
 
-	if (this.opts.backButton) {
+	if (this.opts.back) {
 		this.$el.on('click', '.drawing-board-control-navigation-back', $.proxy(function(e) {
 			this.goBackInHistory();
 			e.preventDefault();
 		}, this));
 	}
 
-	if (this.opts.forwardButton) {
+	if (this.opts.forward) {
 		this.$el.on('click', '.drawing-board-control-navigation-forward', $.proxy(function(e) {
 			this.goForthInHistory();
 			e.preventDefault();
 		}, this));
 	}
 
-	if (this.opts.resetButton) {
+	if (this.opts.reset) {
 		this.$el.on('click', '.drawing-board-control-navigation-reset', $.proxy(function(e) {
 			this.board.reset();
 			e.preventDefault();
@@ -548,7 +591,7 @@ DrawingBoard.Control.Navigation.prototype = {
 		var pos = goForth ? this.history.position+1 : this.history.position-1;
 		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 			this.history.position = pos;
-			this.board.restoreImg(this.history.values[this.history.position-1]);
+			this.board.setImg(this.history.values[this.history.position-1]);
 		}
 		this.board.saveLocalStorage();
 	},
@@ -570,7 +613,7 @@ DrawingBoard.Control.Size = function(drawingBoard) {
 	this.board = drawingBoard || null;
 	var that = this;
 	var tpl = '<div class="drawing-board-control drawing-board-control-size"><div class="drawing-board-control-inner">' +
-		'<input type="range" min="1" max="50" value="10" step="1" class="drawing-board-control-size-input">' +
+		'<input type="range" min="1" max="50" value="' + this.board.opts.size + '" step="1" class="drawing-board-control-size-input">' +
 		'<span class="drawing-board-control-size-label"></span>' +
 		'</div></div>';
 

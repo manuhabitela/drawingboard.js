@@ -84,3 +84,10 @@ Events currently triggered are:
 * 'board:stopDrawing'
 * 'board:mouseOver'
 * 'board:mouseOut'
+
+## Building your own
+
+If you've added some controls or changed the drawingboard a bit, you can rebuild the minified files with [grunt](http://gruntjs.com/):
+
+* in the `grunt.js` file, update the `concat` task by setting all the source files you want
+* [install grunt](http://gruntjs.com/getting-started) if necessary, open your terminal, `cd` in the project and run `grunt`. Minified files in the `dist` folders are now updated.
