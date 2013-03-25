@@ -4,7 +4,7 @@ This is a simple canvas based drawing app that you can integrate easily on your 
 
 drawingboard.js consists of a blank canvas surrounded by a few UI elements that controls it:
 
-* a color chooser ,
+* a color picker ,
 * a pencil size chooser,
 * navigation buttons to undo or redo lines,
 * a reset button to put the canvas back to its original blank state
