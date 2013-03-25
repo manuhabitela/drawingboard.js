@@ -66,7 +66,7 @@ DrawingBoard.Control.Navigation.prototype = {
 		var pos = goForth ? this.history.position+1 : this.history.position-1;
 		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 			this.history.position = pos;
-			this.board.restoreImg(this.history.values[this.history.position-1]);
+			this.board.setImg(this.history.values[this.history.position-1]);
 		}
 		this.board.saveLocalStorage();
 	},

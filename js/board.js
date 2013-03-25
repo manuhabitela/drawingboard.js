@@ -59,6 +59,9 @@ DrawingBoard.Board.prototype = {
 			localStorage: true
 		}, opts);
 
+		var bgIsColor = (opts.background.charAt(0) == '#' && (opts.background.length == 7 || opts.background.length == 4 )) ||
+				(opts.background.substring(0, 3) == 'rgb');
+
 		//I know.
 		var width = this.$el.width() -
 			DrawingBoard.Utils.elementBorderWidth(this.$el) -
@@ -79,9 +82,13 @@ DrawingBoard.Board.prototype = {
 		this.ctx.lineCap = "round";
 		this.ctx.lineJoin = "round";
 		this.ctx.save();
+		if (bgIsColor)
 			this.ctx.fillStyle = opts.background;
 		this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		this.ctx.restore();
+
+		if (!bgIsColor)
+			this.setImg(this.opts.background);
 
 		if (opts.localStorage) this.saveLocalStorage();
 
@@ -125,7 +132,7 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	restoreImg: function(src) {
+	setImg: function(src) {
 		img = new Image();
 		img.onload = $.proxy(function() {
 			this.ctx.drawImage(img, 0, 0);
@@ -151,7 +158,7 @@ DrawingBoard.Board.prototype = {
 
 	restoreLocalStorage: function() {
 		if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image-' + this.id) !== null) {
-			this.restoreImg(localStorage.getItem('drawing-board-image-' + this.id));
+			this.setImg(localStorage.getItem('drawing-board-image-' + this.id));
 			this.ev.trigger('board:restoreLocalStorage', localStorage.getItem('drawing-board-image-' + this.id));
 		}
 	},
