@@ -1,4 +1,4 @@
-DrawingBoard.Control.Colors = function(drawingBoard, opts) {
+DrawingBoard.Control.Color = function(drawingBoard, opts) {
 	this.board = drawingBoard || null;
 	this.opts = $.extend({
 		defaultColor: "rgba(0, 0, 0, 1)"

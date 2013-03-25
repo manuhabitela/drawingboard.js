@@ -10,9 +10,9 @@ DrawingBoard.Board = function(id, opts) {
 	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
 
 	this.opts = $.extend({
-		controls: ['Colors', 'Size', 'Navigation'],
-		localStorage: true
+		controls: ['Color', 'Size', 'Navigation'],
 		background: "#ffffff",
+		localStorage: true,
 		color: "#000000",
 		size: 3
 	}, opts);
@@ -102,6 +102,7 @@ DrawingBoard.Board.prototype = {
 
 	initControls: function() {
 		this.controls = [];
+		if (!this.opts.controls.length) return false;
 		for (var i = 0; i < this.opts.controls.length; i++) {
 			var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
 			this.controls.push(c);
