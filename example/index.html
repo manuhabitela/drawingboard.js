@@ -12,23 +12,38 @@
 		<link rel="stylesheet" href="../css/drawingboard.css">
 
 		<style>
-		html, body, #board {
-			margin: 0;
-			padding: 0;
-		}
 		body {
-			background: #dedede;
 			font-family: Georgia, serif;
+			background: #dedede;
+			margin: 0;
+		}
+
+		.board {
+			margin: 0 auto;
+			width: 300px;
+			height: 300px;
+		}
+
+		pre {
+			margin-bottom: 60px;
 		}
 
 		/*
 		* set the dimensions you want on the drawingboard's container with CSS
 		*/
-		#board {
-			margin: 10px auto;
-			max-width: 100%;
+
+		#default-board {
 			width: 700px;
-			height: 600px;
+			height: 400px;
+		}
+
+		#title-board {
+			width: 600px;
+			height: 270px;
+		}
+
+		#title-board canvas {
+			box-shadow: 0 0 10px #555;
 		}
 		</style>
 	</head>
@@ -39,20 +54,60 @@
 
 		<noscript>JavaScript is required :(</noscript>
 
-		<em> ctrl + u !</em>
-		<div id="board"></div>
+		<div class="board" id="title-board"></div>
+		<pre><code>
+			new DrawingBoard.Board('title-board', {
+				controls: false,
+				localStorage: false,
+				background: '../img/drawingboardjs.png',
+				color: '#ff0'
+			});
+		</code></pre>
+
+		<div class="board" id="default-board"></div>
+		<pre><code>
+			var defaultBoard = new DrawingBoard.Board('default-board');
+		</code></pre>
+
+		<div class="board" id="custom-board"></div>
+		<pre><code>
+			var customBoard = new DrawingBoard.Board('custom-board', { 
+				background: "#ff7ffe",
+				color: "#ff0",
+				controls: ['Size']
+			});
+
+			var downloadControl = new DrawingBoard.Control.Download(customBoard);
+			customBoard.addControl(downloadControl);
+
+			var resetControl = new DrawingBoard.Control.Navigation(customBoard, {
+				back: false,
+				forward: false
+			});
+			customBoard.addControl(resetControl);
+		</code></pre>
+
+		<div class="board" id="simple-board"></div>
+		<pre><code>
+			var simpleBoard = new DrawingBoard.Board('simple-board', {
+				controls: false,
+				localStorage: false
+			});
+		</code></pre>
+
+
 
 		<!-- // (more or less) required libs // -->
 
 		<!-- jquery, zepto, or another jquery api compatible lib is required -->
 		<script src="../lib/jquery.min.js"></script>
 
-		<!-- a requestAnimationFrame polyfill is required for kinda every browser besides Chrome: https://gist.github.com/paulirish/1579671 -->
-		<script src="../lib/rAF.js"></script>
-
 		<!-- an input[type=range] poyfill is more than recommanded if you want to use the default "size" control;
 			without the polyfill the input will be of type text in IE, Firefox and others http://caniuse.com/#feat=input-range
-			here is an example of the implementation of https://github.com/freqdec/fd-slider -->
+			here is an example of the implementation of https://github.com/freqdec/fd-slider 
+		
+			the polyfill is loaded only if necessary via yepnope http://yepnopejs.com/
+		-->
 		<script src="../lib/yepnope.js"></script>
 		<script>
 			var iHasRangeInput = function() {
@@ -95,20 +150,50 @@
 		<script src="../js/drawingboard.js"></script>
 		<script src="../js/board.js"></script>
 		<script src="../js/utils.js"></script>
+		<!-- default controls included in the minified script -->
 		<script src="../js/controls/color.js"></script>
 		<script src="../js/controls/navigation.js"></script>
 		<script src="../js/controls/size.js"></script>
+		<!-- additionnal control -->
 		<script src="../js/controls/download.js"></script>
 
 		<script>
 			//create the drawingboard by passing it the #id of the wanted container
-			daBoard = new DrawingBoard.Board('board');
+			var defaultBoard = new DrawingBoard.Board('default-board');
 
-			//if you want to add some controls, this is easy:
-			var downloadControl = new DrawingBoard.Control.Download(daBoard);
-			daBoard.addControl(downloadControl);
 
-			//look at ../js/drawingboard.js source to see what controls are added by default and the options you can pass to the drawingboard when you create it
+			//pass options and add custom controls to a board
+			var customBoard = new DrawingBoard.Board('custom-board', { 
+				background: "#ff7ffe",
+				color: "#ff0",
+				size: 30,
+				controls: ['Size']
+			});
+
+			var downloadControl = new DrawingBoard.Control.Download(customBoard);
+			customBoard.addControl(downloadControl);
+
+			var resetControl = new DrawingBoard.Control.Navigation(customBoard, {
+				back: false,
+				forward: false
+			});
+			customBoard.addControl(resetControl);
+
+
+			//make a dead simple drawingboard
+			var simpleBoard = new DrawingBoard.Board('simple-board', {
+				controls: false
+			});
+
+
+			//have an image as the board background
+			var imageBoard = new DrawingBoard.Board('title-board', {
+				controls: false,
+				background: '../img/drawingboardjs.png',
+				color: '#ff0'
+			});
+
+			//look at ../js/board.js source to see what controls are added by default and the options you can pass to the drawingboard when you create it
 		</script>
 
 
