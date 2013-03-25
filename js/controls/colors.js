@@ -25,12 +25,17 @@ DrawingBoard.Control.Colors = function(drawingBoard, opts) {
 	});
 
 	this.$el.on('click', '.drawing-board-control-colors-current', function(e) {
-		that.board.reset({ color: $(this).attr('data-color') });
+		that.board.reset({ background: $(this).attr('data-color') });
 		e.preventDefault();
 	});
+
+	this.board.ev.bind('board:reset', $.proxy(function(opts) { this.onBoardReset(opts); }, this));
 };
 
-DrawingBoard.Control.Colors.prototype = {
+DrawingBoard.Control.Color.prototype = {
+	onBoardReset: function(opts) {
+		this.board.ctx.strokeStyle = this.$el.find('.drawing-board-control-colors-current').attr('data-color');
+	},
 	rgba: function(r, g, b, a) {
 		return { r: r, g: g, b: b, a: a, toString: function() { return "rgba(" + r +", " + g + ", " + b + ", " + a + ")"; } };
 	},

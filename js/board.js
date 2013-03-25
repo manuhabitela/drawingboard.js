@@ -2,7 +2,7 @@
  * pass the id of the html element to put the drawing board into
  * and some options : {
  *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
- *	defaultBgColor: initial background color of the drawing board. "#ffffff" (white) by default
+ *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
  *	localStorage: true or false (true by default). If true, store the current drawing in localstorage and restore it when you come back
  * }
  */
@@ -11,8 +11,10 @@ DrawingBoard.Board = function(id, opts) {
 
 	this.opts = $.extend({
 		controls: ['Colors', 'Size', 'Navigation'],
-		defaultBgColor: "#ffffff",
 		localStorage: true
+		background: "#ffffff",
+		color: "#000000",
+		size: 3
 	}, opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
@@ -45,14 +47,14 @@ DrawingBoard.Board.prototype = {
 	/**
 	 * reset the drawing board and its controls
 	 * - recalculates canvas size
-	 * - change background color based on default one or given one in the opts object
+	 * - change background based on default one or given one in the opts object
 	 * - store the reseted drawing board in localstorage if opts.localStorage is true (it is by default)
-	 *
-	 * all the controls that have a "reset" method are reseted too if opts.controls is true (false by default)
 	 */
 	reset: function(opts) {
 		opts = $.extend({
-			color: this.opts.defaultBgColor,
+			background: this.opts.background,
+			color: this.opts.color,
+			size: this.opts.size,
 			history: true,
 			localStorage: true
 		}, opts);
@@ -72,10 +74,12 @@ DrawingBoard.Board.prototype = {
 		this.canvas.width = width;
 		this.canvas.height = height;
 
+		this.ctx.strokeStyle = opts.color;
+		this.ctx.lineWidth = opts.size;
 		this.ctx.lineCap = "round";
 		this.ctx.lineJoin = "round";
 		this.ctx.save();
-		this.ctx.fillStyle = opts.color;
+			this.ctx.fillStyle = opts.background;
 		this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		this.ctx.restore();
 
