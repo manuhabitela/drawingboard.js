@@ -19,9 +19,8 @@ localStorage support is provided: your last drawing is restored when you come ba
 
 drawingboard.js requires a few things in order to work correctly:
 
-1. `jQuery`, `Zepto`, `Tire` or any other jQuery API compatible library
-2. a `requestAnimationFrame` polyfill in order to work correctly [in every browser](http://caniuse.com/#feat=requestanimationframe)
-3. An `input[type=range]` polyfill so that the pencil size control works in [every browser](http://caniuse.com/#feat=input-range)
+1. `jQuery`, `Zepto` or any other jQuery API compatible library
+2. An `input[type=range]` polyfill so that the pencil size control works [in every browser](http://caniuse.com/#feat=input-range)
 
 After including all the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder.
 
