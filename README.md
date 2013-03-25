@@ -49,9 +49,9 @@ When instantiating the drawingboard, you can pass a few options as the 2nd param
 
 * `controls`: an array containing the list of controls automatically loaded with the board. By default, the 'Color', 'Size' and 'Navigation' controls are loaded by default.
 * `color`: the board's pencil color. `#000000` (black) by default.
-* `size`: the board's pencil size. `3`px radius by default.
+* `size`: the board's pencil size (integer). `3`px radius by default.
 * `background`: the board's background. Give an hex value for a color, anything else will be seen as an image. `#ffffff` (white) by default.
-* `localStorage`: do we enable localStorage support? If true (it is by default), the drawing is saved when you quit the website and restored when you come back on it.
+* `localStorage`: do we enable localStorage support? If true, the drawing is saved when you quit the website and restored when you come back on it. False by default since there is a bug when multiple boards are on the same page...
 
 ## Controls
 
