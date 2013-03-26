@@ -12,26 +12,77 @@
 		<link rel="stylesheet" href="../css/drawingboard.css">
 
 		<style>
+
+		/**
+		 * website's styles
+		 */
 		body {
 			font-family: Georgia, serif;
 			background: #dedede;
 			margin: 0;
 		}
 
-		.board {
-			margin: 0 auto;
-			width: 300px;
-			height: 300px;
+		h1 {
+			text-align: center;
 		}
 
 		pre {
-			margin-bottom: 60px;
+			display: block;
+			padding: 10px;
+			font-size: 13px;
+			line-height: 20px;
+			word-break: break-all;
+			word-wrap: break-word;
+			white-space: pre;
+			white-space: pre-wrap;
+			background-color: whiteSmoke;
+			border: 1px solid #CCC;
+			border: 1px solid rgba(0, 0, 0, 0.15);
+			border-radius: 4px;
+			tab-size: 2;
+		}
+
+		code {
+			font-family: Monaco, "Monaco for Powerline", Menlo, Consolas, "Courier New", monospace
+		}
+
+		.header {
+			background-color:#8b84ac;
+			background-image: 
+				-webkit-linear-gradient(#6b659d 1px, transparent 1px), 
+				-webkit-linear-gradient(0deg, #6b659d 1px, transparent 1px);
+			background-image: 
+				-moz-linear-gradient(#6b659d 1px, transparent 1px), 
+				-moz-linear-gradient(0deg, #6b659d 1px, transparent 1px);
+			background-image: 
+				linear-gradient(#6b659d 1px, transparent 1px),
+				linear-gradient(90deg, #6b659d 1px, transparent 1px);
+			-moz-background-size:33px 33px, 33px 33px;
+			background-size:33px 33px, 33px 33px;
+			background-position:-1px -1px, -16px -16px;
+			box-shadow: 0 5px 10px #999;
+			color: white;
+			text-shadow: 0 0 2px #222;
+			font-weight: bold;
+		}
+
+		.header .drawing-board-canvas-wrapper {
+			border: none;
+		}
+
+		#container {
+			width: 750px;
+			max-width: 100%;
+			margin: 10px auto;
+		}
+
+		.example {
+			margin: 60px 0;
 		}
 
 		/*
-		* set the dimensions you want on the drawingboard's container with CSS
+		* drawingboards styles: set the board dimensions you want with CSS
 		*/
-
 		#default-board {
 			width: 700px;
 			height: 400px;
@@ -42,8 +93,10 @@
 			height: 270px;
 		}
 
-		#title-board canvas {
-			box-shadow: 0 0 10px #555;
+		.board {
+			margin: 0 auto;
+			width: 300px;
+			height: 300px;
 		}
 		</style>
 	</head>
@@ -54,48 +107,52 @@
 
 		<noscript>JavaScript is required :(</noscript>
 
-		<div class="board" id="title-board"></div>
-		<pre><code>
-			new DrawingBoard.Board('title-board', {
-				controls: false,
-				localStorage: false,
-				background: '../img/drawingboardjs.png',
-				color: '#ff0'
-			});
-		</code></pre>
+		<div class="header">
+			<div class="board" id="title-board"></div>
+		</div>
 
-		<div class="board" id="default-board"></div>
-		<pre><code>
-			var defaultBoard = new DrawingBoard.Board('default-board');
-		</code></pre>
-
-		<div class="board" id="custom-board"></div>
-		<pre><code>
-			var customBoard = new DrawingBoard.Board('custom-board', { 
-				background: "#ff7ffe",
-				color: "#ff0",
-				controls: ['Size']
-			});
-
-			var downloadControl = new DrawingBoard.Control.Download(customBoard);
-			customBoard.addControl(downloadControl);
-
-			var resetControl = new DrawingBoard.Control.Navigation(customBoard, {
-				back: false,
-				forward: false
-			});
-			customBoard.addControl(resetControl);
-		</code></pre>
-
-		<div class="board" id="simple-board"></div>
-		<pre><code>
-			var simpleBoard = new DrawingBoard.Board('simple-board', {
-				controls: false,
-				localStorage: false
-			});
-		</code></pre>
+		<div id="container">		
+			<pre><code>new DrawingBoard.Board('title-board', {
+	controls: false,
+	background: '../img/drawingboardjs.png',
+	color: '#ff0'
+});</code></pre>
 
 
+			<div class="example">
+				<h1>The default DrawingBoard</h1>
+				<div class="board" id="default-board"></div>
+				<pre><code>var defaultBoard = new DrawingBoard.Board('default-board');</code></pre>
+			</div>
+
+			<div class="example">
+				<h1>A custom one</h1>
+				<div class="board" id="custom-board"></div>
+				<pre><code>var customBoard = new DrawingBoard.Board('custom-board', { 
+	background: "#ff7ffe",
+	color: "#ff0",
+	controls: ['Size']
+});
+
+var downloadControl = new DrawingBoard.Control.Download(customBoard);
+customBoard.addControl(downloadControl);
+
+var resetControl = new DrawingBoard.Control.Navigation(customBoard, {
+	back: false,
+	forward: false
+});
+customBoard.addControl(resetControl);</code></pre>
+			</div>
+
+			<div class="example">
+				<h1>The simplest one</h1>
+				<div class="board" id="simple-board"></div>
+				<pre><code>var simpleBoard = new DrawingBoard.Board('simple-board', {
+	controls: false
+});</code></pre>
+			</div>
+
+		</div>
 
 		<!-- // (more or less) required libs // -->
 

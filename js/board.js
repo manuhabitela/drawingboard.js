@@ -3,6 +3,8 @@
  * and some options : {
  *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
  *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
+ *	color: pencil color ("#000000" by default)
+ *	size: pencil size (3 by default)
  *	localStorage: true or false (false by default). If true, store the current drawing in localstorage and restore it when you come back
  * }
  */
