@@ -66,14 +66,13 @@ DrawingBoard.Board.prototype = {
 
 		//I know.
 		var width = this.$el.width() -
-			DrawingBoard.Utils.elementBorderWidth(this.$el) -
-			DrawingBoard.Utils.elementBorderWidth(this.dom.$canvasWrapper, true, true);
+			DrawingBoard.Utils.boxBorderWidth(this.$el) -
+			DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true);
 		var height = this.$el.height() -
-			DrawingBoard.Utils.elementBorderHeight(this.$el) -
+			DrawingBoard.Utils.boxBorderHeight(this.$el) -
 			this.dom.$controls.height() -
-			DrawingBoard.Utils.elementBorderHeight(this.dom.$controls, false, true) -
-			parseInt(this.dom.$controls.css('margin-bottom').replace('px', ''), 10) -
-			DrawingBoard.Utils.elementBorderHeight(this.dom.$canvasWrapper);
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true) -
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true);
 		this.dom.$canvasWrapper.css('width', width + 'px');
 		this.dom.$canvasWrapper.css('height', height + 'px');
 		this.canvas.width = width;

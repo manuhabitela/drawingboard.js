@@ -75,7 +75,7 @@ DrawingBoard.Utils.MicroEvent.prototype = {
 
 
 //I know.
-DrawingBoard.Utils._elementBorderSize = function($el, withPadding, withMargin, direction) {
+DrawingBoard.Utils._boxBorderSize = function($el, withPadding, withMargin, direction) {
 	withPadding = !!withPadding || true;
 	withMargin = !!withMargin || false;
 	var width = 0,
@@ -94,12 +94,12 @@ DrawingBoard.Utils._elementBorderSize = function($el, withPadding, withMargin, d
 	return width;
 };
 
-DrawingBoard.Utils.elementBorderWidth = function($el, withPadding, withMargin) {
-	return DrawingBoard.Utils._elementBorderSize($el, withPadding, withMargin, 'width');
+DrawingBoard.Utils.boxBorderWidth = function($el, withPadding, withMargin) {
+	return DrawingBoard.Utils._boxBorderSize($el, withPadding, withMargin, 'width');
 };
 
-DrawingBoard.Utils.elementBorderHeight = function($el, withPadding, withMargin) {
-	return DrawingBoard.Utils._elementBorderSize($el, withPadding, withMargin, 'height');
+DrawingBoard.Utils.boxBorderHeight = function($el, withPadding, withMargin) {
+	return DrawingBoard.Utils._boxBorderSize($el, withPadding, withMargin, 'height');
 };
 
 //included requestAnimationFrame (https://gist.github.com/paulirish/1579671) polyfill since it's really light

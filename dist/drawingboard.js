@@ -8,6 +8,8 @@ window.DrawingBoard = {
  * and some options : {
  *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
  *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
+ *	color: pencil color ("#000000" by default)
+ *	size: pencil size (3 by default)
  *	localStorage: true or false (false by default). If true, store the current drawing in localstorage and restore it when you come back
  * }
  */
@@ -69,14 +71,13 @@ DrawingBoard.Board.prototype = {
 
 		//I know.
 		var width = this.$el.width() -
-			DrawingBoard.Utils.elementBorderWidth(this.$el) -
-			DrawingBoard.Utils.elementBorderWidth(this.dom.$canvasWrapper, true, true);
+			DrawingBoard.Utils.boxBorderWidth(this.$el) -
+			DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true);
 		var height = this.$el.height() -
-			DrawingBoard.Utils.elementBorderHeight(this.$el) -
+			DrawingBoard.Utils.boxBorderHeight(this.$el) -
 			this.dom.$controls.height() -
-			DrawingBoard.Utils.elementBorderHeight(this.dom.$controls, false, true) -
-			parseInt(this.dom.$controls.css('margin-bottom').replace('px', ''), 10) -
-			DrawingBoard.Utils.elementBorderHeight(this.dom.$canvasWrapper);
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true) -
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true);
 		this.dom.$canvasWrapper.css('width', width + 'px');
 		this.dom.$canvasWrapper.css('height', height + 'px');
 		this.canvas.width = width;
@@ -277,6 +278,7 @@ DrawingBoard.Board.prototype = {
 	},
 
 	_onMouseOut: function(e, coords) {
+		console.log('ouseout');
 		this.isMouseHovering = false;
 
 		this.ev.trigger('board:mouseOut', {e: e, coords: coords});
@@ -381,7 +383,7 @@ DrawingBoard.Utils.MicroEvent.prototype = {
 
 
 //I know.
-DrawingBoard.Utils._elementBorderSize = function($el, withPadding, withMargin, direction) {
+DrawingBoard.Utils._boxBorderSize = function($el, withPadding, withMargin, direction) {
 	withPadding = !!withPadding || true;
 	withMargin = !!withMargin || false;
 	var width = 0,
@@ -400,12 +402,12 @@ DrawingBoard.Utils._elementBorderSize = function($el, withPadding, withMargin, d
 	return width;
 };
 
-DrawingBoard.Utils.elementBorderWidth = function($el, withPadding, withMargin) {
-	return DrawingBoard.Utils._elementBorderSize($el, withPadding, withMargin, 'width');
+DrawingBoard.Utils.boxBorderWidth = function($el, withPadding, withMargin) {
+	return DrawingBoard.Utils._boxBorderSize($el, withPadding, withMargin, 'width');
 };
 
-DrawingBoard.Utils.elementBorderHeight = function($el, withPadding, withMargin) {
-	return DrawingBoard.Utils._elementBorderSize($el, withPadding, withMargin, 'height');
+DrawingBoard.Utils.boxBorderHeight = function($el, withPadding, withMargin) {
+	return DrawingBoard.Utils._boxBorderSize($el, withPadding, withMargin, 'height');
 };
 
 //included requestAnimationFrame (https://gist.github.com/paulirish/1579671) polyfill since it's really light
