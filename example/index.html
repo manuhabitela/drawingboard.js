@@ -59,16 +59,12 @@
 				linear-gradient(90deg, #6b659d 1px, transparent 1px);
 			-moz-background-size:33px 33px, 33px 33px;
 			background-size:33px 33px, 33px 33px;
-			background-position:-1px -1px, -16px -16px;
+			background-position:-5px -5px, -16px -16px;
 			box-shadow: 0 5px 10px #999;
 			color: white;
 			text-shadow: 0 0 2px #222;
 			font-weight: bold;
-		}
-
-		.header .drawing-board-canvas-wrapper {
-			border: none;
-		}
+		} 
 
 		#container {
 			width: 750px;
@@ -91,6 +87,11 @@
 		#title-board {
 			width: 600px;
 			height: 270px;
+		}
+		/* custom board styles for the title? no problem*/
+		#title-board .drawing-board-canvas-wrapper {
+			border: none;
+			margin: 0;
 		}
 
 		.board {
@@ -128,20 +129,18 @@
 			<div class="example">
 				<h1>A custom one</h1>
 				<div class="board" id="custom-board"></div>
-				<pre><code>var customBoard = new DrawingBoard.Board('custom-board', { 
+				<pre><code>var customBoard = new DrawingBoard.Board('custom-board', {
 	background: "#ff7ffe",
 	color: "#ff0",
-	controls: ['Size']
+	size: 30,
+	controls: [
+		'Size', 
+		{ Navigation: { back: false, forward: false } }
+	]
 });
 
 var downloadControl = new DrawingBoard.Control.Download(customBoard);
-customBoard.addControl(downloadControl);
-
-var resetControl = new DrawingBoard.Control.Navigation(customBoard, {
-	back: false,
-	forward: false
-});
-customBoard.addControl(resetControl);</code></pre>
+customBoard.addControl(downloadControl);</code></pre>
 			</div>
 
 			<div class="example">
@@ -224,17 +223,14 @@ customBoard.addControl(resetControl);</code></pre>
 				background: "#ff7ffe",
 				color: "#ff0",
 				size: 30,
-				controls: ['Size']
+				controls: [
+					'Size', 
+					{ Navigation: { back: false, forward: false } }
+				]
 			});
 
 			var downloadControl = new DrawingBoard.Control.Download(customBoard);
 			customBoard.addControl(downloadControl);
-
-			var resetControl = new DrawingBoard.Control.Navigation(customBoard, {
-				back: false,
-				forward: false
-			});
-			customBoard.addControl(resetControl);
 
 
 			//make a dead simple drawingboard

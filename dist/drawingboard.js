@@ -7,6 +7,8 @@ window.DrawingBoard = {
  * pass the id of the html element to put the drawing board into
  * and some options : {
  *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
+ *		instead of simple strings, you can pass an object to define a control opts
+ *		ie ['Color', { Navigation: { reset: false }}]
  *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
  *	color: pencil color ("#000000" by default)
  *	size: pencil size (3 by default)
@@ -117,9 +119,17 @@ DrawingBoard.Board.prototype = {
 		this.controls = [];
 		if (!this.opts.controls.length) return false;
 		for (var i = 0; i < this.opts.controls.length; i++) {
-			var c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
-			this.controls.push(c);
-			this.addControl(c);
+			var c = null;
+			if (typeof this.opts.controls[i] == "string")
+				c = new window['DrawingBoard']['Control'][this.opts.controls[i]](this);
+			else if (typeof this.opts.controls[i] == "object") {
+				for (var controlName in this.opts.controls[i]) break;
+				c = new window['DrawingBoard']['Control'][controlName](this, this.opts.controls[i][controlName]);
+			}
+			if (c) {
+				this.controls.push(c);
+				this.addControl(c);
+			}
 		}
 	},
 
@@ -278,7 +288,6 @@ DrawingBoard.Board.prototype = {
 	},
 
 	_onMouseOut: function(e, coords) {
-		console.log('ouseout');
 		this.isMouseHovering = false;
 
 		this.ev.trigger('board:mouseOut', {e: e, coords: coords});
