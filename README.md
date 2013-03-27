@@ -4,7 +4,7 @@ This is a simple canvas based drawing app that you can integrate easily on your 
 
 drawingboard.js consists of a blank canvas surrounded by a few UI elements that controls it:
 
-* a color picker ,
+* a color picker,
 * a pencil size chooser,
 * navigation buttons to undo or redo lines,
 * a reset button to put the canvas back to its original blank state
@@ -15,18 +15,18 @@ localStorage support is provided: your last drawing is restored when you come ba
 
 ## Requirements and Installation
 
-[Check the source of the demo page to see in details how to integrate the drawingboard](http://manu.habite.la/drawingboard/example/)
+[Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
 
 drawingboard.js requires a few things in order to work correctly:
 
 1. `jQuery`, `Zepto` or any other jQuery API compatible library
 2. An `input[type=range]` polyfill so that the pencil size control works [in every browser](http://caniuse.com/#feat=input-range)
 
-After including all the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains the board whereas `drawingboard.full.min.js` contains the board *and* the default controls. 
+After including all the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains the board whereas `drawingboard.full.min.js` contains the board *and* the default controls ('Color', 'Size', 'Navigation'). 
 
 ## Creating a drawingboard
 
-[Check the source of the demo page to see in details how to integrate the drawingboard](http://manu.habite.la/drawingboard/example/)
+[Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
 
 The drawingboard is tied to an HTML element with an #id. Set the dimensions of the desired board with CSS on the HTML element, and create it with one line of JavaScript:
 
