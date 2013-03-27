@@ -530,7 +530,7 @@ DrawingBoard.Control.Color = DrawingBoard.Control.extend({
 
 	initTemplate: function() {
 		var tpl =
-			'<div class="drawing-board-control-colors-current" style="background-color: {{color}}" data-color=""></div>' +
+			'<div class="drawing-board-control-colors-current" style="background-color: {{color}}" data-color="{{color}}"></div>' +
 			'<div class="drawing-board-control-colors-rainbows">{{rainbows}}</div>';
 		var oneColorTpl = '<div class="drawing-board-control-colors-picker" data-color="{{color}}" style="background-color: {{color}}"></div>';
 		var rainbows = '';
