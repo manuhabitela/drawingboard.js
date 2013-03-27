@@ -122,19 +122,32 @@ DrawingBoard.Board.prototype = {
 				c = new window['DrawingBoard']['Control'][controlName](this, this.opts.controls[i][controlName]);
 			}
 			if (c) {
-				this.controls.push(c);
 				this.addControl(c);
 			}
 		}
 	},
 
-	addControl: function(control) {
-		if (!control.board)
-			control.board = this;
+	//add a new control or an existing one at the position you want in the UI
+	//to add a totally new control, you can pass a string with the js class as 1st parameter and control options as 2nd ie "addControl('Navigation', { reset: false }"
+	//the last parameter (2nd or 3rd depending on the situation) is always the position you want to place the control at
+	addControl: function(control, optsOrPos, pos) {
+		if (typeof control !== "string" && (typeof control !== "object" || !control instanceof DrawingBoard.Control))
+			return false;
+
+		var opts = typeof optsOrPos == "object" ? optsOrPos : {};
+		pos = pos ? pos*1 : (typeof optsOrPos == "number" ? optsOrPos : null);
+
+		if (typeof control == "string")
+			control = new window['DrawingBoard']['Control'][control](this, opts);
+
+		if (pos)
+			this.dom.$controls.children().eq(pos).before(control.$el);
+		else
+			this.dom.$controls.append(control.$el);
+
 		if (!this.controls)
 			this.controls = [];
 		this.controls.push(control);
-		this.dom.$controls.append(control.$el);
 	},
 
 

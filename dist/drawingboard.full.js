@@ -452,3 +452,272 @@ DrawingBoard.Board.prototype = {
 		};
 	}
 };
+DrawingBoard.Control = function(drawingBoard, opts) {
+	this.board = drawingBoard;
+	this.opts = $.extend(this.opts, opts);
+
+	this.$el = $(document.createElement('div')).addClass('drawing-board-control');
+	if (this.name)
+		this.$el.addClass('drawing-board-control-' + this.name);
+
+	this.board.ev.bind('board:reset', $.proxy(function(opts) { this.onBoardReset(opts); }, this));
+
+	this.initialize.apply(this, arguments);
+	return this;
+};
+
+DrawingBoard.Control.prototype = {
+
+	name: '',
+
+	initialize: function() {
+
+	},
+
+	addToBoard: function() {
+		this.board.addControl(this);
+	},
+
+	onBoardReset: function(opts) {
+
+	}
+
+};
+
+//extend directly taken from backbone.js
+DrawingBoard.Control.extend = function(protoProps, staticProps) {
+	var parent = this;
+	var child;
+	if (protoProps && protoProps.hasOwnProperty('constructor')) {
+		child = protoProps.constructor;
+	} else {
+		child = function(){ return parent.apply(this, arguments); };
+	}
+	$.extend(child, parent, staticProps);
+	var Surrogate = function(){ this.constructor = child; };
+	Surrogate.prototype = parent.prototype;
+	child.prototype = new Surrogate();
+	if (protoProps) $.extend(child.prototype, protoProps);
+	child.__super__ = parent.prototype;
+	return child;
+};
+DrawingBoard.Control.Color = DrawingBoard.Control.extend({
+	name: 'colors',
+
+	opts: {
+		defaultColor: "rgba(0, 0, 0, 1)"
+	},
+
+	initialize: function() {
+		this.board.ctx.strokeStyle = this.opts.defaultColor;
+
+		this.initTemplate();
+
+		var that = this;
+		this.$el.on('click', '.drawing-board-control-colors-picker', function(e) {
+			that.board.ctx.strokeStyle = $(this).attr('data-color');
+			that.$el.find('.drawing-board-control-colors-current')
+				.css('background-color', $(this).attr('data-color'))
+				.attr('data-color', $(this).attr('data-color'));
+			e.preventDefault();
+		});
+
+		this.$el.on('click', '.drawing-board-control-colors-current', function(e) {
+			that.board.reset({ background: $(this).attr('data-color') });
+			e.preventDefault();
+		});
+	},
+
+	initTemplate: function() {
+		var tpl =
+			'<div class="drawing-board-control-colors-current" style="background-color: {{color}}" data-color=""></div>' +
+			'<div class="drawing-board-control-colors-rainbows">{{rainbows}}</div>';
+		var oneColorTpl = '<div class="drawing-board-control-colors-picker" data-color="{{color}}" style="background-color: {{color}}"></div>';
+		var rainbows = '';
+		$.each([0.75, 0.5, 0.25], $.proxy(function(key, val) {
+			var i = 0;
+			var additionalColor = null;
+			rainbows += '<div class="drawing-board-control-colors-rainbow">';
+			if (val == 0.25) additionalColor = this._rgba(0, 0, 0, 1);
+			if (val == 0.5) additionalColor = this._rgba(150, 150, 150, 1);
+			if (val == 0.75) additionalColor = this._rgba(255, 255, 255, 1);
+			rainbows += DrawingBoard.Utils.tpl(oneColorTpl, {color: additionalColor.toString() });
+			while (i <= 330) {
+				rainbows += DrawingBoard.Utils.tpl(oneColorTpl, {color: this._hsl2Rgba(this._hsl(i-60, 1, val)).toString() });
+				i+=30;
+			}
+			rainbows += '</div>';
+		}, this));
+
+		this.$el.append( $( DrawingBoard.Utils.tpl(tpl, {color: this.board.ctx.strokeStyle, rainbows: rainbows }) ) );
+	},
+
+	onBoardReset: function(opts) {
+		this.board.ctx.strokeStyle = this.$el.find('.drawing-board-control-colors-current').attr('data-color');
+	},
+
+	_rgba: function(r, g, b, a) {
+		return { r: r, g: g, b: b, a: a, toString: function() { return "rgba(" + r +", " + g + ", " + b + ", " + a + ")"; } };
+	},
+
+	_hsl: function(h, s, l) {
+		return { h: h, s: s, l: l, toString: function() { return "hsl(" + h +", " + s*100 + "%, " + l*100 + "%)"; } };
+	},
+
+	_hex2Rgba: function(hex) {
+		var num = parseInt(hex.substring(1), 16);
+		return this._rgba(num >> 16, num >> 8 & 255, num & 255, 1);
+	},
+
+	//conversion function (modified a bit) taken from http://mjijackson.com/2008/02/rgb-to-hsl-and-rgb-to-hsv-color-model-conversion-algorithms-in-javascript
+	_hsl2Rgba: function(hsl) {
+		var h = hsl.h/360, s = hsl.s, l = hsl.l, r, g, b;
+		function hue2rgb(p, q, t) {
+			if(t < 0) t += 1;
+			if(t > 1) t -= 1;
+			if(t < 1/6) return p + (q - p) * 6 * t;
+			if(t < 1/2) return q;
+			if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+			return p;
+		}
+		if (s === 0) {
+			r = g = b = l; // achromatic
+		} else {
+			var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+			var p = 2 * l - q;
+			r = Math.floor( (hue2rgb(p, q, h + 1/3)) * 255);
+			g = Math.floor( (hue2rgb(p, q, h)) * 255);
+			b = Math.floor( (hue2rgb(p, q, h - 1/3)) * 255);
+		}
+		return this._rgba(r, g, b, 1);
+	}
+});
+DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
+
+	name: 'navigation',
+
+	opts: {
+		back: true,
+		forward: true,
+		reset: true
+	},
+
+	initialize: function() {
+		this.history = {
+			values: [],
+			position: 0
+		};
+		this.saveHistory();
+
+		var el = '';
+		if (this.opts.back) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
+		if (this.opts.forward) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
+		if (this.opts.reset) el += '<button class="drawing-board-control-navigation-reset">×</button>';
+		this.$el.append(el);
+
+		if (this.opts.back) {
+			this.$el.on('click', '.drawing-board-control-navigation-back', $.proxy(function(e) {
+				this.goBackInHistory();
+				e.preventDefault();
+			}, this));
+		}
+
+		if (this.opts.forward) {
+			this.$el.on('click', '.drawing-board-control-navigation-forward', $.proxy(function(e) {
+				this.goForthInHistory();
+				e.preventDefault();
+			}, this));
+		}
+
+		if (this.opts.reset) {
+			this.$el.on('click', '.drawing-board-control-navigation-reset', $.proxy(function(e) {
+				this.board.reset();
+				e.preventDefault();
+			}, this));
+		}
+
+		this.board.ev.bind('board:stopDrawing', $.proxy(function(e) { this.saveHistory(); }, this));
+	},
+
+	saveHistory: function () {
+		while (this.history.values.length > 30) {
+			this.history.values.shift();
+		}
+		if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
+			this.history.values = this.history.values.slice(0, this.history.position);
+			this.history.position++;
+		} else {
+			this.history.position = this.history.values.length+1;
+		}
+		this.history.values.push(this.board.getImg());
+	},
+
+	_goThroughHistory: function(goForth) {
+		if ((goForth && this.history.position == this.history.values.length) ||
+			(!goForth && this.history.position == 1))
+			return;
+		var pos = goForth ? this.history.position+1 : this.history.position-1;
+		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
+			this.history.position = pos;
+			this.board.setImg(this.history.values[this.history.position-1]);
+		}
+		this.board.saveLocalStorage();
+	},
+
+	goBackInHistory: function() {
+		this._goThroughHistory(false);
+	},
+
+	goForthInHistory: function() {
+		this._goThroughHistory(true);
+	},
+
+	onBoardReset: function(opts) {
+		if (opts.history)
+			this.saveHistory();
+	}
+});
+DrawingBoard.Control.Size = DrawingBoard.Control.extend({
+
+	name: 'size',
+
+	initialize: function() {
+		var tpl = '<div class="drawing-board-control drawing-board-control-size"><div class="drawing-board-control-inner">' +
+			'<input type="range" min="1" max="50" value="{{size}}" step="1" class="drawing-board-control-size-input">' +
+			'<span class="drawing-board-control-size-label"></span>' +
+			'</div></div>';
+
+		this.$el.append( $( DrawingBoard.Utils.tpl(tpl, { size: this.board.opts.size }) ) );
+		var that = this;
+		this.$el.on('change', 'input', function(e) {
+			that.updateView($(this).val());
+			e.preventDefault();
+		});
+	},
+
+	onBoardReset: function(opts) {
+		this.updateView(this.$el.find('input').val());
+	},
+
+	updateView: function(val) {
+		this.board.ctx.lineWidth = val;
+		this.$el.find('.drawing-board-control-size-label').css({
+			width: val + 'px',
+			height: val + 'px',
+			borderRadius: val + 'px'
+		});
+	}
+});
+DrawingBoard.Control.Download = DrawingBoard.Control.extend({
+
+	name: 'download',
+
+	initialize: function() {
+		this.$el.append('<button class="drawing-board-control-download-button">⤓</button>');
+		this.$el.on('click', '.drawing-board-control-download-button', $.proxy(function(e) {
+			this.board.downloadImg();
+			e.preventDefault();
+		}, this));
+	}
+
+});

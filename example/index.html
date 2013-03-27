@@ -144,8 +144,15 @@
 	]
 });
 
+//There are multiple ways to add a control to a board after its initialization:
+customBoard.addControl('Download');
+
+//or...
+var downloadControl = new DrawingBoard.Control.Download(customBoard).addToBoard();
+
+//or...
 var downloadControl = new DrawingBoard.Control.Download(customBoard);
-customBoard.addControl(downloadControl);</code></pre>
+customBoard.addControl(downloadControl); </code></pre>
 			</div>
 
 			<div class="example">
@@ -212,6 +219,7 @@ customBoard.addControl(downloadControl);</code></pre>
 		<script src="../js/board.js"></script>
 		<script src="../js/utils.js"></script>
 		<!-- default controls included in the minified script -->
+		<script src="../js/controls/control.js"></script>
 		<script src="../js/controls/color.js"></script>
 		<script src="../js/controls/navigation.js"></script>
 		<script src="../js/controls/size.js"></script>
@@ -234,8 +242,7 @@ customBoard.addControl(downloadControl);</code></pre>
 				]
 			});
 
-			var downloadControl = new DrawingBoard.Control.Download(customBoard);
-			customBoard.addControl(downloadControl);
+			var downloadControl = new DrawingBoard.Control.Download(customBoard).addToBoard();
 
 
 			//make a dead simple drawingboard

@@ -1,21 +1,21 @@
-DrawingBoard.Control.Size = function(drawingBoard) {
-	this.board = drawingBoard || null;
-	var that = this;
-	var tpl = '<div class="drawing-board-control drawing-board-control-size"><div class="drawing-board-control-inner">' +
-		'<input type="range" min="1" max="50" value="' + this.board.opts.size + '" step="1" class="drawing-board-control-size-input">' +
-		'<span class="drawing-board-control-size-label"></span>' +
-		'</div></div>';
+DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 
-	this.$el = $(tpl);
-	this.$el.on('change', 'input', function(e) {
-		that.updateView($(this).val());
-		e.preventDefault();
-	});
+	name: 'size',
 
-	this.board.ev.bind('board:reset', $.proxy(function(opts) { this.onBoardReset(opts); }, this));
-};
+	initialize: function() {
+		var tpl = '<div class="drawing-board-control drawing-board-control-size"><div class="drawing-board-control-inner">' +
+			'<input type="range" min="1" max="50" value="{{size}}" step="1" class="drawing-board-control-size-input">' +
+			'<span class="drawing-board-control-size-label"></span>' +
+			'</div></div>';
 
-DrawingBoard.Control.Size.prototype = {
+		this.$el.append( $( DrawingBoard.Utils.tpl(tpl, { size: this.board.opts.size }) ) );
+		var that = this;
+		this.$el.on('change', 'input', function(e) {
+			that.updateView($(this).val());
+			e.preventDefault();
+		});
+	},
+
 	onBoardReset: function(opts) {
 		this.updateView(this.$el.find('input').val());
 	},
@@ -28,4 +28,4 @@ DrawingBoard.Control.Size.prototype = {
 			borderRadius: val + 'px'
 		});
 	}
-};
+});

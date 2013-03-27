@@ -1,12 +1,13 @@
-DrawingBoard.Control.Download = function(drawingBoard) {
-	this.board = drawingBoard || null;
+DrawingBoard.Control.Download = DrawingBoard.Control.extend({
 
-	var el = '<div class="drawing-board-control drawing-board-control-download">';
-	el += '<button class="drawing-board-control-download-button">⤓</button>';
-	el += '</div>';
-	this.$el = $(el);
-	this.$el.on('click', '.drawing-board-control-download-button', $.proxy(function(e) {
-		this.board.downloadImg();
-		e.preventDefault();
-	}, this));
-};
+	name: 'download',
+
+	initialize: function() {
+		this.$el.append('<button class="drawing-board-control-download-button">⤓</button>');
+		this.$el.on('click', '.drawing-board-control-download-button', $.proxy(function(e) {
+			this.board.downloadImg();
+			e.preventDefault();
+		}, this));
+	}
+
+});

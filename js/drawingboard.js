@@ -1,5 +1,1 @@
-window.DrawingBoard = {
-	Board: {},
-	Utils: {},
-	Control: {}
-};
+window.DrawingBoard = {};

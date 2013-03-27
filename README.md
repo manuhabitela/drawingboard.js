@@ -9,7 +9,7 @@ drawingboard.js consists of a blank canvas surrounded by a few UI elements that 
 * navigation buttons to undo or redo lines,
 * a reset button to put the canvas back to its original blank state
 
-You can draw with mouse or touch on pretty much [every browser that supports `<canvas>`](http://caniuse.com/#feat=canvas).
+You can draw with mouse or touch on pretty much [every browser that supports `<canvas>`](http://caniuse.com/#feat=canvas). Didn't test that much on IE and there are a few problems in Opera, but hey, WIP.
 
 localStorage support is provided: your last drawing is restored when you come back on the website.
 
@@ -22,7 +22,7 @@ drawingboard.js requires a few things in order to work correctly:
 1. `jQuery`, `Zepto` or any other jQuery API compatible library
 2. An `input[type=range]` polyfill so that the pencil size control works [in every browser](http://caniuse.com/#feat=input-range)
 
-After including all the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder.
+After including all the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains the board whereas `drawingboard.full.min.js` contains the board *and* the default controls. 
 
 ## Creating a drawingboard
 
@@ -59,32 +59,36 @@ A "control" is a UI element designed to let the user interact with the board. Ch
 
 The drawingboard has a few simple controls loaded by default, but you can easily create your own if the given ones don't satisfy you or else.
 
-Every control has in own class in the `js/controls` folder and have a few things in common:
+Every control extends the `DrawingBoard.Control` class. You can define a new control by extending it in the same way [http://backbonejs.org/](Backbone.js) works:
+	
+	DrawingBoard.Control.Example = DrawingBoard.Control.extend({
+		...
+	});
 
-* the 1st parameter of the constructor is always the board tied to the control. It lets you access to all the attributes and methods of the drawingboard.
-* the 2nd parameter is an object of options
-* the control has an `$el` attribute (a jQuery object): it is the UI element you can interact with. This is required.
-* the HTML element representing the control should have a `drawing-board-control` class.
+A control has a few attributes and methods:
 
-To add a control to an already created board:
-
-	var myDownloadControl = new Drawingboard.Control.Download(myBoard);
-	myBoard.addControl(myDownloadControl);
+* `name`: name of the control. Used to add a class on the div element that will be appended to the drawing-board-controls container (prefixed with "drawing-board-control-").
+* `$el`: the jQuery object that will be appended to the drawing-board-controls container.
+* `initialize`: the function invoked when a new instance of the control is created. A `DrawingBoard.Board` object is passed as 1st argument and an object of options as 2nd.
+* `board`: the `DrawingBoard.Board` attached to the control.
+* `opts`: the options passed at initialization.
+* `addToBoard`: appends the control to the DOM.
+* `onBoardReset`: method bind to the `board:reset̀`event.
 
 ## Events
 
 The drawingboard has events included that you can rely on. Events are all dispatched in the `ev` attribute of the board, which is based on [the microevent.js library](https://github.com/jeromeetienne/microevent.js).
 
-Events currently triggered are: 
+Events currently triggered are:
 
-* 'board:reset'
-* 'board:restoreLocalStorage'
-* 'board:saveLocalStorage'
-* 'board:startDrawing'
-* 'board:drawing'
-* 'board:stopDrawing'
-* 'board:mouseOver'
-* 'board:mouseOut'
+* board:reset
+* board:restoreLocalStorage
+* board:saveLocalStorage
+* board:startDrawing
+* board:drawing
+* board:stopDrawing
+* board:mouseOver
+* board:mouseOut
 
 
 ## Building your own
