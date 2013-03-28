@@ -302,6 +302,7 @@ DrawingBoard.Board.prototype = {
 	},
 
 	_getInputCoords: function(e) {
+		e = e.originalEvent ? e.originalEvent : e;
 		var x, y;
 		if (e.touches && e.touches.length == 1) {
 			x = e.touches[0].pageX;
