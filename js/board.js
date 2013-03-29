@@ -42,6 +42,7 @@ DrawingBoard.Board = function(id, opts) {
 	this.initControls();
 	this.reset({ localStorage: false });
 	this.restoreLocalStorage();
+	this.initDropEvents();
 	this.initDrawEvents();
 };
 
@@ -192,6 +193,34 @@ DrawingBoard.Board.prototype = {
 			localStorage.setItem('drawing-board-image-' + this.id, this.getImg());
 			this.ev.trigger('board:saveLocalStorage', this.getImg());
 		}
+	},
+
+
+
+	/**
+	 * Drop an image on the canvas to draw on it
+	 */
+	initDropEvents: function() {
+		this.dom.$canvas.on('dragover dragenter drop', function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+		});
+
+		this.dom.$canvas.on('drop', $.proxy(this._onCanvasDrop, this));
+	},
+
+	_onCanvasDrop: function(e) {
+		e = e.originalEvent ? e.originalEvent : e;
+		var files = e.dataTransfer.files;
+		if (!files || !files.length || files[0].type.indexOf('image') == -1 || !window.FileReader)
+			return false;
+		var fr = new FileReader();
+		fr.readAsDataURL(files[0]);
+		fr.onload = $.proxy(function(ev) {
+			this.setImg(ev.target.result);
+			this.ev.trigger('board:imageDropped', ev.target.result);
+			this.ev.trigger('board:userAction');
+		}, this);
 	},
 
 
