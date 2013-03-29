@@ -2,7 +2,7 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 
 	name: 'navigation',
 
-	opts: {
+	defaults: {
 		back: true,
 		forward: true,
 		reset: true
@@ -42,7 +42,7 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 			}, this));
 		}
 
-		this.board.ev.bind('board:stopDrawing', $.proxy(function(e) { this.saveHistory(); }, this));
+		this.board.ev.bind('board:userAction', $.proxy(this.saveHistory, this));
 	},
 
 	saveHistory: function () {

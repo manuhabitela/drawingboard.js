@@ -1,24 +1,74 @@
 .drawing-board-control-size {
-}
+	.drawing-board-control-inner {
+		@extend %box;
+		height: 44px;
 
-.drawing-board-control-size .drawing-board-control-inner {
-	@extend %box;
-	position: relative;
-	height: 44px;
-	width: 100px;
+	}
+
+	&[data-drawing-board-type="range"] .drawing-board-control-inner {
+		width: 100px;
+	}
+
+	&[data-drawing-board-type="list"] .drawing-board-control-inner {
+		overflow: visible;
+	}
 }
 
 .drawing-board-control-size-input {
 	width: 100%;
 }
 
-.drawing-board-control-size-label {
+%dot {
+	display: block;
 	background: #333;
+	opacity: .8;
+}
+
+.drawing-board-control-size-range-current {
+	@extend %dot;
 	display: inline-block;
+	opacity: .2;
 	position: absolute;
+	pointer-events: none;
 	bottom: 4px;
 	left: 8px;
-	opacity: .2;
-	pointer-events: none;
+}
+
+.drawing-board-control-size-list-current {
+	display: block;
+	height: 100%;
+	width: 40px;
+	overflow: hidden;
+	position: relative;
+	span {
+		@extend %dot;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+	}
+}
+
+.drawing-board-control-size-list {
+	position: absolute;
+	left: -2px;
+	top: 64px;
+	@extend %box;
+	height: auto;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
 	z-index: 10;
+	li {
+		display: block;
+		padding: 4px;
+		margin: 3px 0;
+		min-height: 16px;
+		&:hover {
+			background: #ccc;
+		}
+	}
+	span {
+		@extend %dot;
+		margin: 0 auto;
+	}
 }

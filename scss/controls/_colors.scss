@@ -4,7 +4,6 @@
 }
 
 .drawing-board-control-colors-current {
-	margin-right: 5px;
 	width: 52px;
 	height: 52px;
 	border: 1px solid #ccc;
@@ -14,6 +13,17 @@
 
 .drawing-board-control-colors-rainbows {
 	display: inline-block;
+	margin-left: 5px;
+	.drawing-board-control-colors[data-drawing-board-compact="1"] & {
+		position: absolute;
+		left: 0;
+		top: 64px;
+		@extend %box;
+		margin-left: 0;
+		z-index: 10;
+		width: 240px;
+		height: auto;
+	}
 }
 
 .drawing-board-control-colors-rainbow {

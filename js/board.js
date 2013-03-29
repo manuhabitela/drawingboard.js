@@ -310,6 +310,7 @@ DrawingBoard.Board.prototype = {
 			this.saveLocalStorage();
 
 			this.ev.trigger('board:stopDrawing', {e: e, coords: coords});
+			this.ev.trigger('board:userAction');
 			e.preventDefault();
 		}
 	},

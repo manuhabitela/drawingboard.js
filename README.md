@@ -17,12 +17,10 @@ localStorage support is provided: your last drawing is restored when you come ba
 
 [Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
 
-drawingboard.js requires a few things in order to work correctly:
+drawingboard.js requires `jQuery`, `Zepto` or any other jQuery API compatible library. That's pretty much it.
+The pencil size chooser control has two possible templates: a simple dropdown list or an HTML5 range input. In case you use it with the range input, including a polyfill such as [https://github.com/freqdec/fd-slider](fd-slider) is recommended so that it works in [in every browser](http://caniuse.com/#feat=input-range).
 
-1. `jQuery`, `Zepto` or any other jQuery API compatible library
-2. An `input[type=range]` polyfill so that the pencil size control works [in every browser](http://caniuse.com/#feat=input-range)
-
-After including all the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains the board whereas `drawingboard.full.min.js` contains the board *and* the default controls ('Color', 'Size', 'Navigation'). 
+After including the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains the board whereas `drawingboard.full.min.js` contains the board *and* the default controls ('Color', 'Size', 'Navigation').
 
 ## Creating a drawingboard
 
@@ -59,8 +57,15 @@ A "control" is a UI element designed to let the user interact with the board. Ch
 
 The drawingboard has a few simple controls loaded by default, but you can easily create your own if the given ones don't satisfy you or else.
 
+Existing controls are:
+
+* `DrawingBoard.Control.Color`: a color picker. When `compact` option is set to `true`, colors are visible in a dropdown by clicking on the current color.
+* `DrawingBoard.Control.Size`: a pencil size chooser. Choose your `type` in the options: `list` is a simple dropdown menu, whereas `range` uses a range input. Default to `list` since it supports more browsers. 
+* `DrawingBoard.Control.Navigation`: undo, redo actions and reset the canvas to blank with 3 buttons. You can choose to show or hide each button individually with options.
+* `DrawingBoard.Control.Download`: show a button to download current drawing (*not loaded by default*) 
+
 Every control extends the `DrawingBoard.Control` class. You can define a new control by extending it in the same way [http://backbonejs.org/](Backbone.js) works:
-	
+
 	DrawingBoard.Control.Example = DrawingBoard.Control.extend({
 		...
 	});
@@ -71,9 +76,12 @@ A control has a few attributes and methods:
 * `$el`: the jQuery object that will be appended to the drawing-board-controls container.
 * `initialize`: the function invoked when a new instance of the control is created. A `DrawingBoard.Board` object is passed as 1st argument and an object of options as 2nd.
 * `board`: the `DrawingBoard.Board` attached to the control.
-* `opts`: the options passed at initialization.
+* `opts`: the options passed at initialization of an instance.
+* `defaults`: default options of the class.
 * `addToBoard`: appends the control to the DOM.
-* `onBoardReset`: method bind to the `board:reset̀`event.
+* `onBoardReset`: method bind to the `board:reset` event.
+
+Since the controls are displayed as `table-cell`, you might want to add a `div.drawing-board-control-inner` when you create your control template (like in the 'Color' and the 'Size' controls) if you need to position relative/absolute things.
 
 ## Events
 

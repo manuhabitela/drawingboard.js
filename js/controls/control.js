@@ -1,12 +1,12 @@
 DrawingBoard.Control = function(drawingBoard, opts) {
 	this.board = drawingBoard;
-	this.opts = $.extend(this.opts, opts);
+	this.opts = $.extend({}, this.defaults, opts);
 
 	this.$el = $(document.createElement('div')).addClass('drawing-board-control');
 	if (this.name)
 		this.$el.addClass('drawing-board-control-' + this.name);
 
-	this.board.ev.bind('board:reset', $.proxy(function(opts) { this.onBoardReset(opts); }, this));
+	this.board.ev.bind('board:reset', $.proxy(this.onBoardReset, this));
 
 	this.initialize.apply(this, arguments);
 	return this;
@@ -15,6 +15,8 @@ DrawingBoard.Control = function(drawingBoard, opts) {
 DrawingBoard.Control.prototype = {
 
 	name: '',
+
+	defaults: {},
 
 	initialize: function() {
 
