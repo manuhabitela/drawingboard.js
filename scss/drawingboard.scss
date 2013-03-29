@@ -27,10 +27,10 @@
 }
 
 .drawing-board-utils-hidden {
-	display: none;
+	display: none !important;
 }
 
-.drawing-board, .drawing-board * { 
+.drawing-board, .drawing-board * {
 	@include box-sizing(content-box);
 }
 
@@ -64,7 +64,11 @@
 	border-collapse: separate;
 	vertical-align: top;
 	font-size: 16px;
-} 
+}
+
+.drawing-board-control-inner {
+	position: relative;
+}
 
 .drawing-board-control > button {
 	@extend %btn;

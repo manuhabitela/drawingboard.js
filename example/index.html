@@ -147,12 +147,12 @@
 			<div class="example">
 				<h1>A custom one</h1>
 				<div class="board" id="custom-board"></div>
-				<pre><code>var customBoard = new DrawingBoard.Board('custom-board', {
+				<pre><code>var customBoard = new DrawingBoard.Board('custom-board', { 
 	background: "#ff7ffe",
 	color: "#ff0",
 	size: 30,
 	controls: [
-		'Size', 
+		{ Size: { type: "range" } }, 
 		{ Navigation: { back: false, forward: false } }
 	]
 });
@@ -166,6 +166,14 @@ var downloadControl = new DrawingBoard.Control.Download(customBoard).addToBoard(
 //or...
 var downloadControl = new DrawingBoard.Control.Download(customBoard);
 customBoard.addControl(downloadControl); </code></pre>
+			</div>
+
+			<div class="example">
+				<h1>Another custom one</h1>
+				<div class="board" id="custom-board-2"></div>
+				<pre><code>var customBoard2 = new DrawingBoard.Board('custom-board-2', {
+	controls: [{ Color: { compact: true } }, 'Navigation', 'Download'];
+});</code></pre>
 			</div>
 
 			<div class="example">
@@ -183,7 +191,7 @@ customBoard.addControl(downloadControl); </code></pre>
 		<!-- jquery, zepto, or another jquery api compatible lib is required -->
 		<script src="../lib/jquery.min.js"></script>
 
-		<!-- an input[type=range] poyfill is more than recommanded if you want to use the default "size" control;
+		<!-- an input[type=range] poyfill is more than recommanded if you want to use the default "size" control with the "range" type;
 			without the polyfill the input will be of type text in IE, Firefox and others http://caniuse.com/#feat=input-range
 			here is an example of the implementation of https://github.com/freqdec/fd-slider 
 		
@@ -225,8 +233,8 @@ customBoard.addControl(downloadControl); </code></pre>
 
 		<!-- // drawingboard // -->
 
-		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors): -->
-		<!-- <script src="../dist/drawingboard.min.js"></script> -->
+		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors, download): -->
+		<!-- <script src="../dist/drawingboard.full.min.js"></script> -->
 
 		<script src="../js/drawingboard.js"></script>
 		<script src="../js/board.js"></script>
@@ -250,13 +258,17 @@ customBoard.addControl(downloadControl); </code></pre>
 				color: "#ff0",
 				size: 30,
 				controls: [
-					'Size', 
+					{ Size: { type: "range" } }, 
 					{ Navigation: { back: false, forward: false } }
 				]
 			});
 
 			var downloadControl = new DrawingBoard.Control.Download(customBoard).addToBoard();
 
+
+			var customBoard2 = new DrawingBoard.Board('custom-board-2', {
+				controls: [{ Color: { compact: true } }, 'Navigation', 'Download']
+			});
 
 			//make a dead simple drawingboard
 			var simpleBoard = new DrawingBoard.Board('simple-board', {

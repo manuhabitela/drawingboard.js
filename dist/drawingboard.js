@@ -171,6 +171,7 @@ DrawingBoard.Board = function(id, opts) {
 	this.initControls();
 	this.reset({ localStorage: false });
 	this.restoreLocalStorage();
+	this.initDropEvents();
 	this.initDrawEvents();
 };
 
@@ -326,6 +327,34 @@ DrawingBoard.Board.prototype = {
 
 
 	/**
+	 * Drop an image on the canvas to draw on it
+	 */
+	initDropEvents: function() {
+		this.dom.$canvas.on('dragover dragenter drop', function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+		});
+
+		this.dom.$canvas.on('drop', $.proxy(this._onCanvasDrop, this));
+	},
+
+	_onCanvasDrop: function(e) {
+		e = e.originalEvent ? e.originalEvent : e;
+		var files = e.dataTransfer.files;
+		if (!files || !files.length || files[0].type.indexOf('image') == -1 || !window.FileReader)
+			return false;
+		var fr = new FileReader();
+		fr.readAsDataURL(files[0]);
+		fr.onload = $.proxy(function(ev) {
+			this.setImg(ev.target.result);
+			this.ev.trigger('board:imageDropped', ev.target.result);
+			this.ev.trigger('board:userAction');
+		}, this);
+	},
+
+
+
+	/**
 	 * Drawing handling, with mouse or touch
 	 */
 
@@ -359,7 +388,7 @@ DrawingBoard.Board.prototype = {
 			this._onMouseOut(e, this._getInputCoords(e) );
 
 		}, this));
-		requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+		requestAnimationFrame( $.proxy(this.draw, this) );
 	},
 
 	draw: function() {
@@ -410,6 +439,7 @@ DrawingBoard.Board.prototype = {
 			this.saveLocalStorage();
 
 			this.ev.trigger('board:stopDrawing', {e: e, coords: coords});
+			this.ev.trigger('board:userAction');
 			e.preventDefault();
 		}
 	},
