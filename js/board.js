@@ -8,6 +8,7 @@
  *	color: pencil color ("#000000" by default)
  *	size: pencil size (3 by default)
  *	localStorage: true or false (false by default). If true, store the current drawing in localstorage and restore it when you come back
+ *	droppable: true or false (true by default). If true, dropping an image on the canvas will include it and allow you to draw on it
  * }
  */
 DrawingBoard.Board = function(id, opts) {
@@ -18,7 +19,8 @@ DrawingBoard.Board = function(id, opts) {
 		background: "#ffffff",
 		localStorage: false,
 		color: "#000000",
-		size: 3
+		size: 3,
+		droppable: true
 	}, opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
@@ -201,6 +203,9 @@ DrawingBoard.Board.prototype = {
 	 * Drop an image on the canvas to draw on it
 	 */
 	initDropEvents: function() {
+		if (!this.opts.droppable)
+			return false;
+
 		this.dom.$canvas.on('dragover dragenter drop', function(e) {
 			e.stopPropagation();
 			e.preventDefault();
@@ -259,7 +264,7 @@ DrawingBoard.Board.prototype = {
 			this._onMouseOut(e, this._getInputCoords(e) );
 
 		}, this));
-		requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+		requestAnimationFrame( $.proxy(this.draw, this) );
 	},
 
 	draw: function() {
