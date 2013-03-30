@@ -4,22 +4,22 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		concat: {
 			light: {
-				src: ['js/drawingboard.js', 'js/utils.js', 'js/board.js'],
-				dest: 'dist/drawingboard.js'
+				src: ['js/drawingboard.js', 'js/board.js', 'js/utils.js'],
+				dest: 'dist/drawingboard.nocontrol.js'
 			},
 			full: {
-				src: ['js/drawingboard.js', 'js/utils.js', 'js/board.js', 'js/controls/control.js', 'js/controls/color.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js'],
-				dest: 'dist/drawingboard.full.js'
+				src: ['js/drawingboard.js', 'js/board.js', 'js/controls/control.js', 'js/controls/color.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js', 'js/utils.js'],
+				dest: 'dist/drawingboard.js'
 			}
 		},
 		min: {
 			light: {
-				src: ['dist/drawingboard.js'],
-				dest: 'dist/drawingboard.min.js'
+				src: ['dist/drawingboard.nocontrol.js'],
+				dest: 'dist/drawingboard.nocontrol.min.js'
 			},
 			full: {
-				src: ['dist/drawingboard.full.js'],
-				dest: 'dist/drawingboard.full.min.js'
+				src: ['dist/drawingboard.js'],
+				dest: 'dist/drawingboard.min.js'
 			}
 		},
 		mincss: {
