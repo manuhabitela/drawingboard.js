@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('component.json'),
 		meta: {
 			banner: "/* <%= pkg.name %> v<%= pkg.version %> - https://github.com/Leimi/drawingboard.js\n" +
-			"* Copyright (c) <%= grunt.template.today('yyyy') %> Emmanuel Pelletier \n" +
+			"* Copyright (c) <%= grunt.template.today('yyyy') %> Emmanuel Pelletier\n" +
 			'* Licensed MIT */'
 		},
 		concat: {

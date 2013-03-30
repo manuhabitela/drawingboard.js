@@ -186,17 +186,32 @@ customBoard.addControl(downloadControl); </code></pre>
 
 		</div>
 
-		<!-- // (more or less) required libs // -->
-
-		<!-- jquery, zepto, or another jquery api compatible lib is required -->
+		<!-- jquery is required - zepto might do the trick too -->
 		<script src="../lib/jquery.min.js"></script>
-
-		<!-- an input[type=range] poyfill is more than recommanded if you want to use the default "size" control with the "range" type;
-			without the polyfill the input will be of type text in IE, Firefox and others http://caniuse.com/#feat=input-range
-			here is an example of the implementation of https://github.com/freqdec/fd-slider 
 		
-			the polyfill is loaded only if necessary via yepnope http://yepnopejs.com/
-		-->
+		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors, download): -->
+		<!--<script src="../dist/drawingboard.min.js"></script>-->
+
+		<script src="../js/drawingboard.js"></script>
+		<script src="../js/board.js"></script>
+		<script src="../js/controls/control.js"></script>
+		<script src="../js/controls/color.js"></script>
+		<script src="../js/controls/navigation.js"></script>
+		<script src="../js/controls/size.js"></script>
+		<script src="../js/controls/download.js"></script>
+		<script src="../js/utils.js"></script>
+
+		<script>
+			//create the drawingboard by passing it the #id of the wanted container
+			var defaultBoard = new DrawingBoard.Board('default-board');
+		</script>
+
+
+
+		<!-- an input[type=range] poyfill is more than recommanded if you want to use the default "size" control with the "range" type *on every browser*
+			the polyfill is loaded only if necessary via yepnope http://yepnopejs.com/ 
+
+			note this is totally not required if the size control is set to "auto" or "list"-->
 		<script src="../lib/yepnope.js"></script>
 		<script>
 			var iHasRangeInput = function() {
@@ -231,27 +246,7 @@ customBoard.addControl(downloadControl); </code></pre>
 			});
 		</script>
 
-		<!-- // drawingboard // -->
-
-		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors, download): -->
-		<!--<script src="../dist/drawingboard.min.js"></script>-->
-
-		<script src="../js/drawingboard.js"></script>
-		<script src="../js/board.js"></script>
-		<!-- default controls included in the minified script -->
-		<script src="../js/controls/control.js"></script>
-		<script src="../js/controls/color.js"></script>
-		<script src="../js/controls/navigation.js"></script>
-		<script src="../js/controls/size.js"></script>
-		<!-- additionnal control -->
-		<script src="../js/controls/download.js"></script>
-		<script src="../js/utils.js"></script>
-
 		<script>
-			//create the drawingboard by passing it the #id of the wanted container
-			var defaultBoard = new DrawingBoard.Board('default-board');
-
-
 			//pass options and add custom controls to a board
 			var customBoard = new DrawingBoard.Board('custom-board', { 
 				background: "#ff7ffe",
@@ -282,8 +277,6 @@ customBoard.addControl(downloadControl); </code></pre>
 				background: '../img/drawingboardjs.png',
 				color: '#ff0'
 			});
-
-			//look at ../js/board.js source to see what controls are added by default and the options you can pass to the drawingboard when you create it
 		</script>
 
 

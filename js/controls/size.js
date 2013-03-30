@@ -3,13 +3,15 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 	name: 'size',
 
 	defaults: {
-		type: "list",
+		type: "auto",
 		list: [1, 3, 6, 10, 20, 30, 40, 50]
 	},
 
 	types: ['list', 'range'],
 
 	initialize: function() {
+		if (this.opts.type == "auto")
+			this.opts.type = this._iHasRangeInput() ? 'range' : 'list';
 		var tpl = $.inArray(this.opts.type, this.types) > -1 ? this['_' + this.opts.type + 'Template']() : false;
 		if (!tpl) return false;
 
@@ -94,5 +96,26 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 			});
 			this.$el.find('.drawing-board-control-size-list').addClass('drawing-board-utils-hidden');
 		}
+	},
+
+	_iHasRangeInput: function() {
+		var inputElem  = document.createElement('input'),
+			smile = ':)',
+			docElement = document.documentElement,
+			inputElemType = 'range',
+			available;
+		inputElem.setAttribute('type', inputElemType);
+		available = inputElem.type !== 'text';
+		inputElem.value         = smile;
+		inputElem.style.cssText = 'position:absolute;visibility:hidden;';
+		if ( /^range$/.test(inputElemType) && inputElem.style.WebkitAppearance !== undefined ) {
+			docElement.appendChild(inputElem);
+			defaultView = document.defaultView;
+			available = defaultView.getComputedStyle &&
+				defaultView.getComputedStyle(inputElem, null).WebkitAppearance !== 'textfield' &&
+				(inputElem.offsetHeight !== 0);
+			docElement.removeChild(inputElem);
+		}
+		return !!available;
 	}
 });

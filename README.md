@@ -19,8 +19,6 @@ localStorage support is provided: your last drawing is restored when you come ba
 
 The board's only requirement is jQuery. Since its usage is pretty light, it may work as usual if you use zepto but I didn't test it.
 
-The pencil size chooser control has two possible templates: a simple dropdown list or an HTML5 range input. In case you use it with the range input, including a polyfill such as [https://github.com/freqdec/fd-slider](fd-slider) is recommended so that it works [in every browser](http://caniuse.com/#feat=input-range).
-
 If you use [Bower](http://twitter.github.com/bower/), getting the files is easy with command line: `bower install drawingboard.js`;
 
 After including the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains the board whereas `drawingboard.full.min.js` contains the board *and* the default controls ('Color', 'Size', 'Navigation').
@@ -63,9 +61,9 @@ The drawingboard has a few simple controls loaded by default, but you can easily
 Existing controls are:
 
 * `DrawingBoard.Control.Color`: a color picker. When `compact` option is set to `true`, colors are visible in a dropdown by clicking on the current color.
-* `DrawingBoard.Control.Size`: a pencil size chooser. Choose your `type` in the options: `list` is a simple dropdown menu, whereas `range` uses a range input. Default to `list` since it supports more browsers. 
+* `DrawingBoard.Control.Size`: a pencil size chooser. Choose your `type` in the options: `list` is a simple dropdown menu, whereas `range` uses a range input. Default to `auto`: if the browser supports the range input it will use it, otherwise it will use the dropdown menu. As seen in the example page, you can set the type to `range` and add a [range input polyfill](https://github.com/freqdec/fd-slider) if you want it on [every browser](http://caniuse.com/#feat=input-range). 
 * `DrawingBoard.Control.Navigation`: undo, redo actions and reset the canvas to blank with 3 buttons. You can choose to show or hide each button individually with options.
-* `DrawingBoard.Control.Download`: show a button to download current drawing (*not loaded by default*) 
+* `DrawingBoard.Control.Download`: show a button to download current drawing (*not loaded by default*).
 
 Every control extends the `DrawingBoard.Control` class. You can define a new control by extending it in the same way [http://backbonejs.org/](Backbone.js) works:
 
