@@ -21,7 +21,7 @@ The board's only requirement is jQuery. Since its usage is pretty light, it may 
 
 If you use [Bower](http://twitter.github.com/bower/), getting the files is easy with command line: `bower install drawingboard.js`;
 
-After including the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains the board whereas `drawingboard.full.min.js` contains the board *and* the default controls ('Color', 'Size', 'Navigation').
+After including the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains everything whereas `drawingboard.nocontrol.min.js` does not contains controls (*no shit?*).
 
 ## Creating a drawingboard
 
