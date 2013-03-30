@@ -19,9 +19,9 @@ localStorage support is provided: your last drawing is restored when you come ba
 
 The board's only requirement is jQuery. Since its usage is pretty light, it may work as usual if you use zepto but I didn't test it.
 
-If you use [Bower](http://twitter.github.com/bower/), getting the files is easy with command line: `bower install drawingboard.js`;
+If you use [Bower](http://twitter.github.com/bower/), getting the files is easy with command line: `bower install drawingboard.js`.
 
-After including the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains everything whereas `drawingboard.nocontrol.min.js` does not contains controls (*no shit?*).
+After jQuery, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains everything whereas `drawingboard.nocontrol.min.js` does not contains controls *(no shit?)*.
 
 ## Creating a drawingboard
 
@@ -29,18 +29,20 @@ After including the requirements in your page, you can include the minified scri
 
 The drawingboard is tied to an HTML element with an #id. Set the dimensions of the desired board with CSS on the HTML element, and create it with one line of JavaScript:
 
-	<div id="zbeubeu"></div>
+```html
+<div id="zbeubeu"></div>
 
-	<style>
-		#zbeubeu {
-			width: 400px;
-			height: 600px;
-		}
-	</style>
+<style>
+	#zbeubeu {
+		width: 400px;
+		height: 600px;
+	}
+</style>
 
-	<script>
-		var myBoard = new DrawingBoard.Board('zbeubeu');
-	</script>
+<script>
+	var myBoard = new DrawingBoard.Board('zbeubeu');
+</script>
+```
 
 ### Options
 
@@ -51,6 +53,7 @@ When instantiating the drawingboard, you can pass a few options as the 2nd param
 * `size`: the board's pencil size (integer). `3`px radius by default.
 * `background`: the board's background. Give an hex value for a color, anything else will be seen as an image. `#ffffff` (white) by default.
 * `localStorage`: do we enable localStorage support? If true, the drawing is saved when you quit the website and restored when you come back on it. False by default since there is a bug when multiple boards are on the same page...
+* `droppable`: do we allow the user to drop an image on the board to draw on it? true by default.
 
 ## Controls
 
@@ -58,18 +61,22 @@ A "control" is a UI element designed to let the user interact with the board. Ch
 
 The drawingboard has a few simple controls loaded by default, but you can easily create your own if the given ones don't satisfy you or else.
 
-Existing controls are:
+### Included controls
 
 * `DrawingBoard.Control.Color`: a color picker. When `compact` option is set to `true`, colors are visible in a dropdown by clicking on the current color.
 * `DrawingBoard.Control.Size`: a pencil size chooser. Choose your `type` in the options: `list` is a simple dropdown menu, whereas `range` uses a range input. Default to `auto`: if the browser supports the range input it will use it, otherwise it will use the dropdown menu. As seen in the example page, you can set the type to `range` and add a [range input polyfill](https://github.com/freqdec/fd-slider) if you want it on [every browser](http://caniuse.com/#feat=input-range). 
 * `DrawingBoard.Control.Navigation`: undo, redo actions and reset the canvas to blank with 3 buttons. You can choose to show or hide each button individually with options.
-* `DrawingBoard.Control.Download`: show a button to download current drawing (*not loaded by default*).
+* `DrawingBoard.Control.Download`: show a button to download current drawing *(not loaded by default)*.
+
+### Creating new controls
 
 Every control extends the `DrawingBoard.Control` class. You can define a new control by extending it in the same way [http://backbonejs.org/](Backbone.js) works:
 
-	DrawingBoard.Control.Example = DrawingBoard.Control.extend({
-		...
-	});
+```javascript
+DrawingBoard.Control.Example = DrawingBoard.Control.extend({
+	//prototype
+});
+```
 
 A control has a few attributes and methods:
 
@@ -82,7 +89,9 @@ A control has a few attributes and methods:
 * `addToBoard`: appends the control to the DOM.
 * `onBoardReset`: method bind to the `board:reset` event.
 
-Since the controls are displayed as `table-cell`, you might want to add a `div.drawing-board-control-inner` when you create your control template (like in the 'Color' and the 'Size' controls) if you need to position relative/absolute things.
+With the `board` property you can pretty much do what you want: bind to and trigger events (`this.board.ev`), manipulate the canvas through the rendering context (`this.board.ctx`), etc.
+
+*Note:* since the controls are displayed as `table-cell`, you might want to add a `div.drawing-board-control-inner` when you create your control template (like in the 'Color' and the 'Size' controls) if you need to position relative/absolute things.
 
 ## Events
 
@@ -98,6 +107,10 @@ Events currently triggered are:
 * board:stopDrawing
 * board:mouseOver
 * board:mouseOut
+* board:userAction
+* board:imageDropped
+* color:changed *(from the Color control)*
+* size:changed *(from the Size control)*
 
 
 ## Building your own
