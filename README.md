@@ -17,10 +17,11 @@ localStorage support is provided: your last drawing is restored when you come ba
 
 [Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
 
-drawingboard.js requires `jQuery`, `Zepto` or any other jQuery API compatible library. That's pretty much it.
+The board's only requirement is jQuery. Since its usage is pretty light, it may work as usual if you use zepto but I didn't test it.
 
 The pencil size chooser control has two possible templates: a simple dropdown list or an HTML5 range input. In case you use it with the range input, including a polyfill such as [https://github.com/freqdec/fd-slider](fd-slider) is recommended so that it works in [in every browser](http://caniuse.com/#feat=input-range).
 
+If you use [**Bower**](), getting the files is easy: `bower install drawingboard.js`;
 
 After including the requirements in your page, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains the board whereas `drawingboard.full.min.js` contains the board *and* the default controls ('Color', 'Size', 'Navigation').
 
