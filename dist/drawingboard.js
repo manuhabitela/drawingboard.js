@@ -1,3 +1,7 @@
+/* drawingboard.js v0.1.0 - https://github.com/Leimi/drawingboard.js
+* Copyright (c) 2013 Emmanuel Pelletier 
+* Licensed MIT */
+
 window.DrawingBoard = {};
 /**
  * pass the id of the html element to put the drawing board into
