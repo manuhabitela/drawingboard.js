@@ -2,7 +2,7 @@
 
 This is a simple canvas based drawing app that you can integrate easily on your website.
 
-drawingboard.js consists of a blank canvas surrounded by a few UI elements that controls it:
+drawingboard.js consists of a blank canvas surrounded by a few UI elements that control it:
 
 * a color picker,
 * a pencil size chooser,
