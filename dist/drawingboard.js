@@ -1,4 +1,4 @@
-/* drawingboard.js v0.1.1 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.1.2 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 
@@ -35,6 +35,11 @@ DrawingBoard.Board = function(id, opts) {
 	if (!this.$el.length)
 		return false;
 
+	this.resizeContainer = this.$el.get(0).tagName.toLowerCase() == "canvas";
+	if (this.resizeContainer) {
+		var div = this.$el.get(0).outerHTML.replace(/^<canvas/, "<div").replace(/<\/canvas>$/, "</div>");
+		this.$el = $(div).replaceAll(this.$el);
+	}
 	this.$el.addClass('drawing-board').append(tpl);
 	this.dom = {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
@@ -74,19 +79,51 @@ DrawingBoard.Board.prototype = {
 		var bgIsColor = (opts.background.charAt(0) == '#' && (opts.background.length == 7 || opts.background.length == 4 )) ||
 				(opts.background.substring(0, 3) == 'rgb');
 
-		//I know.
-		var width = this.$el.width() -
-			DrawingBoard.Utils.boxBorderWidth(this.$el) -
-			DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true);
-		var height = this.$el.height() -
-			DrawingBoard.Utils.boxBorderHeight(this.$el) -
-			this.dom.$controls.height() -
-			DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true) -
-			DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true);
-		this.dom.$canvasWrapper.css('width', width + 'px');
-		this.dom.$canvasWrapper.css('height', height + 'px');
-		this.canvas.width = width;
-		this.canvas.height = height;
+		//resize the board's container and canvas
+		//depending on the resizeContainer attribute, the size of the container is different
+		//if true, the original container size is set on the canvas: in the end the container will grow because of the controls height
+		//if false, the original container size is not changed: the canvas will be a little smaller to fit in with the controls
+		//
+		//I'm sure there is a better way to calculate sizes correctly besides... this... thing I did. SORRY
+		var canvasWidth, canvasHeight;
+		var widths = [
+			this.$el.width(),
+			DrawingBoard.Utils.boxBorderWidth(this.$el),
+			DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true)
+		];
+		var heights = [
+			this.$el.height(),
+			DrawingBoard.Utils.boxBorderHeight(this.$el),
+			this.dom.$controls.height(),
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true),
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true)
+		];
+		var that = this;
+		var sum = function(values, multiplier) { //make the sum of all array values
+			multiplier = multiplier || 1;
+			var res = values[0];
+			for (var i = 1; i < values.length; i++) {
+				res = res + (values[i]*multiplier);
+			}
+			return res;
+		};
+		var sub = function(values) { return sum(values, -1); }; //substract all array values from the first one
+
+		if (this.resizeContainer) {
+			canvasWidth = this.$el.width();
+			canvasHeight = this.$el.height();
+
+			this.$el.width( sum(widths) );
+			this.$el.height( sum(heights) );
+		} else {
+			canvasWidth = sub(widths);
+			canvasHeight = sub(heights);
+		}
+		this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
+		this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
+		this.canvas.width = canvasWidth;
+		this.canvas.height = canvasHeight;
+
 
 		this.ctx.strokeStyle = opts.color;
 		this.ctx.lineWidth = opts.size;

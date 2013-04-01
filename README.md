@@ -13,6 +13,8 @@ You can draw with mouse or touch on pretty much [every browser that supports `<c
 
 localStorage support is provided: your last drawing is restored when you come back on the website.
 
+You can set a background image at initialization, or let the user drop one on the canvas.
+
 ## Requirements and Installation
 
 [Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
@@ -43,6 +45,12 @@ The drawingboard is tied to an HTML element with an #id. Set the dimensions of t
 	var myBoard = new DrawingBoard.Board('zbeubeu');
 </script>
 ```
+
+### Board size: important note
+
+If the DOM element given at initialization is a `div` (just like in the example above), the CSS width/height will be set on the board's container. That means the addition of the canvas and the controls will be 400px high.
+
+But, if the initial DOM element is a `canvas`, the CSS width/height will be set on the final board's canvas, ie the drawing zone. That means the board's container will be taller than 400px because of the controls height.
 
 ### Options
 
