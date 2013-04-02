@@ -16,6 +16,10 @@ module.exports = function(grunt) {
 			full: {
 				src: ['<banner>', 'js/drawingboard.js', 'js/board.js', 'js/controls/control.js', 'js/controls/color.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js', 'js/utils.js'],
 				dest: 'dist/drawingboard.js'
+			},
+			css: { //simple copy in order to have everything in dist/
+				src: ['css/drawingboard.css'],
+				dest: 'dist/drawingboard.css'
 			}
 		},
 		min: {

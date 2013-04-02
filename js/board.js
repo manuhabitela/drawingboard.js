@@ -46,7 +46,10 @@ DrawingBoard.Board = function(id, opts) {
 	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
 
+	//init default board values before controls are added
+	this.reset({ localStorage: false, resize: false });
 	this.initControls();
+	//reset again to set correct board size
 	this.reset({ localStorage: false });
 	this.restoreLocalStorage();
 	this.initDropEvents();
@@ -67,8 +70,8 @@ DrawingBoard.Board.prototype = {
 			background: this.opts.background,
 			color: this.opts.color,
 			size: this.opts.size,
-			history: true,
-			localStorage: true
+			localStorage: true,
+			resize: true
 		}, opts);
 
 		var bgIsColor = (opts.background.charAt(0) == '#' && (opts.background.length == 7 || opts.background.length == 4 )) ||
@@ -80,44 +83,48 @@ DrawingBoard.Board.prototype = {
 		//if false, the original container size is not changed: the canvas will be a little smaller to fit in with the controls
 		//
 		//I'm sure there is a better way to calculate sizes correctly besides... this... thing I did. SORRY
-		var canvasWidth, canvasHeight;
-		var widths = [
-			this.$el.width(),
-			DrawingBoard.Utils.boxBorderWidth(this.$el),
-			DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true)
-		];
-		var heights = [
-			this.$el.height(),
-			DrawingBoard.Utils.boxBorderHeight(this.$el),
-			this.dom.$controls.height(),
-			DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true),
-			DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true)
-		];
-		var that = this;
-		var sum = function(values, multiplier) { //make the sum of all array values
-			multiplier = multiplier || 1;
-			var res = values[0];
-			for (var i = 1; i < values.length; i++) {
-				res = res + (values[i]*multiplier);
+		if (opts.resize) {
+			this.dom.$controls.toggleClass('drawing-board-controls-hidden', (!this.controls || !this.controls.length));
+
+			var canvasWidth, canvasHeight;
+			var widths = [
+				this.$el.width(),
+				DrawingBoard.Utils.boxBorderWidth(this.$el),
+				DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true)
+			];
+			var heights = [
+				this.$el.height(),
+				DrawingBoard.Utils.boxBorderHeight(this.$el),
+				this.dom.$controls.height(),
+				DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true),
+				DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true)
+			];
+			var that = this;
+			var sum = function(values, multiplier) { //make the sum of all array values
+				multiplier = multiplier || 1;
+				var res = values[0];
+				for (var i = 1; i < values.length; i++) {
+					res = res + (values[i]*multiplier);
+				}
+				return res;
+			};
+			var sub = function(values) { return sum(values, -1); }; //substract all array values from the first one
+
+			if (this.resizeContainer) {
+				canvasWidth = this.$el.width();
+				canvasHeight = this.$el.height();
+
+				this.$el.width( sum(widths) );
+				this.$el.height( sum(heights) );
+			} else {
+				canvasWidth = sub(widths);
+				canvasHeight = sub(heights);
 			}
-			return res;
-		};
-		var sub = function(values) { return sum(values, -1); }; //substract all array values from the first one
-
-		if (this.resizeContainer) {
-			canvasWidth = this.$el.width();
-			canvasHeight = this.$el.height();
-
-			this.$el.width( sum(widths) );
-			this.$el.height( sum(heights) );
-		} else {
-			canvasWidth = sub(widths);
-			canvasHeight = sub(heights);
+			this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
+			this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
+			this.canvas.width = canvasWidth;
+			this.canvas.height = canvasHeight;
 		}
-		this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
-		this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
-		this.canvas.width = canvasWidth;
-		this.canvas.height = canvasHeight;
 
 
 		this.ctx.strokeStyle = opts.color;
@@ -188,6 +195,7 @@ DrawingBoard.Board.prototype = {
 		if (!this.controls)
 			this.controls = [];
 		this.controls.push(control);
+		this.dom.$controls.removeClass('drawing-board-controls-hidden');
 	},
 
 
