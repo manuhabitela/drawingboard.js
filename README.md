@@ -15,8 +15,6 @@ localStorage support is provided: your last drawing is restored when you come ba
 
 You can set a background image at initialization, or let the user drop one on the canvas.
 
-It weights ~5kb minified when including controls, ~3kb when using only the canvas.
-
 ## Requirements and Installation
 
 [Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
@@ -25,7 +23,7 @@ The board's only requirement is jQuery. Since its usage is pretty light, it may 
 
 If you use [Bower](http://twitter.github.com/bower/), getting the files is easy with command line: `bower install drawingboard.js`.
 
-After jQuery, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` contains everything whereas `drawingboard.nocontrol.min.js` does not contain controls *(no shit?)*.
+After jQuery, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` *(~5kb minified and gzipped)* contains everything whereas `drawingboard.nocontrol.min.js` *(~3kb)* [does not contain controls](http://manu.habite.la/drawingboard/img/moto.jpg).
 
 ## Creating a drawingboard
 
@@ -34,7 +32,7 @@ After jQuery, you can include the minified script and stylesheet contained in th
 The drawingboard is tied to an HTML element with an #id. Set the dimensions of the desired board with CSS on the HTML element, and create it with one line of JavaScript:
 
 ```html
-<div id="zbeubeu"></div>
+<div id="zbeubeu"></div> <!--  can be a <canvas id="zbeubeu"></canvas> to set board's size differently; see below -->
 
 <style>
 	#zbeubeu {
