@@ -159,7 +159,7 @@ DrawingBoard.Board.prototype = {
 
 	initControls: function() {
 		this.controls = [];
-		if (!this.opts.controls.length) return false;
+		if (!this.opts.controls.length || !DrawingBoard.Control) return false;
 		for (var i = 0; i < this.opts.controls.length; i++) {
 			var c = null;
 			if (typeof this.opts.controls[i] == "string")

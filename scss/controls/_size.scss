@@ -15,7 +15,9 @@
 }
 
 .drawing-board-control-size-input {
+	position: relative;
 	width: 100%;
+	z-index: 10;
 }
 
 %dot {
@@ -27,11 +29,12 @@
 .drawing-board-control-size-range-current {
 	@extend %dot;
 	display: inline-block;
-	opacity: .2;
+	opacity: .15;
 	position: absolute;
 	pointer-events: none;
-	bottom: 4px;
-	left: 8px;
+	left: 50%;
+	top: 50%;
+	z-index: 1;
 }
 
 .drawing-board-control-size-list-current {
