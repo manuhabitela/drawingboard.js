@@ -9,7 +9,7 @@
 
 		<!-- in a production environment, you can include the minified css. It contains the css of the board and the default controls (size, nav, colors):
 		<link rel="stylesheet" href="../dist/drawingboard.min.css"> -->
-		<link rel="stylesheet" href="../css/drawingboard.css">
+		<link rel="stylesheet" href="../dist/drawingboard.css">
 
 		<style>
 
@@ -187,8 +187,8 @@ customBoard.addControl(downloadControl); </code></pre>
 		</div>
 
 		<!-- jquery is required - zepto might do the trick too -->
-		<script src="../lib/jquery.min.js"></script>
-		
+		<script src="../components/jquery/jquery.min.js"></script>
+
 		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors, download): -->
 		<!--<script src="../dist/drawingboard.min.js"></script>-->
 
@@ -212,7 +212,7 @@ customBoard.addControl(downloadControl); </code></pre>
 			the polyfill is loaded only if necessary via yepnope http://yepnopejs.com/ 
 
 			note this is totally not required if the size control is set to "auto" or "list"-->
-		<script src="../lib/yepnope.js"></script>
+		<script src="yepnope.js"></script>
 		<script>
 			var iHasRangeInput = function() {
 				var inputElem  = document.createElement('input'),
@@ -237,7 +237,7 @@ customBoard.addControl(downloadControl); </code></pre>
 
 			yepnope({
 				test : iHasRangeInput(),
-				nope : ['../lib/fd-slider.min.css', '../lib/fd-slider.min.js'],
+				nope : ['fd-slider.min.css', 'fd-slider.min.js'],
 				callback: function(id, testResult) {
 					if("fdSlider" in window && typeof (fdSlider.onDomReady) != "undefined") {
 						try { fdSlider.onDomReady(); } catch(err) {}
