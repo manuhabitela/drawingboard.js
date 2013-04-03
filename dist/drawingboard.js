@@ -1,4 +1,4 @@
-/* drawingboard.js v0.1.4 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.1.5 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 
@@ -315,6 +315,10 @@ DrawingBoard.Board.prototype = {
 
 		}, this));
 
+		$('body').on('mouseup touchend', $.proxy(function(e) {
+			this.isDrawing = false;
+		}, this));
+
 		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(this.draw, this) );
 	},
 
@@ -377,8 +381,6 @@ DrawingBoard.Board.prototype = {
 		this.isMouseHovering = true;
 		this.coords.old = this._getInputCoords(e);
 		this.coords.oldMid = this._getMidInputCoords(this.coords.old);
-		if (e.which !== 1)
-			this.isDrawing = false;
 
 		this.ev.trigger('board:mouseOver', {e: e, coords: coords});
 	},

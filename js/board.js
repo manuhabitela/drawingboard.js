@@ -310,6 +310,10 @@ DrawingBoard.Board.prototype = {
 
 		}, this));
 
+		$('body').on('mouseup touchend', $.proxy(function(e) {
+			this.isDrawing = false;
+		}, this));
+
 		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(this.draw, this) );
 	},
 
@@ -372,8 +376,6 @@ DrawingBoard.Board.prototype = {
 		this.isMouseHovering = true;
 		this.coords.old = this._getInputCoords(e);
 		this.coords.oldMid = this._getMidInputCoords(this.coords.old);
-		if (e.which !== 1)
-			this.isDrawing = false;
 
 		this.ev.trigger('board:mouseOver', {e: e, coords: coords});
 	},

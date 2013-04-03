@@ -9,7 +9,7 @@ drawingboard.js consists of a blank canvas surrounded by a few UI elements that 
 * navigation buttons to undo or redo lines,
 * a reset button to put the canvas back to its original blank state
 
-You can draw with mouse or touch on pretty much [every browser that supports `<canvas>`](http://caniuse.com/#feat=canvas). Didn't test that much on IE and there are a few problems in Opera, but hey, WIP.
+You can draw with mouse or touch on pretty much [every browser that supports `<canvas>`](http://caniuse.com/#feat=canvas). Didn't test that much on IE but hey, WIP.
 
 localStorage support is provided: your last drawing is restored when you come back on the website.
 
