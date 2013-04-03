@@ -309,12 +309,13 @@ DrawingBoard.Board.prototype = {
 			this._onMouseOut(e, this._getInputCoords(e) );
 
 		}, this));
-		requestAnimationFrame( $.proxy(this.draw, this) );
+
+		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(this.draw, this) );
 	},
 
 	draw: function() {
 		//if the pencil size is big (>10), the small crosshair makes a friend: a circle of the size of the pencil
-		if (this.ctx.lineWidth > 10 && this.isMouseHovering) {
+		if (window.requestAnimationFrame && this.ctx.lineWidth > 10 && this.isMouseHovering) {
 			this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
 			var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
 			this.dom.$cursor.css({ 'transform': transform, '-webkit-transform': transform, '-ms-transform': transform });
@@ -334,7 +335,7 @@ DrawingBoard.Board.prototype = {
 			this.coords.oldMid = currentMid;
 		}
 
-		requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 	},
 
 	_onInputStart: function(e, coords) {
@@ -348,8 +349,10 @@ DrawingBoard.Board.prototype = {
 
 	_onInputMove: function(e, coords) {
 		this.coords.current = coords;
-
 		this.ev.trigger('board:drawing', {e: e, coords: coords});
+
+		if (!window.requestAnimationFrame) this.draw();
+
 		e.preventDefault();
 	},
 

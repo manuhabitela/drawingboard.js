@@ -9,7 +9,7 @@
 
 		<!-- in a production environment, you can include the minified css. It contains the css of the board and the default controls (size, nav, colors):
 		<link rel="stylesheet" href="../dist/drawingboard.min.css"> -->
-		<link rel="stylesheet" href="../dist/drawingboard.css">
+		<link rel="stylesheet" href="../css/drawingboard.css">
 
 		<style>
 
@@ -172,7 +172,8 @@ customBoard.addControl(downloadControl); </code></pre>
 				<h1>Another custom one</h1>
 				<div class="board" id="custom-board-2"></div>
 				<pre><code>var customBoard2 = new DrawingBoard.Board('custom-board-2', {
-	controls: [{ Color: { compact: true } }, 'Navigation', 'Download'];
+	controls: [{ Color: { compact: true } }, 'Navigation', 'Download'],
+	size: 1
 });</code></pre>
 			</div>
 
@@ -262,7 +263,8 @@ customBoard.addControl(downloadControl); </code></pre>
 
 
 			var customBoard2 = new DrawingBoard.Board('custom-board-2', {
-				controls: [{ Color: { compact: true } }, 'Navigation', 'Download']
+				controls: [{ Color: { compact: true } }, 'Navigation', 'Download'],
+				size: 1
 			});
 
 			//make a dead simple drawingboard

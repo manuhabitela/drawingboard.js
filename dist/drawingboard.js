@@ -1,4 +1,4 @@
-/* drawingboard.js v0.1.3 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.1.4 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 
@@ -164,7 +164,7 @@ DrawingBoard.Board.prototype = {
 
 	initControls: function() {
 		this.controls = [];
-		if (!this.opts.controls.length) return false;
+		if (!this.opts.controls.length || !DrawingBoard.Control) return false;
 		for (var i = 0; i < this.opts.controls.length; i++) {
 			var c = null;
 			if (typeof this.opts.controls[i] == "string")
@@ -314,12 +314,13 @@ DrawingBoard.Board.prototype = {
 			this._onMouseOut(e, this._getInputCoords(e) );
 
 		}, this));
-		requestAnimationFrame( $.proxy(this.draw, this) );
+
+		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(this.draw, this) );
 	},
 
 	draw: function() {
 		//if the pencil size is big (>10), the small crosshair makes a friend: a circle of the size of the pencil
-		if (this.ctx.lineWidth > 10 && this.isMouseHovering) {
+		if (window.requestAnimationFrame && this.ctx.lineWidth > 10 && this.isMouseHovering) {
 			this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
 			var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
 			this.dom.$cursor.css({ 'transform': transform, '-webkit-transform': transform, '-ms-transform': transform });
@@ -339,7 +340,7 @@ DrawingBoard.Board.prototype = {
 			this.coords.oldMid = currentMid;
 		}
 
-		requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
+		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 	},
 
 	_onInputStart: function(e, coords) {
@@ -353,8 +354,10 @@ DrawingBoard.Board.prototype = {
 
 	_onInputMove: function(e, coords) {
 		this.coords.current = coords;
-
 		this.ev.trigger('board:drawing', {e: e, coords: coords});
+
+		if (!window.requestAnimationFrame) this.draw();
+
 		e.preventDefault();
 	},
 
@@ -886,28 +889,11 @@ DrawingBoard.Utils.boxBorderHeight = function($el, withPadding, withMargin) {
 	return DrawingBoard.Utils._boxBorderSize($el, withPadding, withMargin, 'height');
 };
 
-//included requestAnimationFrame (https://gist.github.com/paulirish/1579671) polyfill since it's really light
-//remove it and rebuild the minified files with grunt if you don't need it
 (function() {
-    var lastTime = 0;
-    var vendors = ['ms', 'moz', 'webkit', 'o'];
-    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
-    }
-
-    if (!window.requestAnimationFrame)
-        window.requestAnimationFrame = function(callback, element) {
-            var currTime = new Date().getTime();
-            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-              timeToCall);
-            lastTime = currTime + timeToCall;
-            return id;
-        };
-
-    if (!window.cancelAnimationFrame)
-        window.cancelAnimationFrame = function(id) {
-            clearTimeout(id);
-        };
+	var lastTime = 0;
+	var vendors = ['ms', 'moz', 'webkit', 'o'];
+	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+		window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+		window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+	}
 }());

@@ -48,11 +48,11 @@
 .drawing-board-control-size[data-drawing-board-type="range"] .drawing-board-control-inner { width: 100px; }
 .drawing-board-control-size[data-drawing-board-type="list"] .drawing-board-control-inner { overflow: visible; }
 
-.drawing-board-control-size-input { width: 100%; }
+.drawing-board-control-size-input { position: relative; width: 100%; z-index: 10; }
 
 .drawing-board-control-size-range-current, .drawing-board-control-size-list-current span, .drawing-board-control-size-list span { display: block; background: #333; opacity: .8; }
 
-.drawing-board-control-size-range-current { display: inline-block; opacity: .2; position: absolute; pointer-events: none; bottom: 4px; left: 8px; }
+.drawing-board-control-size-range-current { display: inline-block; opacity: .15; position: absolute; pointer-events: none; left: 50%; top: 50%; z-index: 1; }
 
 .drawing-board-control-size-list-current { display: block; height: 100%; width: 40px; overflow: hidden; position: relative; }
 .drawing-board-control-size-list-current span { position: absolute; left: 50%; top: 50%; }
