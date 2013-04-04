@@ -9,6 +9,10 @@
 	border: 1px solid #ccc;
 	cursor: pointer;
 	display: inline-block;
+	.drawing-board-control-colors[data-drawing-board-compact="1"] & {
+		width: $controls-height + 16px;
+		height: $controls-height + 16px;
+	}
 }
 
 .drawing-board-control-colors-rainbows {
@@ -17,12 +21,13 @@
 	.drawing-board-control-colors[data-drawing-board-compact="1"] & {
 		position: absolute;
 		left: 0;
-		top: 64px;
+		top: $controls-height + 31px;
 		@extend %box;
 		margin-left: 0;
 		z-index: 10;
 		width: 240px;
 		height: auto;
+		padding: 4px;
 	}
 }
 

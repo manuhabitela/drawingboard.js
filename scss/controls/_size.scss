@@ -1,8 +1,6 @@
 .drawing-board-control-size {
 	.drawing-board-control-inner {
 		@extend %box;
-		height: 44px;
-
 	}
 
 	&[data-drawing-board-type="range"] .drawing-board-control-inner {

@@ -3,7 +3,7 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 	name: 'size',
 
 	defaults: {
-		type: "auto",
+		type: "list",
 		list: [1, 3, 6, 10, 20, 30, 40, 50]
 	},
 
