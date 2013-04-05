@@ -1,4 +1,7 @@
 @import 'compass';
+.drawing-board, .drawing-board * {
+	@include box-sizing(content-box);
+}
 
 .drawing-board-utils-hidden {
 	display: none !important;

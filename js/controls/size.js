@@ -3,7 +3,7 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 	name: 'size',
 
 	defaults: {
-		type: "list",
+		type: "auto",
 		list: [1, 3, 6, 10, 20, 30, 40, 50]
 	},
 
@@ -24,7 +24,7 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 		var that = this;
 
 		if (this.opts.type == "range") {
-			this.$el.on('change', '.drawing-board-control-size-input', function(e) {
+			this.$el.on('change', '.drawing-board-control-size-range-input', function(e) {
 				that.val = $(this).val();
 				that.updateView();
 
@@ -52,7 +52,7 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 
 	_rangeTemplate: function() {
 		var tpl = '<div class="drawing-board-control-inner">' +
-			'<input type="range" min="1" max="50" value="{{size}}" step="1" class="drawing-board-control-size-input">' +
+			'<input type="range" min="1" max="50" value="{{size}}" step="1" class="drawing-board-control-size-range-input">' +
 			'<span class="drawing-board-control-size-range-current"></span>' +
 			'</div>';
 		return DrawingBoard.Utils.tpl(tpl, { size: this.board.opts.size });

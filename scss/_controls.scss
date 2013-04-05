@@ -1,14 +1,17 @@
-$controls-height: 24px;
+$controls-height: 28px;
+$controls-margin: 5px;
+$controls-dropdown-top: $controls-height + $controls-margin;
 
 %box {
+	@include box-sizing(border-box);
 	overflow: hidden;
 	border: none;
 	background-color:#eee;
-	padding: 4px 8px;
+	padding: 2px 4px;
 	border: 1px solid #ccc;
-	box-shadow: /*0 1px 3px -2px hsl(0, 0%, 7%), */inset 0 2px 5px 0 hsla(0, 100%, 100%, 0.3);
-	-webkit-box-shadow: /*0 1px 3px -2px hsl(0, 0%, 7%), */inset 0 2px 5px 0 hsla(0, 100%, 100%, 0.3);
-	height: 100%;
+	box-shadow: 0 1px 3px -2px hsl(0, 0%, 7%), inset 0 2px 5px 0 hsla(0, 100%, 100%, 0.3);
+	-webkit-box-shadow: 0 1px 3px -2px hsl(0, 0%, 7%), inset 0 2px 5px 0 hsla(0, 100%, 100%, 0.3);
+	height: $controls-height;
 }
 
 %btn {
@@ -22,6 +25,8 @@ $controls-height: 24px;
 		-webkit-box-shadow: inset 0 1px 2px 0 hsla(0, 0%, 0%, 0.2);
 		background-color: #ddd;
 	}
+	min-width: $controls-height;
+	line-height: $controls-height/2;
 }
 
 .drawing-board-controls {
@@ -29,20 +34,20 @@ $controls-height: 24px;
 	text-align: center;
 	font-size: 0;
 	display: table;
-	border-spacing: 15px 0;
-	height: $controls-height;
+	border-spacing: $controls-height/3 0;
 	position: relative;
 	&[data-align="left"] {
 		margin: 0;
-		left: -15px;
+		left: -$controls-height/3;
 	}
 	&[data-align="right"] {
 		margin: 0 0 0 auto;
-		right: -15px;
+		right: -$controls-height/3;
 	}
 	.drawing-board-canvas-wrapper + &, & + .drawing-board-canvas-wrapper {
-		margin-top: 5px;
+		margin-top: $controls-margin;
 	}
+	min-height: $controls-height;
 }
 
 .drawing-board-controls-hidden {
@@ -56,7 +61,7 @@ $controls-height: 24px;
 .drawing-board-control {
 	display: table-cell;
 	border-collapse: separate;
-	vertical-align: top;
+	vertical-align: middle;
 	font-size: 16px;
 	height: 100%;
 }
@@ -64,8 +69,10 @@ $controls-height: 24px;
 .drawing-board-control-inner {
 	position: relative;
 	height: 100%;
+	@include box-sizing(border-box);
 }
 
 .drawing-board-control > button {
 	@extend %btn;
+	margin: 0;
 }

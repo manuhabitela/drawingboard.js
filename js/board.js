@@ -4,7 +4,7 @@
  *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
  *		instead of simple strings, you can pass an object to define a control opts
  *		ie ['Color', { Navigation: { reset: false }}]
- *	controlsPosition: "top center" by default. Define where to put the controls: at the "top" or "bottom" of the canvas, aligned to "left"/"right"/"center"
+ *	controlsPosition: "top left" by default. Define where to put the controls: at the "top" or "bottom" of the canvas, aligned to "left"/"right"/"center"
  *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
  *	color: pencil color ("#000000" by default)
  *	size: pencil size (3 by default)
@@ -15,11 +15,11 @@
 DrawingBoard.Board = function(id, opts) {
 	this.opts = $.extend({
 		controls: ['Color', 'Size', 'Navigation'],
-		controlsPosition: "top center",
+		controlsPosition: "top left",
 		background: "#ffffff",
 		localStorage: false,
 		color: "#000000",
-		size: 3,
+		size: 1,
 		droppable: true
 	}, opts);
 

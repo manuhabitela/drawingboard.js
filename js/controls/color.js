@@ -58,8 +58,8 @@ DrawingBoard.Control.Color = DrawingBoard.Control.extend({
 		this.$el.append( $( DrawingBoard.Utils.tpl(tpl, {color: this.board.ctx.strokeStyle, rainbows: rainbows }) ) );
 		if (this.opts.compact) {
 			this.$el.find('.drawing-board-control-colors-rainbows').addClass('drawing-board-utils-hidden');
-			this.$el.attr('data-drawing-board-compact', "1");
 		}
+		this.$el.attr('data-drawing-board-compact', (this.opts.compact ? "1" : "0"));
 	},
 
 	onBoardReset: function(opts) {
