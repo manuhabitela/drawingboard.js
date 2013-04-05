@@ -17,7 +17,11 @@ module.exports = function(grunt) {
 				src: ['<banner>', 'js/drawingboard.js', 'js/board.js', 'js/controls/control.js', 'js/controls/color.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js', 'js/utils.js'],
 				dest: 'dist/drawingboard.js'
 			},
-			css: { //simple copy in order to have everything in dist/
+			cssLight: { //simple copy in order to have everything in dist/
+				src: ['css/drawingboard.nocontrol.css'],
+				dest: 'dist/drawingboard.nocontrol.css'
+			},
+			cssFull: { //simple copy in order to have everything in dist/
 				src: ['css/drawingboard.css'],
 				dest: 'dist/drawingboard.css'
 			}
@@ -33,7 +37,12 @@ module.exports = function(grunt) {
 			}
 		},
 		mincss: {
-			dist: {
+			light: {
+				files: {
+					'dist/drawingboard.nocontrol.min.css': ['css/drawingboard.nocontrol.css']
+				}
+			},
+			full: {
 				files: {
 					'dist/drawingboard.min.css': ['css/drawingboard.css']
 				}

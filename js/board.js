@@ -4,6 +4,7 @@
  *	controls: array of controls to initialize with the drawingboard. 'Colors', 'Size', and 'Navigation' by default
  *		instead of simple strings, you can pass an object to define a control opts
  *		ie ['Color', { Navigation: { reset: false }}]
+ *	controlsPosition: "top left" by default. Define where to put the controls: at the "top" or "bottom" of the canvas, aligned to "left"/"right"/"center"
  *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
  *	color: pencil color ("#000000" by default)
  *	size: pencil size (3 by default)
@@ -12,14 +13,13 @@
  * }
  */
 DrawingBoard.Board = function(id, opts) {
-	var tpl = '<div class="drawing-board-controls"></div><div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
-
 	this.opts = $.extend({
 		controls: ['Color', 'Size', 'Navigation'],
+		controlsPosition: "top left",
 		background: "#ffffff",
 		localStorage: false,
 		color: "#000000",
-		size: 3,
+		size: 1,
 		droppable: true
 	}, opts);
 
@@ -35,6 +35,11 @@ DrawingBoard.Board = function(id, opts) {
 		var div = this.$el.get(0).outerHTML.replace(/^<canvas/, "<div").replace(/<\/canvas>$/, "</div>");
 		this.$el = $(div).replaceAll(this.$el);
 	}
+
+	var tpl = '<div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
+	if (this.opts.controlsPosition.indexOf("bottom") > -1) tpl += '<div class="drawing-board-controls"></div>';
+	else tpl = '<div class="drawing-board-controls"></div>' + tpl;
+
 	this.$el.addClass('drawing-board').append(tpl);
 	this.dom = {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
@@ -42,6 +47,13 @@ DrawingBoard.Board = function(id, opts) {
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
 	};
+
+	$.each(['left', 'right', 'center'], $.proxy(function(n, val) {
+		if (this.opts.controlsPosition.indexOf(val) > -1) {
+			this.dom.$controls.attr('data-align', val);
+			return false;
+		}
+	}, this));
 
 	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');

@@ -1,12 +1,10 @@
 .drawing-board-control-size {
 	.drawing-board-control-inner {
 		@extend %box;
-		height: 44px;
-
 	}
 
 	&[data-drawing-board-type="range"] .drawing-board-control-inner {
-		width: 100px;
+		width: 75px;
 	}
 
 	&[data-drawing-board-type="list"] .drawing-board-control-inner {
@@ -14,10 +12,13 @@
 	}
 }
 
-.drawing-board-control-size-input {
+.drawing-board-control-size-range-input {
 	position: relative;
 	width: 100%;
 	z-index: 10;
+	margin: 0;
+	padding: 0;
+	border: 0;
 }
 
 %dot {
@@ -53,8 +54,8 @@
 
 .drawing-board-control-size-list {
 	position: absolute;
-	left: -2px;
-	top: 64px;
+	left: -6px;
+	top: $controls-dropdown-top;
 	@extend %box;
 	height: auto;
 	list-style-type: none;

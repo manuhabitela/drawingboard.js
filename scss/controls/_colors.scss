@@ -1,6 +1,9 @@
 .drawing-board-control-colors {
 	font-size: 0;
 	line-height: 0;
+	&[data-drawing-board-compact="0"] {
+		height: 52px;
+	}
 }
 
 .drawing-board-control-colors-current {
@@ -9,6 +12,10 @@
 	border: 1px solid #ccc;
 	cursor: pointer;
 	display: inline-block;
+	.drawing-board-control-colors[data-drawing-board-compact="1"] & {
+		width: $controls-height - 2px;
+		height: $controls-height - 2px;
+	}
 }
 
 .drawing-board-control-colors-rainbows {
@@ -17,12 +24,13 @@
 	.drawing-board-control-colors[data-drawing-board-compact="1"] & {
 		position: absolute;
 		left: 0;
-		top: 64px;
+		top: $controls-dropdown-top;
 		@extend %box;
 		margin-left: 0;
 		z-index: 10;
-		width: 240px;
+		width: 250px;
 		height: auto;
+		padding: 4px;
 	}
 }
 
@@ -40,12 +48,14 @@
 	height: 18px;
 	cursor: pointer;
 }
+
 .drawing-board-control-colors-picker[data-color="rgba(255, 255, 255, 1)"] {
 	width: 16px;
 	height: 17px;
 	border: 1px solid #ccc;
 	border-bottom: none;
 }
+
 .drawing-board-control-colors-picker:hover {
 	width: 16px;
 	height: 16px;
