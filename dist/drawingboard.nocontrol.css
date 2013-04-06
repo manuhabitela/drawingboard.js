@@ -4,7 +4,7 @@
 
 .drawing-board { position: relative; display: block; margin: 0 auto; }
 
-.drawing-board-canvas-wrapper { position: relative; margin: 0; border: 1px solid #dddddd; }
+.drawing-board-canvas-wrapper { position: relative; margin: 0; border: 1px solid #ddd; }
 
 .drawing-board-canvas { cursor: crosshair; width: auto; }
 

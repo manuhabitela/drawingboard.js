@@ -23,7 +23,7 @@ The board's only requirement is jQuery. Since its usage is pretty light, it may 
 
 If you use [Bower](http://twitter.github.com/bower/), getting the files is easy with command line: `bower install drawingboard.js`.
 
-After jQuery, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` *(~5kb minified and gzipped)* contains everything whereas `drawingboard.nocontrol.min.js` *(~3kb)* [does not contain controls](http://manu.habite.la/drawingboard/img/moto.jpg).
+After jQuery, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` *(~5.3kb minified and gzipped)* contains everything whereas `drawingboard.nocontrol.min.js` *(~3.3kb)* [does not contain controls](http://manu.habite.la/drawingboard/img/moto.jpg).
 
 ## Creating a drawingboard
 

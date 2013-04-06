@@ -58,8 +58,9 @@ DrawingBoard.Board = function(id, opts) {
 	this.canvas = this.dom.$canvas.get(0);
 	this.ctx = this.canvas.getContext('2d');
 
+	this.initHistory();
 	//init default board values before controls are added
-	this.reset({ localStorage: false, resize: false });
+	this.reset({ localStorage: false, history: false, resize: false });
 	this.initControls();
 	//reset again to set correct board size
 	this.reset({ localStorage: false });
@@ -83,7 +84,8 @@ DrawingBoard.Board.prototype = {
 			color: this.opts.color,
 			size: this.opts.size,
 			localStorage: true,
-			resize: true
+			resize: true,
+			history: true
 		}, opts);
 
 		var bgIsColor = (opts.background.charAt(0) == '#' && (opts.background.length == 7 || opts.background.length == 4 )) ||
@@ -153,6 +155,7 @@ DrawingBoard.Board.prototype = {
 			this.setImg(this.opts.background);
 
 		if (opts.localStorage) this.saveLocalStorage();
+		if (opts.history) this.saveHistory();
 
 		this.ev.trigger('board:reset', opts);
 	},
@@ -208,6 +211,51 @@ DrawingBoard.Board.prototype = {
 			this.controls = [];
 		this.controls.push(control);
 		this.dom.$controls.removeClass('drawing-board-controls-hidden');
+	},
+
+	/**
+	 * history methods: undo and redo drawed lines
+	 */
+
+	initHistory: function() {
+		this.history = {
+			values: [],
+			position: 0
+		};
+		this.saveHistory();
+	},
+
+	saveHistory: function () {
+		while (this.history.values.length > 30) {
+			this.history.values.shift();
+		}
+		if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
+			this.history.values = this.history.values.slice(0, this.history.position);
+			this.history.position++;
+		} else {
+			this.history.position = this.history.values.length+1;
+		}
+		this.history.values.push(this.getImg());
+	},
+
+	_goThroughHistory: function(goForth) {
+		if ((goForth && this.history.position == this.history.values.length) ||
+			(!goForth && this.history.position == 1))
+			return;
+		var pos = goForth ? this.history.position+1 : this.history.position-1;
+		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
+			this.history.position = pos;
+			this.setImg(this.history.values[this.history.position-1]);
+		}
+		this.saveLocalStorage();
+	},
+
+	goBackInHistory: function() {
+		this._goThroughHistory(false);
+	},
+
+	goForthInHistory: function() {
+		this._goThroughHistory(true);
 	},
 
 
@@ -282,6 +330,7 @@ DrawingBoard.Board.prototype = {
 			this.setImg(ev.target.result);
 			this.ev.trigger('board:imageDropped', ev.target.result);
 			this.ev.trigger('board:userAction');
+			this.saveHistory();
 		}, this);
 	},
 
@@ -377,6 +426,7 @@ DrawingBoard.Board.prototype = {
 			this.isDrawing = false;
 
 			this.saveLocalStorage();
+			this.saveHistory();
 
 			this.ev.trigger('board:stopDrawing', {e: e, coords: coords});
 			this.ev.trigger('board:userAction');
