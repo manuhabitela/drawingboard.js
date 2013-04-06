@@ -57,6 +57,7 @@ But, if the initial DOM element is a `canvas`, the CSS width/height will be set 
 When instantiating the drawingboard, you can pass a few options as the 2nd parameter in an object:
 
 * `controls`: an array containing the list of controls automatically loaded with the board. By default, the 'Color', 'Size' and 'Navigation' controls are loaded by default. You can pass an object instead of a string to pass control options (ie `['Color', { Navigation: { reset: false }}]`).
+* `controlsPosition`: define where to put the controls: at the "top" or "bottom" of the canvas, aligned to "left"/"right"/"center". "top left" by default.
 * `color`: the board's pencil color. `#000000` (black) by default.
 * `size`: the board's pencil size (integer). `3`px radius by default.
 * `background`: the board's background. Give an hex value for a color, anything else will be seen as an image. `#ffffff` (white) by default.
