@@ -73,7 +73,7 @@ The drawingboard has a few simple controls loaded by default, but you can easily
 ### Included controls
 
 * `DrawingBoard.Control.Color`: a color picker. When `compact` option is set to `true`, colors are visible in a dropdown by clicking on the current color.
-* `DrawingBoard.Control.Size`: a pencil size chooser. Choose your `type` in the options: `list` is a simple dropdown menu, whereas `range` uses a range input. Default to `auto`: if the browser supports the range input it will use it, otherwise it will use the dropdown menu. As seen in the example page, you can set the type to `range` and add a [range input polyfill](https://github.com/freqdec/fd-slider) if you want it on [every browser](http://caniuse.com/#feat=input-range). 
+* `DrawingBoard.Control.Size`: a pencil size chooser. Choose your `type` in the options: `dropdown` is a simple dropdown menu, whereas `range` uses a range input. Default to `auto`: if the browser supports the range input it will use it, otherwise it will use the dropdown menu. As seen in the example page, you can set the type to `range` and add a [range input polyfill](https://github.com/freqdec/fd-slider) if you want it on [every browser](http://caniuse.com/#feat=input-range).
 * `DrawingBoard.Control.Navigation`: undo, redo actions and reset the canvas to blank with 3 buttons. You can choose to show or hide each button individually with options.
 * `DrawingBoard.Control.Download`: show a button to download current drawing *(not loaded by default)*.
 

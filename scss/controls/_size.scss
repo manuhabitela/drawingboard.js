@@ -7,7 +7,7 @@
 		width: 75px;
 	}
 
-	&[data-drawing-board-type="list"] .drawing-board-control-inner {
+	&[data-drawing-board-type="dropdown"] .drawing-board-control-inner {
 		overflow: visible;
 	}
 }
@@ -38,7 +38,7 @@
 	z-index: 1;
 }
 
-.drawing-board-control-size-list-current {
+.drawing-board-control-size-dropdown-current {
 	display: block;
 	height: 100%;
 	width: 40px;
@@ -52,7 +52,7 @@
 	}
 }
 
-.drawing-board-control-size-list {
+.drawing-board-control-size-dropdown {
 	position: absolute;
 	left: -6px;
 	top: $controls-dropdown-top;

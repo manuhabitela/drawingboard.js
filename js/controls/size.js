@@ -4,14 +4,14 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 
 	defaults: {
 		type: "auto",
-		list: [1, 3, 6, 10, 20, 30, 40, 50]
+		dropdownValues: [1, 3, 6, 10, 20, 30, 40, 50]
 	},
 
-	types: ['list', 'range'],
+	types: ['dropdown', 'range'],
 
 	initialize: function() {
 		if (this.opts.type == "auto")
-			this.opts.type = this._iHasRangeInput() ? 'range' : 'list';
+			this.opts.type = this._iHasRangeInput() ? 'range' : 'dropdown';
 		var tpl = $.inArray(this.opts.type, this.types) > -1 ? this['_' + this.opts.type + 'Template']() : false;
 		if (!tpl) return false;
 
@@ -34,9 +34,9 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 			});
 		}
 
-		if (this.opts.type == "list") {
-			this.$el.on('click', '.drawing-board-control-size-list-current', $.proxy(function(e) {
-				this.$el.find('.drawing-board-control-size-list').toggleClass('drawing-board-utils-hidden');
+		if (this.opts.type == "dropdown") {
+			this.$el.on('click', '.drawing-board-control-size-dropdown-current', $.proxy(function(e) {
+				this.$el.find('.drawing-board-control-size-dropdown').toggleClass('drawing-board-utils-hidden');
 			}, this));
 
 			this.$el.on('click', '[data-size]', function(e) {
@@ -58,11 +58,11 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 		return DrawingBoard.Utils.tpl(tpl, { size: this.board.opts.size });
 	},
 
-	_listTemplate: function() {
+	_dropdownTemplate: function() {
 		var tpl = '<div class="drawing-board-control-inner">' +
-			'<div class="drawing-board-control-size-list-current"><span></span></div>' +
-			'<ul class="drawing-board-control-size-list">';
-		$.each(this.opts.list, function(i, size) {
+			'<div class="drawing-board-control-size-dropdown-current"><span></span></div>' +
+			'<ul class="drawing-board-control-size-dropdown">';
+		$.each(this.opts.dropdownValues, function(i, size) {
 			tpl += DrawingBoard.Utils.tpl(
 				'<li data-size="{{size}}"><span style="width: {{size}}px; height: {{size}}px; border-radius: {{size}}px;"></span></li>',
 				{ size: size }
@@ -80,7 +80,7 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 		var val = this.val;
 		this.board.ctx.lineWidth = val;
 
-		this.$el.find('.drawing-board-control-size-range-current, .drawing-board-control-size-list-current span').css({
+		this.$el.find('.drawing-board-control-size-range-current, .drawing-board-control-size-dropdown-current span').css({
 			width: val + 'px',
 			height: val + 'px',
 			borderRadius: val + 'px',
@@ -88,13 +88,13 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 			marginTop: -1*val/2 + 'px'
 		});
 
-		if (this.opts.type == 'list') {
+		if (this.opts.type == 'dropdown') {
 			var closest = null;
-			$.each(this.opts.list, function(i, size) {
+			$.each(this.opts.dropdownValues, function(i, size) {
 				if (closest === null || Math.abs(size - val) < Math.abs(closest - val))
 					closest = size;
 			});
-			this.$el.find('.drawing-board-control-size-list').addClass('drawing-board-utils-hidden');
+			this.$el.find('.drawing-board-control-size-dropdown').addClass('drawing-board-utils-hidden');
 		}
 	},
 

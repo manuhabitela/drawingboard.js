@@ -115,7 +115,7 @@
 		<!-- an input[type=range] poyfill is more than recommanded if you want to use the default "size" control with the "range" type *on every browser*
 			the polyfill is loaded only if necessary via yepnope http://yepnopejs.com/
 
-			note this is totally not required if the size control is set to "auto" or "list" - the control will work with every browser with an alternate view -->
+			note this is totally not required if the size control is set to "auto" or "dropdown" - the control will work with every browser with an alternate view -->
 		<script src="yepnope.js"></script>
 		<script>
 			var iHasRangeInput = function() {
@@ -177,7 +177,7 @@
 			var customBoard2 = new DrawingBoard.Board('custom-board-2', {
 				controls: [
 					{ Color: { compact: false } },
-					{ Size: { type: 'list', } },
+					{ Size: { type: 'dropdown', } },
 					'Navigation',
 					'Download'
 				],
