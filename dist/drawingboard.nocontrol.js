@@ -1,4 +1,4 @@
-/* drawingboard.js v0.1.7 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.1.8 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 
