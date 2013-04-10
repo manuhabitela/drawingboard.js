@@ -14,7 +14,8 @@ window.DrawingBoard = {};
  *	color: pencil color ("#000000" by default)
  *	size: pencil size (3 by default)
  *	localStorage: true or false (false by default). If true, store the current drawing in localstorage and restore it when you come back
- *	droppable: true or false (true by default). If true, dropping an image on the canvas will include it and allow you to draw on it
+ *	droppable: true or false (true by default). If true, dropping an image on the canvas will include it and allow you to draw on it,
+ *	errorMessage: html string to put in the board's element on browsers that don't support canvas.
  * }
  */
 DrawingBoard.Board = function(id, opts) {
@@ -25,7 +26,8 @@ DrawingBoard.Board = function(id, opts) {
 		localStorage: false,
 		color: "#000000",
 		size: 1,
-		droppable: true
+		droppable: true,
+		errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
 	}, opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
@@ -61,7 +63,12 @@ DrawingBoard.Board = function(id, opts) {
 	}, this));
 
 	this.canvas = this.dom.$canvas.get(0);
-	this.ctx = this.canvas.getContext('2d');
+	this.ctx = this.canvas && this.canvas.getContext && this.canvas.getContext('2d') ? this.canvas.getContext('2d') : null;
+	if (!this.ctx) {
+		if (this.opts.errorMessage)
+			this.$el.html(this.opts.errorMessage);
+		return false;
+	}
 
 	this.initHistory();
 	//init default board values before controls are added
@@ -172,9 +179,7 @@ DrawingBoard.Board.prototype = {
 	 * the drawing board can has various UI elements to control it.
 	 * one control is represented by a class in the namespace DrawingBoard.Control
 	 * it must have a $el property (jQuery object), representing the html element to append on the drawing board at initialization.
-	 * if it has a reset method, it will be called by the reset method of the drawing board
 	 *
-	 * An example control is given in controls/example.js.
 	 */
 
 	initControls: function() {
@@ -312,6 +317,7 @@ DrawingBoard.Board.prototype = {
 	/**
 	 * Drop an image on the canvas to draw on it
 	 */
+
 	initDropEvents: function() {
 		if (!this.opts.droppable)
 			return false;
@@ -385,6 +391,8 @@ DrawingBoard.Board.prototype = {
 
 	draw: function() {
 		//if the pencil size is big (>10), the small crosshair makes a friend: a circle of the size of the pencil
+		//todo: have the circle works on every browser - it currently should be added only when CSS pointer-events are supported
+		//we assume that if requestAnimationFrame is supported, pointer-events is too, but this is terribad.
 		if (window.requestAnimationFrame && this.ctx.lineWidth > 10 && this.isMouseHovering) {
 			this.dom.$cursor.css({ width: this.ctx.lineWidth + 'px', height: this.ctx.lineWidth + 'px' });
 			var transform = DrawingBoard.Utils.tpl("translateX({{x}}px) translateY({{y}}px)", { x: this.coords.current.x-(this.ctx.lineWidth/2), y: this.coords.current.y-(this.ctx.lineWidth/2) });
