@@ -2,7 +2,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-mincss');
 
 	grunt.initConfig({
-		pkg: grunt.file.readJSON('component.json'),
+		pkg: grunt.file.readJSON('bower.json'),
 		meta: {
 			banner: "/* <%= pkg.name %> v<%= pkg.version %> - https://github.com/Leimi/drawingboard.js\n" +
 			"* Copyright (c) <%= grunt.template.today('yyyy') %> Emmanuel Pelletier\n" +
