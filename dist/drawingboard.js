@@ -1,4 +1,4 @@
-/* drawingboard.js v0.1.8 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.1.9 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 
@@ -148,6 +148,8 @@ DrawingBoard.Board.prototype = {
 			}
 			this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
 			this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
+			this.dom.$canvas.css('width', canvasWidth + 'px');
+			this.dom.$canvas.css('height', canvasHeight + 'px');
 			this.canvas.width = canvasWidth;
 			this.canvas.height = canvasHeight;
 		}
@@ -413,6 +415,7 @@ DrawingBoard.Board.prototype = {
 			this.coords.oldMid = currentMid;
 		}
 
+
 		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 	},
 
@@ -420,6 +423,8 @@ DrawingBoard.Board.prototype = {
 		this.coords.current = this.coords.old = coords;
 		this.coords.oldMid = this._getMidInputCoords(coords);
 		this.isDrawing = true;
+
+		if (!window.requestAnimationFrame) this.draw();
 
 		this.ev.trigger('board:startDrawing', {e: e, coords: coords});
 		e.preventDefault();
