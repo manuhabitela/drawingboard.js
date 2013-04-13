@@ -63,6 +63,7 @@ When instantiating the drawingboard, you can pass a few options as the 2nd param
 * `background`: the board's background. Give an hex value for a color, anything else will be seen as an image. `#ffffff` (white) by default.
 * `localStorage`: do we enable localStorage support? If true, the drawing is saved when you quit the website and restored when you come back on it. False by default since there is a bug when multiple boards are on the same page...
 * `droppable`: do we allow the user to drop an image on the board to draw on it? true by default.
+* `errorMessage`: html string to put in the board's element on browsers that don't support canvas.
 
 ## Controls
 
