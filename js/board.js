@@ -274,7 +274,7 @@ DrawingBoard.Board.prototype = {
 	 */
 
 	setImg: function(src) {
-		img = new Image();
+		var img = new Image();
 		img.onload = $.proxy(function() {
 			this.ctx.drawImage(img, 0, 0);
 		}, this);
