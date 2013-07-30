@@ -61,8 +61,8 @@ When instantiating the drawingboard, you can pass a few options as the 2nd param
 * `color`: the board's pencil color. `#000000` (black) by default.
 * `size`: the board's pencil size (integer). `3`px radius by default.
 * `background`: the board's background. Give an hex value for a color, anything else will be seen as an image. `#ffffff` (white) by default.
-* `localStorage`: do we enable localStorage support? If true, the drawing is saved when you quit the website and restored when you come back on it. False by default since there is a bug when multiple boards are on the same page...
-* `droppable`: do we allow the user to drop an image on the board to draw on it? true by default.
+* `localStorage`: do we enable localStorage support? If true, the drawing is saved when you quit the website and restored when you come back on it. False by default.
+* `droppable`: do we allow the user to drop an image on the board to draw on it? false by default.
 
 ## Controls
 
