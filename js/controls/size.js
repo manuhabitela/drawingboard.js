@@ -51,7 +51,7 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 	},
 
 	_rangeTemplate: function() {
-		var tpl = '<div class="drawing-board-control-inner">' +
+		var tpl = '<div class="drawing-board-control-inner" title="{{size}}">' +
 			'<input type="range" min="1" max="50" value="{{size}}" step="1" class="drawing-board-control-size-range-input">' +
 			'<span class="drawing-board-control-size-range-current"></span>' +
 			'</div>';
@@ -59,7 +59,7 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 	},
 
 	_dropdownTemplate: function() {
-		var tpl = '<div class="drawing-board-control-inner">' +
+		var tpl = '<div class="drawing-board-control-inner" title="{{size}}">' +
 			'<div class="drawing-board-control-size-dropdown-current"><span></span></div>' +
 			'<ul class="drawing-board-control-size-dropdown">';
 		$.each(this.opts.dropdownValues, function(i, size) {
@@ -87,6 +87,8 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 			marginLeft: -1*val/2 + 'px',
 			marginTop: -1*val/2 + 'px'
 		});
+
+		this.$el.find('.drawing-board-control-inner').attr('title', val);
 
 		if (this.opts.type == 'dropdown') {
 			var closest = null;
