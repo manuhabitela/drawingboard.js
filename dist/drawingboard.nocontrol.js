@@ -1,7 +1,6 @@
-/* drawingboard.js v0.1.9 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.1.10 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
-
 window.DrawingBoard = {};
 /**
  * pass the id of the html element to put the drawing board into
@@ -26,7 +25,7 @@ DrawingBoard.Board = function(id, opts) {
 		localStorage: false,
 		color: "#000000",
 		size: 1,
-		droppable: true,
+		droppable: false,
 		errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
 	}, opts);
 
@@ -171,6 +170,8 @@ DrawingBoard.Board.prototype = {
 		if (opts.localStorage) this.saveLocalStorage();
 		if (opts.history) this.saveHistory();
 
+		this.blankCanvas = this.getImg();
+
 		this.ev.trigger('board:reset', opts);
 	},
 
@@ -277,7 +278,7 @@ DrawingBoard.Board.prototype = {
 	 */
 
 	setImg: function(src) {
-		img = new Image();
+		var img = new Image();
 		img.onload = $.proxy(function() {
 			this.ctx.drawImage(img, 0, 0);
 		}, this);
@@ -489,6 +490,7 @@ DrawingBoard.Board.prototype = {
 		};
 	}
 };
+
 DrawingBoard.Utils = {};
 
 /*!

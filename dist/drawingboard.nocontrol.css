@@ -1,3 +1,6 @@
+/* drawingboard.js v0.1.10 - https://github.com/Leimi/drawingboard.js
+* Copyright (c) 2013 Emmanuel Pelletier
+* Licensed MIT */
 .drawing-board, .drawing-board * { -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; }
 
 .drawing-board-utils-hidden { display: none !important; }
