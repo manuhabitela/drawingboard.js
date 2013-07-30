@@ -166,6 +166,8 @@ DrawingBoard.Board.prototype = {
 		if (opts.localStorage) this.saveLocalStorage();
 		if (opts.history) this.saveHistory();
 
+		this.blankCanvas = this.getImg();
+
 		this.ev.trigger('board:reset', opts);
 	},
 
