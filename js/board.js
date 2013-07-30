@@ -21,7 +21,7 @@ DrawingBoard.Board = function(id, opts) {
 		localStorage: false,
 		color: "#000000",
 		size: 1,
-		droppable: true,
+		droppable: false,
 		errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
 	}, opts);
 
