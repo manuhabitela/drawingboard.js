@@ -155,8 +155,14 @@ DrawingBoard.Board.prototype = {
 		this.ctx.lineCap = "round";
 		this.ctx.lineJoin = "round";
 		this.ctx.save();
-		if (bgIsColor)
+
+		if (bgIsColor) {
 			this.ctx.fillStyle = opts.background;
+			this.backgroundColor = opts.background;
+		} else {
+			this.backgroundColor = false;
+		}
+
 		this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		this.ctx.restore();
 
