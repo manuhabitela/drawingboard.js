@@ -8,22 +8,13 @@
  *	background: background of the drawing board. Give a hex color or an image url "#ffffff" (white) by default
  *	color: pencil color ("#000000" by default)
  *	size: pencil size (3 by default)
- *	localStorage: true or false (false by default). If true, store the current drawing in localstorage and restore it when you come back
+ *	webStorage: 'session', 'local' or false ('session' by default). store the current drawing in session or local storage and restore it when you come back
  *	droppable: true or false (true by default). If true, dropping an image on the canvas will include it and allow you to draw on it,
  *	errorMessage: html string to put in the board's element on browsers that don't support canvas.
  * }
  */
 DrawingBoard.Board = function(id, opts) {
-	this.opts = $.extend({
-		controls: ['Color', 'Size', 'Navigation'],
-		controlsPosition: "top left",
-		background: "#ffffff",
-		localStorage: false,
-		color: "#000000",
-		size: 1,
-		droppable: false,
-		errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
-	}, opts);
+	this.opts = $.extend(DrawingBoard.Board.defaultOpts, opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
 
@@ -67,15 +58,25 @@ DrawingBoard.Board = function(id, opts) {
 
 	this.initHistory();
 	//init default board values before controls are added
-	this.reset({ localStorage: false, history: false, resize: false });
+	this.reset({ webStorage: false, history: false, resize: false });
 	this.initControls();
 	//reset again to set correct board size
-	this.reset({ localStorage: false });
-	this.restoreLocalStorage();
+	this.reset({ webStorage: false });
+	this.restoreWebStorage();
 	this.initDropEvents();
 	this.initDrawEvents();
 };
 
+DrawingBoard.Board.defaultOpts = {
+	controls: ['Color', 'Size', 'Navigation'],
+	controlsPosition: "top left",
+	background: "#ffffff",
+	webStorage: 'session',
+	color: "#000000",
+	size: 1,
+	droppable: false,
+	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
+};
 
 DrawingBoard.Board.prototype = {
 
@@ -90,7 +91,7 @@ DrawingBoard.Board.prototype = {
 			background: this.opts.background,
 			color: this.opts.color,
 			size: this.opts.size,
-			localStorage: true,
+			webStorage: true,
 			resize: true,
 			history: true
 		}, opts);
@@ -169,7 +170,7 @@ DrawingBoard.Board.prototype = {
 		if (!bgIsColor)
 			this.setImg(this.opts.background);
 
-		if (opts.localStorage) this.saveLocalStorage();
+		if (opts.webStorage) this.saveWebStorage();
 		if (opts.history) this.saveHistory();
 
 		this.blankCanvas = this.getImg();
@@ -262,7 +263,7 @@ DrawingBoard.Board.prototype = {
 			this.history.position = pos;
 			this.setImg(this.history.values[this.history.position-1]);
 		}
-		this.saveLocalStorage();
+		this.saveWebStorage();
 	},
 
 	goBackInHistory: function() {
@@ -300,20 +301,24 @@ DrawingBoard.Board.prototype = {
 
 
 	/**
-	 * localStorage handling : save and restore
+	 * webStorage handling : save and restore to local or session storage
 	 */
 
-	restoreLocalStorage: function() {
-		if (this.opts.localStorage && window.localStorage && localStorage.getItem('drawing-board-image-' + this.id) !== null) {
-			this.setImg(localStorage.getItem('drawing-board-image-' + this.id));
-			this.ev.trigger('board:restoreLocalStorage', localStorage.getItem('drawing-board-image-' + this.id));
+	saveWebStorage: function() {
+		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
+		var storage = this.opts.webStorage + 'Storage';
+		if (window[storage]) {
+			window[storage].setItem('drawing-board-image-' + this.id, this.getImg());
+			this.ev.trigger('board:save' + storage.charAt(0).toUpperCase() + storage.slice(1), this.getImg());
 		}
 	},
 
-	saveLocalStorage: function() {
-		if (this.opts.localStorage && window.localStorage) {
-			localStorage.setItem('drawing-board-image-' + this.id, this.getImg());
-			this.ev.trigger('board:saveLocalStorage', this.getImg());
+	restoreWebStorage: function() {
+		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
+		var storage = this.opts.webStorage + 'Storage';
+		if (window[storage] && window[storage].getItem('drawing-board-image-' + this.id) !== null) {
+			this.setImg(window[storage].getItem('drawing-board-image-' + this.id));
+			this.ev.trigger('board:restore' + storage.charAt(0).toUpperCase() + storage.slice(1), window[storage].getItem('drawing-board-image-' + this.id));
 		}
 	},
 
@@ -446,7 +451,7 @@ DrawingBoard.Board.prototype = {
 		if (this.isDrawing && (!e.touches || e.touches.length === 0)) {
 			this.isDrawing = false;
 
-			this.saveLocalStorage();
+			this.saveWebStorage();
 			this.saveHistory();
 
 			this.ev.trigger('board:stopDrawing', {e: e, coords: coords});

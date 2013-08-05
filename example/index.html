@@ -177,13 +177,15 @@
 					'Navigation',
 					'Download'
 				],
-				size: 1
+				size: 1,
+				webStorage: 'session'
 			});
 		</script>
 
 		<script data-example="4">
 			var simpleBoard = new DrawingBoard.Board('simple-board', {
-				controls: false
+				controls: false,
+				webStorage: 'local'
 			});
 		</script>
 
@@ -191,7 +193,8 @@
 			var imageBoard = new DrawingBoard.Board('title-board', {
 				controls: false,
 				background: 'drawingboardjs.png',
-				color: '#ff0'
+				color: '#ff0',
+				webStorage: false
 			});
 		</script>
 
