@@ -23,13 +23,7 @@ DrawingBoard.Board = function(id, opts) {
 	if (!this.$el.length)
 		return false;
 
-	this.resizeContainer = this.$el.get(0).tagName.toLowerCase() == "canvas";
-	if (this.resizeContainer) {
-		var div = this.$el.get(0).outerHTML.replace(/^<canvas/, "<div").replace(/<\/canvas>$/, "</div>");
-		this.$el = $(div).replaceAll(this.$el);
-	}
-
-	var tpl = '<div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
+	var tpl = '<div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-bg-canvas"></canvas><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
 	if (this.opts.controlsPosition.indexOf("bottom") > -1) tpl += '<div class="drawing-board-controls"></div>';
 	else tpl = '<div class="drawing-board-controls"></div>' + tpl;
 
@@ -37,6 +31,7 @@ DrawingBoard.Board = function(id, opts) {
 	this.dom = {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
 		$canvas: this.$el.find('.drawing-board-canvas'),
+		$bgCanvas: this.$el.find('.drawing-board-bg-canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
 	};
@@ -49,7 +44,10 @@ DrawingBoard.Board = function(id, opts) {
 	}, this));
 
 	this.canvas = this.dom.$canvas.get(0);
+	this.bgCanvas = this.dom.$bgCanvas.get(0);
 	this.ctx = this.canvas && this.canvas.getContext && this.canvas.getContext('2d') ? this.canvas.getContext('2d') : null;
+	this.bgCtx = this.bgCanvas && this.bgCanvas.getContext && this.bgCanvas.getContext('2d') ? this.bgCanvas.getContext('2d') : null;
+
 	if (!this.ctx) {
 		if (this.opts.errorMessage)
 			this.$el.html(this.opts.errorMessage);
@@ -58,10 +56,11 @@ DrawingBoard.Board = function(id, opts) {
 
 	this.initHistory();
 	//init default board values before controls are added
-	this.reset({ webStorage: false, history: false, resize: false });
+	this.reset({ webStorage: false, history: false });
 	this.initControls();
 	//reset again to set correct board size
-	this.reset({ webStorage: false });
+	this.resize();
+	this.reset({ webStorage: false, background: true });
 	this.restoreWebStorage();
 	this.initDropEvents();
 	this.initDrawEvents();
@@ -70,19 +69,64 @@ DrawingBoard.Board = function(id, opts) {
 DrawingBoard.Board.defaultOpts = {
 	controls: ['Color', 'Eraser', 'Size', 'Navigation'],
 	controlsPosition: "top left",
-	background: "#ffffff",
+	background: "#ff0",
 	webStorage: 'session',
 	color: "#000000",
 	size: 1,
 	droppable: false,
+	enlargeYourContainer: true,
 	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
 };
 
 DrawingBoard.Board.prototype = {
 
-	resetBackground: function() {
-		var background = this.opts.background;
-		var bgIsColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/.test(background) || $.inArray(opts.background.substring(0, 3), ['rgb', 'hsl']);
+	resize: function() {
+		this.dom.$controls.toggleClass('drawing-board-controls-hidden', (!this.controls || !this.controls.length));
+
+		var canvasWidth, canvasHeight;
+		var widths = [
+			this.$el.width(),
+			DrawingBoard.Utils.boxBorderWidth(this.$el),
+			DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true)
+		];
+		var heights = [
+			this.$el.height(),
+			DrawingBoard.Utils.boxBorderHeight(this.$el),
+			this.dom.$controls.height(),
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true),
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true)
+		];
+		var that = this;
+		var sum = function(values, multiplier) { //make the sum of all array values
+			multiplier = multiplier || 1;
+			var res = values[0];
+			for (var i = 1; i < values.length; i++) {
+				res = res + (values[i]*multiplier);
+			}
+			return res;
+		};
+		var sub = function(values) { return sum(values, -1); }; //substract all array values from the first one
+
+		if (this.opts.enlargeYourContainer) {
+			canvasWidth = this.$el.width();
+			canvasHeight = this.$el.height();
+
+			this.$el.width( sum(widths) );
+			this.$el.height( sum(heights) );
+		} else {
+			canvasWidth = sub(widths);
+			canvasHeight = sub(heights);
+		}
+		this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
+		this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
+		$.each([this.dom.$canvas, this.dom.$bgCanvas], function(n, $item) {
+			$item.css('width', canvasWidth + 'px');
+			$item.css('height', canvasHeight + 'px');
+		});
+		$.each([this.canvas, this.bgCanvas], function(n, item) {
+			item.width = canvasWidth;
+			item.height = canvasHeight;
+		});
 	},
 
 	/**
@@ -93,87 +137,20 @@ DrawingBoard.Board.prototype = {
 	 */
 	reset: function(opts) {
 		opts = $.extend({
-			background: this.opts.background,
 			color: this.opts.color,
 			size: this.opts.size,
 			webStorage: true,
-			resize: true,
-			history: true
+			history: true,
+			background: false
 		}, opts);
 
-		var bgIsColor = (opts.background.charAt(0) == '#' && (opts.background.length == 7 || opts.background.length == 4 )) ||
-				(opts.background.substring(0, 3) == 'rgb');
-
-		//resize the board's container and canvas
-		//depending on the resizeContainer attribute, the size of the container is different
-		//if true, the original container size is set on the canvas: in the end the container will grow because of the controls height
-		//if false, the original container size is not changed: the canvas will be a little smaller to fit in with the controls
-		//
-		//I'm sure there is a better way to calculate sizes correctly besides... this... thing I did. SORRY
-		if (opts.resize) {
-			this.dom.$controls.toggleClass('drawing-board-controls-hidden', (!this.controls || !this.controls.length));
-
-			var canvasWidth, canvasHeight;
-			var widths = [
-				this.$el.width(),
-				DrawingBoard.Utils.boxBorderWidth(this.$el),
-				DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true)
-			];
-			var heights = [
-				this.$el.height(),
-				DrawingBoard.Utils.boxBorderHeight(this.$el),
-				this.dom.$controls.height(),
-				DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true),
-				DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true)
-			];
-			var that = this;
-			var sum = function(values, multiplier) { //make the sum of all array values
-				multiplier = multiplier || 1;
-				var res = values[0];
-				for (var i = 1; i < values.length; i++) {
-					res = res + (values[i]*multiplier);
-				}
-				return res;
-			};
-			var sub = function(values) { return sum(values, -1); }; //substract all array values from the first one
-
-			if (this.resizeContainer) {
-				canvasWidth = this.$el.width();
-				canvasHeight = this.$el.height();
-
-				this.$el.width( sum(widths) );
-				this.$el.height( sum(heights) );
-			} else {
-				canvasWidth = sub(widths);
-				canvasHeight = sub(heights);
-			}
-			this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
-			this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
-			this.dom.$canvas.css('width', canvasWidth + 'px');
-			this.dom.$canvas.css('height', canvasHeight + 'px');
-			this.canvas.width = canvasWidth;
-			this.canvas.height = canvasHeight;
-		}
-
+		if (opts.background) this.resetBackground();
 
 		this.ctx.strokeStyle = opts.color;
 		this.ctx.lineWidth = opts.size;
 		this.ctx.lineCap = "round";
 		this.ctx.lineJoin = "round";
-		this.ctx.save();
-
-		if (bgIsColor) {
-			this.ctx.fillStyle = opts.background;
-			this.backgroundColor = opts.background;
-		} else {
-			this.backgroundColor = false;
-		}
-
-		this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-		this.ctx.restore();
-
-		if (!bgIsColor)
-			this.setImg(this.opts.background);
+		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
 
 		if (opts.webStorage) this.saveWebStorage();
 		if (opts.history) this.saveHistory();
@@ -183,6 +160,16 @@ DrawingBoard.Board.prototype = {
 		this.ev.trigger('board:reset', opts);
 	},
 
+	resetBackground: function() {
+		var background = this.opts.background;
+		var bgIsColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(background) || $.inArray(background.substring(0, 3), ['rgb', 'hsl']);
+		if (bgIsColor) {
+			this.bgCtx.fillStyle = background;
+			this.bgCtx.fillRect(0, 0, this.bgCtx.canvas.width, this.bgCtx.canvas.height);
+		} else {
+			this.setImg(background, this.bgCtx);
+		}
+	},
 
 
 	/**
@@ -285,15 +272,17 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	setImg: function(src) {
+	setImg: function(src, ctx) {
+		ctx = ctx || this.ctx;
 		var img = new Image();
-		img.onload = $.proxy(function() {
-			this.ctx.drawImage(img, 0, 0);
-		}, this);
+		img.onload = function() {
+			ctx.drawImage(img, 0, 0);
+		};
 		img.src = src;
 	},
 
-	getImg: function() {
+	getImg: function(canvas) {
+		canvas = canvas || this.canvas;
 		return this.canvas.toDataURL("image/png");
 	},
 

@@ -6,7 +6,9 @@
 
 .drawing-board-canvas-wrapper { position: relative; margin: 0; border: 1px solid #dddddd; }
 
-.drawing-board-canvas { cursor: crosshair; width: auto; }
+.drawing-board-bg-canvas, .drawing-board-canvas { position: absolute; top: 0; left: 0; z-index: 10; width: auto; }
+
+.drawing-board-canvas { cursor: crosshair; z-index: 20; }
 
 .drawing-board-cursor { position: absolute; top: 0; left: 0; pointer-events: none; border-radius: 50%; background: #ccc; background: rgba(0, 0, 0, 0.2); }
 
@@ -48,7 +50,7 @@
 
 .drawing-board-control-colors-picker:hover { width: 16px; height: 16px; border: 1px solid #555555; }
 
-.drawing-board-control-eraser > button { overflow: hidden; *text-indent: -9999px; background-image: url('../img/eraser.png?1375444185'); background-position: 50% 50%; background-repeat: no-repeat; }
+.drawing-board-control-eraser > button { overflow: hidden; *text-indent: -9999px; background-image: url('../img/eraser.png?1375702870'); background-position: 50% 50%; background-repeat: no-repeat; }
 .drawing-board-control-eraser > button:before { content: ""; display: block; width: 0; height: 100%; }
 
 .drawing-board-control-navigation > button { font-weight: bold; margin-right: 2px; }

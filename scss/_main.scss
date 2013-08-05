@@ -18,9 +18,17 @@
 	border: 1px solid #ddd;
 }
 
+.drawing-board-bg-canvas, .drawing-board-canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 10;
+	width: auto;
+}
+
 .drawing-board-canvas {
 	cursor: crosshair;
-	width: auto;
+	z-index: 20;
 }
 
 .drawing-board-cursor {
