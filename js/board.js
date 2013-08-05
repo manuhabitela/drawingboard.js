@@ -9,7 +9,7 @@
  *	color: pencil color ("#000000" by default)
  *	size: pencil size (3 by default)
  *	webStorage: 'session', 'local' or false ('session' by default). store the current drawing in session or local storage and restore it when you come back
- *	droppable: true or false (true by default). If true, dropping an image on the canvas will include it and allow you to draw on it,
+ *	droppable: true or false (false by default). If true, dropping an image on the canvas will include it and allow you to draw on it,
  *	errorMessage: html string to put in the board's element on browsers that don't support canvas.
  * }
  */
@@ -66,6 +66,8 @@ DrawingBoard.Board = function(id, opts) {
 	this.initDrawEvents();
 };
 
+
+
 DrawingBoard.Board.defaultOpts = {
 	controls: ['Color', 'Eraser', 'Size', 'Navigation'],
 	controlsPosition: "top left",
@@ -78,7 +80,54 @@ DrawingBoard.Board.defaultOpts = {
 	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
 };
 
+
+
 DrawingBoard.Board.prototype = {
+
+	/** 
+	 * Canvas reset/resize methods: put back the canvas to its default values
+	 *
+	 * depending on options, can set color, size, background back to default values
+	 * and store the reseted canvas in webstorage and history queue
+	 * 
+	 * resize values depend on the `enlargeYourContainer` option
+	 */
+	
+	reset: function(opts) {
+		opts = $.extend({
+			color: this.opts.color,
+			size: this.opts.size,
+			webStorage: true,
+			history: true,
+			background: false
+		}, opts);
+
+		if (opts.background) this.resetBackground();
+
+		if (opts.color) this.ctx.strokeStyle = opts.color;
+		if (opts.size) this.ctx.lineWidth = opts.size;
+		this.ctx.lineCap = "round";
+		this.ctx.lineJoin = "round";
+		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+
+		if (opts.webStorage) this.saveWebStorage();
+		if (opts.history) this.saveHistory();
+
+		this.blankCanvas = this.getImg();
+
+		this.ev.trigger('board:reset', opts);
+	},
+
+	resetBackground: function() {
+		var background = this.opts.background;
+		var bgIsColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(background) || $.inArray(background.substring(0, 3), ['rgb', 'hsl']) !== -1;
+		if (bgIsColor) {
+			this.bgCtx.fillStyle = background;
+			this.bgCtx.fillRect(0, 0, this.bgCtx.canvas.width, this.bgCtx.canvas.height);
+		} else {
+			this.setImg(background, this.bgCtx);
+		}
+	},
 
 	resize: function() {
 		this.dom.$controls.toggleClass('drawing-board-controls-hidden', (!this.controls || !this.controls.length));
@@ -117,59 +166,21 @@ DrawingBoard.Board.prototype = {
 			canvasWidth = sub(widths);
 			canvasHeight = sub(heights);
 		}
+
 		this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
 		this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
+
 		$.each([this.dom.$canvas, this.dom.$bgCanvas], function(n, $item) {
 			$item.css('width', canvasWidth + 'px');
 			$item.css('height', canvasHeight + 'px');
 		});
+
 		$.each([this.canvas, this.bgCanvas], function(n, item) {
 			item.width = canvasWidth;
 			item.height = canvasHeight;
 		});
 	},
 
-	/**
-	 * reset the drawing board and its controls
-	 * - recalculates canvas size
-	 * - change background based on default one or given one in the opts object
-	 * - store the reseted drawing board in localstorage if opts.localStorage is true (it is by default)
-	 */
-	reset: function(opts) {
-		opts = $.extend({
-			color: this.opts.color,
-			size: this.opts.size,
-			webStorage: true,
-			history: true,
-			background: false
-		}, opts);
-
-		if (opts.background) this.resetBackground();
-
-		this.ctx.strokeStyle = opts.color;
-		this.ctx.lineWidth = opts.size;
-		this.ctx.lineCap = "round";
-		this.ctx.lineJoin = "round";
-		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
-
-		if (opts.webStorage) this.saveWebStorage();
-		if (opts.history) this.saveHistory();
-
-		this.blankCanvas = this.getImg();
-
-		this.ev.trigger('board:reset', opts);
-	},
-
-	resetBackground: function() {
-		var background = this.opts.background;
-		var bgIsColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(background) || $.inArray(background.substring(0, 3), ['rgb', 'hsl']);
-		if (bgIsColor) {
-			this.bgCtx.fillStyle = background;
-			this.bgCtx.fillRect(0, 0, this.bgCtx.canvas.width, this.bgCtx.canvas.height);
-		} else {
-			this.setImg(background, this.bgCtx);
-		}
-	},
 
 
 	/**
@@ -221,8 +232,10 @@ DrawingBoard.Board.prototype = {
 		this.dom.$controls.removeClass('drawing-board-controls-hidden');
 	},
 
+
+
 	/**
-	 * history methods: undo and redo drawed lines
+	 * History methods: undo and redo drawed lines
 	 */
 
 	initHistory: function() {
@@ -295,7 +308,7 @@ DrawingBoard.Board.prototype = {
 
 
 	/**
-	 * webStorage handling : save and restore to local or session storage
+	 * WebStorage handling : save and restore to local or session storage
 	 */
 
 	saveWebStorage: function() {
