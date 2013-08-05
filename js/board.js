@@ -68,7 +68,7 @@ DrawingBoard.Board = function(id, opts) {
 };
 
 DrawingBoard.Board.defaultOpts = {
-	controls: ['Color', 'Size', 'Navigation'],
+	controls: ['Color', 'Eraser', 'Size', 'Navigation'],
 	controlsPosition: "top left",
 	background: "#ffffff",
 	webStorage: 'session',
@@ -79,6 +79,11 @@ DrawingBoard.Board.defaultOpts = {
 };
 
 DrawingBoard.Board.prototype = {
+
+	resetBackground: function() {
+		var background = this.opts.background;
+		var bgIsColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/.test(background) || $.inArray(opts.background.substring(0, 3), ['rgb', 'hsl']);
+	},
 
 	/**
 	 * reset the drawing board and its controls

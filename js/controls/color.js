@@ -10,6 +10,7 @@ DrawingBoard.Control.Color = DrawingBoard.Control.extend({
 
 		var that = this;
 		this.$el.on('click', '.drawing-board-control-colors-picker', function(e) {
+			that.board.ctx.globalCompositeOperation = "source-over";
 			that.board.ctx.strokeStyle = $(this).attr('data-color');
 			that.$el.find('.drawing-board-control-colors-current')
 				.css('background-color', $(this).attr('data-color'))

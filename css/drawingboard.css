@@ -14,7 +14,7 @@
 
 .drawing-board-control > button { cursor: pointer; min-width: 28px; line-height: 14px; }
 .drawing-board-control > button:hover { background-color: #ddd; }
-.drawing-board-control > button:active { box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); -webkit-box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); background-color: #ddd; }
+.drawing-board-control > button:active, .drawing-board-control > button.active { box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); -webkit-box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); background-color: #ddd; }
 
 .drawing-board-controls { margin: 0 auto; text-align: center; font-size: 0; display: table; border-spacing: 9.33333px 0; position: relative; min-height: 28px; }
 .drawing-board-controls[data-align="left"] { margin: 0; left: -9.33333px; }
@@ -47,6 +47,9 @@
 .drawing-board-control-colors-picker[data-color="rgba(255, 255, 255, 1)"] { width: 16px; height: 17px; border: 1px solid #cccccc; border-bottom: none; }
 
 .drawing-board-control-colors-picker:hover { width: 16px; height: 16px; border: 1px solid #555555; }
+
+.drawing-board-control-eraser > button { overflow: hidden; *text-indent: -9999px; background-image: url('../img/eraser.png?1375444185'); background-position: 50% 50%; background-repeat: no-repeat; }
+.drawing-board-control-eraser > button:before { content: ""; display: block; width: 0; height: 100%; }
 
 .drawing-board-control-navigation > button { font-weight: bold; margin-right: 2px; }
 .drawing-board-control-navigation > button:last-child { margin-right: 0; }
