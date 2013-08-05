@@ -15,7 +15,7 @@
 .drawing-board-control-size-range-input {
 	position: relative;
 	width: 100%;
-	z-index: 10;
+	z-index: 100;
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -35,7 +35,7 @@
 	pointer-events: none;
 	left: 50%;
 	top: 50%;
-	z-index: 1;
+	z-index: 50;
 }
 
 .drawing-board-control-size-dropdown-current {
@@ -61,7 +61,7 @@
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
-	z-index: 10;
+	z-index: 100;
 	li {
 		display: block;
 		padding: 4px;

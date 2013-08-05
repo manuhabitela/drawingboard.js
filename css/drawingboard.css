@@ -10,7 +10,7 @@
 
 .drawing-board-canvas { cursor: crosshair; z-index: 20; }
 
-.drawing-board-cursor { position: absolute; top: 0; left: 0; pointer-events: none; border-radius: 50%; background: #ccc; background: rgba(0, 0, 0, 0.2); }
+.drawing-board-cursor { position: absolute; top: 0; left: 0; pointer-events: none; border-radius: 50%; background: #ccc; background: rgba(0, 0, 0, 0.2); z-index: 30; }
 
 .drawing-board-control > button, .drawing-board-control-colors[data-drawing-board-compact="1"] .drawing-board-control-colors-rainbows, .drawing-board-control-size .drawing-board-control-inner, .drawing-board-control-size-dropdown { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; overflow: hidden; border: none; background-color: #eee; padding: 2px 4px; border: 1px solid #cccccc; box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); -webkit-box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); height: 28px; }
 
@@ -38,7 +38,7 @@
 .drawing-board-control-colors[data-drawing-board-compact="1"] .drawing-board-control-colors-current { width: 26px; height: 26px; }
 
 .drawing-board-control-colors-rainbows { display: inline-block; margin-left: 5px; }
-.drawing-board-control-colors[data-drawing-board-compact="1"] .drawing-board-control-colors-rainbows { position: absolute; left: 0; top: 33px; margin-left: 0; z-index: 10; width: 250px; height: auto; padding: 4px; }
+.drawing-board-control-colors[data-drawing-board-compact="1"] .drawing-board-control-colors-rainbows { position: absolute; left: 0; top: 33px; margin-left: 0; z-index: 100; width: 250px; height: auto; padding: 4px; }
 
 .drawing-board-control-colors-rainbow { height: 18px; }
 
@@ -59,16 +59,16 @@
 .drawing-board-control-size[data-drawing-board-type="range"] .drawing-board-control-inner { width: 75px; }
 .drawing-board-control-size[data-drawing-board-type="dropdown"] .drawing-board-control-inner { overflow: visible; }
 
-.drawing-board-control-size-range-input { position: relative; width: 100%; z-index: 10; margin: 0; padding: 0; border: 0; }
+.drawing-board-control-size-range-input { position: relative; width: 100%; z-index: 100; margin: 0; padding: 0; border: 0; }
 
 .drawing-board-control-size-range-current, .drawing-board-control-size-dropdown-current span, .drawing-board-control-size-dropdown span { display: block; background: #333; opacity: .8; }
 
-.drawing-board-control-size-range-current { display: inline-block; opacity: .15; position: absolute; pointer-events: none; left: 50%; top: 50%; z-index: 1; }
+.drawing-board-control-size-range-current { display: inline-block; opacity: .15; position: absolute; pointer-events: none; left: 50%; top: 50%; z-index: 50; }
 
 .drawing-board-control-size-dropdown-current { display: block; height: 100%; width: 40px; overflow: hidden; position: relative; }
 .drawing-board-control-size-dropdown-current span { position: absolute; left: 50%; top: 50%; }
 
-.drawing-board-control-size-dropdown { position: absolute; left: -6px; top: 33px; height: auto; list-style-type: none; margin: 0; padding: 0; z-index: 10; }
+.drawing-board-control-size-dropdown { position: absolute; left: -6px; top: 33px; height: auto; list-style-type: none; margin: 0; padding: 0; z-index: 100; }
 .drawing-board-control-size-dropdown li { display: block; padding: 4px; margin: 3px 0; min-height: 16px; }
 .drawing-board-control-size-dropdown li:hover { background: #ccc; }
 .drawing-board-control-size-dropdown span { margin: 0 auto; }
