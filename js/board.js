@@ -300,7 +300,7 @@ DrawingBoard.Board.prototype = {
 
 	getImg: function(canvas) {
 		canvas = canvas || this.canvas;
-		return this.canvas.toDataURL("image/png");
+		return canvas.toDataURL("image/png");
 	},
 
 	downloadImg: function() {
