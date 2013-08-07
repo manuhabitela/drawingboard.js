@@ -20,7 +20,7 @@ module.exports = function(grunt) {
 				dest: 'dist/drawingboard.nocontrol.js'
 			},
 			full: {
-				src: ['js/drawingboard.js', 'js/board.js', 'js/controls/control.js', 'js/controls/color.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js', 'js/utils.js'],
+				src: ['js/drawingboard.js', 'js/board.js', 'js/controls/control.js', 'js/controls/color.js', 'js/controls/drawingmode.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js', 'js/utils.js'],
 				dest: 'dist/drawingboard.js'
 			},
 			cssLight: { //simple copy in order to have everything in dist/
