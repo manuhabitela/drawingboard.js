@@ -14,7 +14,7 @@
  * }
  */
 DrawingBoard.Board = function(id, opts) {
-	this.opts = $.extend(DrawingBoard.Board.defaultOpts, opts);
+	this.opts = $.extend({}, DrawingBoard.Board.defaultOpts, opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
 
