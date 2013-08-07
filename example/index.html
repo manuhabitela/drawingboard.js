@@ -53,7 +53,7 @@
 		<noscript>JavaScript is required :(</noscript>
 
 		<div class="header">
-			<canvas class="board" id="title-board"></canvas>
+			<div class="board" id="title-board"></div>
 		</div>
 
 		<div id="container">
@@ -94,6 +94,7 @@
 		<script src="../js/board.js"></script>
 		<script src="../js/controls/control.js"></script>
 		<script src="../js/controls/color.js"></script>
+		<script src="../js/controls/drawingmode.js"></script>
 		<script src="../js/controls/navigation.js"></script>
 		<script src="../js/controls/size.js"></script>
 		<script src="../js/controls/download.js"></script>
@@ -154,8 +155,10 @@
 				size: 30,
 				controls: [
 					{ Size: { type: "range" } },
-					{ Navigation: { back: false, forward: false } }
-				]
+					{ Navigation: { back: false, forward: false } },
+					{ DrawingMode: { pencil: true, eraser: true } }
+				],
+				webStorage: 'local'
 			});
 
 			//There are multiple ways to add a control to a board after its initialization:
@@ -178,14 +181,15 @@
 					'Download'
 				],
 				size: 1,
-				webStorage: 'session'
+				webStorage: 'session',
+				enlargeYourContainer: true
 			});
 		</script>
 
 		<script data-example="4">
 			var simpleBoard = new DrawingBoard.Board('simple-board', {
 				controls: false,
-				webStorage: 'local'
+				webStorage: false
 			});
 		</script>
 
