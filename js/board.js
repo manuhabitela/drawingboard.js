@@ -54,6 +54,8 @@ DrawingBoard.Board = function(id, opts) {
 		return false;
 	}
 
+	this.storage = this._getStorage();
+
 	this.initHistory();
 	//init default board values before controls are added
 	this.reset({ webStorage: false, history: false });
@@ -316,21 +318,22 @@ DrawingBoard.Board.prototype = {
 	 */
 
 	saveWebStorage: function() {
-		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
-		var storage = this.opts.webStorage + 'Storage';
-		if (window[storage]) {
-			window[storage].setItem('drawing-board-image-' + this.id, this.getImg());
-			this.ev.trigger('board:save' + storage.charAt(0).toUpperCase() + storage.slice(1), this.getImg());
+		if (window[this.storage]) {
+			window[this.storage].setItem('drawing-board-image-' + this.id, this.getImg());
+			this.ev.trigger('board:save' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), this.getImg());
 		}
 	},
 
 	restoreWebStorage: function() {
-		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
-		var storage = this.opts.webStorage + 'Storage';
-		if (window[storage] && window[storage].getItem('drawing-board-image-' + this.id) !== null) {
-			this.setImg(window[storage].getItem('drawing-board-image-' + this.id));
-			this.ev.trigger('board:restore' + storage.charAt(0).toUpperCase() + storage.slice(1), window[storage].getItem('drawing-board-image-' + this.id));
+		if (window[this.storage] && window[this.storage].getItem('drawing-board-image-' + this.id) !== null) {
+			this.setImg(window[this.storage].getItem('drawing-board-image-' + this.id));
+			this.ev.trigger('board:restore' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), window[this.storage].getItem('drawing-board-image-' + this.id));
 		}
+	},
+	
+	_getStorage: function() {
+		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
+		return this.opts.webStorage + 'Storage';
 	},
 
 
