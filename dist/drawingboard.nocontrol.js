@@ -1,4 +1,4 @@
-/* drawingboard.js v0.1.11 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.2 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = {};
@@ -13,12 +13,12 @@ window.DrawingBoard = {};
  *	color: pencil color ("#000000" by default)
  *	size: pencil size (3 by default)
  *	webStorage: 'session', 'local' or false ('session' by default). store the current drawing in session or local storage and restore it when you come back
- *	droppable: true or false (true by default). If true, dropping an image on the canvas will include it and allow you to draw on it,
+ *	droppable: true or false (false by default). If true, dropping an image on the canvas will include it and allow you to draw on it,
  *	errorMessage: html string to put in the board's element on browsers that don't support canvas.
  * }
  */
 DrawingBoard.Board = function(id, opts) {
-	this.opts = $.extend(DrawingBoard.Board.defaultOpts, opts);
+	this.opts = $.extend({}, DrawingBoard.Board.defaultOpts, opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
 
@@ -27,13 +27,7 @@ DrawingBoard.Board = function(id, opts) {
 	if (!this.$el.length)
 		return false;
 
-	this.resizeContainer = this.$el.get(0).tagName.toLowerCase() == "canvas";
-	if (this.resizeContainer) {
-		var div = this.$el.get(0).outerHTML.replace(/^<canvas/, "<div").replace(/<\/canvas>$/, "</div>");
-		this.$el = $(div).replaceAll(this.$el);
-	}
-
-	var tpl = '<div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
+	var tpl = '<div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-bg-canvas"></canvas><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
 	if (this.opts.controlsPosition.indexOf("bottom") > -1) tpl += '<div class="drawing-board-controls"></div>';
 	else tpl = '<div class="drawing-board-controls"></div>' + tpl;
 
@@ -41,6 +35,7 @@ DrawingBoard.Board = function(id, opts) {
 	this.dom = {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
 		$canvas: this.$el.find('.drawing-board-canvas'),
+		$bgCanvas: this.$el.find('.drawing-board-bg-canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
 	};
@@ -53,133 +48,149 @@ DrawingBoard.Board = function(id, opts) {
 	}, this));
 
 	this.canvas = this.dom.$canvas.get(0);
+	this.bgCanvas = this.dom.$bgCanvas.get(0);
 	this.ctx = this.canvas && this.canvas.getContext && this.canvas.getContext('2d') ? this.canvas.getContext('2d') : null;
+	this.bgCtx = this.bgCanvas && this.bgCanvas.getContext && this.bgCanvas.getContext('2d') ? this.bgCanvas.getContext('2d') : null;
+
 	if (!this.ctx) {
 		if (this.opts.errorMessage)
 			this.$el.html(this.opts.errorMessage);
 		return false;
 	}
 
+	this.storage = this._getStorage();
+
 	this.initHistory();
-	//init default board values before controls are added
-	this.reset({ webStorage: false, history: false, resize: false });
+	//init default board values before controls are added (mostly pencil color and size)
+	this.reset({ webStorage: false, history: false, background: false });
+	//init controls (they will need the default board values to work like pencil color and size)
 	this.initControls();
-	//reset again to set correct board size
-	this.reset({ webStorage: false });
+	//set board's size after the controls div is added
+	this.resize();
+	//reset the board to take all resized space
+	this.reset({ webStorage: false, history: true, background: true });
 	this.restoreWebStorage();
 	this.initDropEvents();
 	this.initDrawEvents();
 };
 
+
+
 DrawingBoard.Board.defaultOpts = {
-	controls: ['Color', 'Size', 'Navigation'],
+	controls: ['Color', 'DrawingMode', 'Size', 'Navigation'],
 	controlsPosition: "top left",
-	background: "#ffffff",
+	background: "#fff",
 	webStorage: 'session',
 	color: "#000000",
 	size: 1,
 	droppable: false,
+	enlargeYourContainer: false,
 	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
 };
 
+
+
 DrawingBoard.Board.prototype = {
 
-	/**
-	 * reset the drawing board and its controls
-	 * - recalculates canvas size
-	 * - change background based on default one or given one in the opts object
-	 * - store the reseted drawing board in localstorage if opts.localStorage is true (it is by default)
+	/** 
+	 * Canvas reset/resize methods: put back the canvas to its default values
+	 *
+	 * depending on options, can set color, size, background back to default values
+	 * and store the reseted canvas in webstorage and history queue
+	 * 
+	 * resize values depend on the `enlargeYourContainer` option
 	 */
+	
 	reset: function(opts) {
 		opts = $.extend({
-			background: this.opts.background,
 			color: this.opts.color,
 			size: this.opts.size,
 			webStorage: true,
-			resize: true,
-			history: true
+			history: true,
+			background: false
 		}, opts);
 
-		var bgIsColor = (opts.background.charAt(0) == '#' && (opts.background.length == 7 || opts.background.length == 4 )) ||
-				(opts.background.substring(0, 3) == 'rgb');
+		if (opts.background) this.resetBackground();
 
-		//resize the board's container and canvas
-		//depending on the resizeContainer attribute, the size of the container is different
-		//if true, the original container size is set on the canvas: in the end the container will grow because of the controls height
-		//if false, the original container size is not changed: the canvas will be a little smaller to fit in with the controls
-		//
-		//I'm sure there is a better way to calculate sizes correctly besides... this... thing I did. SORRY
-		if (opts.resize) {
-			this.dom.$controls.toggleClass('drawing-board-controls-hidden', (!this.controls || !this.controls.length));
+		if (opts.color) this.ctx.strokeStyle = opts.color;
+		if (opts.size) this.ctx.lineWidth = opts.size;
 
-			var canvasWidth, canvasHeight;
-			var widths = [
-				this.$el.width(),
-				DrawingBoard.Utils.boxBorderWidth(this.$el),
-				DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true)
-			];
-			var heights = [
-				this.$el.height(),
-				DrawingBoard.Utils.boxBorderHeight(this.$el),
-				this.dom.$controls.height(),
-				DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true),
-				DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true)
-			];
-			var that = this;
-			var sum = function(values, multiplier) { //make the sum of all array values
-				multiplier = multiplier || 1;
-				var res = values[0];
-				for (var i = 1; i < values.length; i++) {
-					res = res + (values[i]*multiplier);
-				}
-				return res;
-			};
-			var sub = function(values) { return sum(values, -1); }; //substract all array values from the first one
-
-			if (this.resizeContainer) {
-				canvasWidth = this.$el.width();
-				canvasHeight = this.$el.height();
-
-				this.$el.width( sum(widths) );
-				this.$el.height( sum(heights) );
-			} else {
-				canvasWidth = sub(widths);
-				canvasHeight = sub(heights);
-			}
-			this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
-			this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
-			this.dom.$canvas.css('width', canvasWidth + 'px');
-			this.dom.$canvas.css('height', canvasHeight + 'px');
-			this.canvas.width = canvasWidth;
-			this.canvas.height = canvasHeight;
-		}
-
-
-		this.ctx.strokeStyle = opts.color;
-		this.ctx.lineWidth = opts.size;
 		this.ctx.lineCap = "round";
 		this.ctx.lineJoin = "round";
-		this.ctx.save();
-
-		if (bgIsColor) {
-			this.ctx.fillStyle = opts.background;
-			this.backgroundColor = opts.background;
-		} else {
-			this.backgroundColor = false;
-		}
-
-		this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-		this.ctx.restore();
-
-		if (!bgIsColor)
-			this.setImg(this.opts.background);
+		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
 
 		if (opts.webStorage) this.saveWebStorage();
+
 		if (opts.history) this.saveHistory();
 
 		this.blankCanvas = this.getImg();
 
+		this.setMode('pencil');
+
 		this.ev.trigger('board:reset', opts);
+	},
+
+	resetBackground: function() {
+		var background = this.opts.background;
+		var bgIsColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(background) || $.inArray(background.substring(0, 3), ['rgb', 'hsl']) !== -1;
+		if (bgIsColor) {
+			this.bgCtx.fillStyle = background;
+			this.bgCtx.fillRect(0, 0, this.bgCtx.canvas.width, this.bgCtx.canvas.height);
+		} else {
+			this.setImg(background, this.bgCtx);
+		}
+	},
+
+	resize: function() {
+		this.dom.$controls.toggleClass('drawing-board-controls-hidden', (!this.controls || !this.controls.length));
+
+		var canvasWidth, canvasHeight;
+		var widths = [
+			this.$el.width(),
+			DrawingBoard.Utils.boxBorderWidth(this.$el),
+			DrawingBoard.Utils.boxBorderWidth(this.dom.$canvasWrapper, true, true)
+		];
+		var heights = [
+			this.$el.height(),
+			DrawingBoard.Utils.boxBorderHeight(this.$el),
+			this.dom.$controls.height(),
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$controls, false, true),
+			DrawingBoard.Utils.boxBorderHeight(this.dom.$canvasWrapper, true, true)
+		];
+		var that = this;
+		var sum = function(values, multiplier) { //make the sum of all array values
+			multiplier = multiplier || 1;
+			var res = values[0];
+			for (var i = 1; i < values.length; i++) {
+				res = res + (values[i]*multiplier);
+			}
+			return res;
+		};
+		var sub = function(values) { return sum(values, -1); }; //substract all array values from the first one
+
+		if (this.opts.enlargeYourContainer) {
+			canvasWidth = this.$el.width();
+			canvasHeight = this.$el.height();
+
+			this.$el.width( sum(widths) );
+			this.$el.height( sum(heights) );
+		} else {
+			canvasWidth = sub(widths);
+			canvasHeight = sub(heights);
+		}
+
+		this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
+		this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
+
+		$.each([this.dom.$canvas, this.dom.$bgCanvas], function(n, $item) {
+			$item.css('width', canvasWidth + 'px');
+			$item.css('height', canvasHeight + 'px');
+		});
+
+		$.each([this.canvas, this.bgCanvas], function(n, item) {
+			item.width = canvasWidth;
+			item.height = canvasHeight;
+		});
 	},
 
 
@@ -233,8 +244,10 @@ DrawingBoard.Board.prototype = {
 		this.dom.$controls.removeClass('drawing-board-controls-hidden');
 	},
 
+
+
 	/**
-	 * history methods: undo and redo drawed lines
+	 * History methods: undo and redo drawed lines
 	 */
 
 	initHistory: function() {
@@ -284,16 +297,22 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	setImg: function(src) {
+	setImg: function(src, ctx) {
+		ctx = ctx || this.ctx;
 		var img = new Image();
-		img.onload = $.proxy(function() {
-			this.ctx.drawImage(img, 0, 0);
-		}, this);
+		var oldGCO = ctx.globalCompositeOperation;
+		img.onload = function() {
+			ctx.globalCompositeOperation = "source-over";
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
+			ctx.drawImage(img, 0, 0);
+			ctx.globalCompositeOperation = oldGCO;
+		};
 		img.src = src;
 	},
 
-	getImg: function() {
-		return this.canvas.toDataURL("image/png");
+	getImg: function(canvas) {
+		canvas = canvas || this.canvas;
+		return canvas.toDataURL("image/png");
 	},
 
 	downloadImg: function() {
@@ -305,25 +324,26 @@ DrawingBoard.Board.prototype = {
 
 
 	/**
-	 * webStorage handling : save and restore to local or session storage
+	 * WebStorage handling : save and restore to local or session storage
 	 */
 
 	saveWebStorage: function() {
-		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
-		var storage = this.opts.webStorage + 'Storage';
-		if (window[storage]) {
-			window[storage].setItem('drawing-board-image-' + this.id, this.getImg());
-			this.ev.trigger('board:save' + storage.charAt(0).toUpperCase() + storage.slice(1), this.getImg());
+		if (window[this.storage]) {
+			window[this.storage].setItem('drawing-board-image-' + this.id, this.getImg());
+			this.ev.trigger('board:save' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), this.getImg());
 		}
 	},
 
 	restoreWebStorage: function() {
-		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
-		var storage = this.opts.webStorage + 'Storage';
-		if (window[storage] && window[storage].getItem('drawing-board-image-' + this.id) !== null) {
-			this.setImg(window[storage].getItem('drawing-board-image-' + this.id));
-			this.ev.trigger('board:restore' + storage.charAt(0).toUpperCase() + storage.slice(1), window[storage].getItem('drawing-board-image-' + this.id));
+		if (window[this.storage] && window[this.storage].getItem('drawing-board-image-' + this.id) !== null) {
+			this.setImg(window[this.storage].getItem('drawing-board-image-' + this.id));
+			this.ev.trigger('board:restore' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), window[this.storage].getItem('drawing-board-image-' + this.id));
 		}
+	},
+	
+	_getStorage: function() {
+		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
+		return this.opts.webStorage + 'Storage';
 	},
 
 
@@ -359,6 +379,25 @@ DrawingBoard.Board.prototype = {
 		}, this);
 	},
 
+
+
+	/**
+	 * set and get current drawing mode
+	 *
+	 * possible modes are "pencil" (draw normally) and "eraser" (draw transparent, like, erase, you know)
+	 */
+
+	setMode: function(mode, silent) {
+		silent = silent || false;
+		mode = mode || 'pencil';
+		this.ctx.globalCompositeOperation = mode === "eraser" ? "destination-out" : "source-over";
+		if (!silent)
+			this.ev.trigger('board:mode', mode);
+	},
+
+	getMode: function() {
+		return this.ctx.globalCompositeOperation === "destination-out" ? "eraser" : "pencil";
+	},
 
 
 	/**
@@ -426,7 +465,6 @@ DrawingBoard.Board.prototype = {
 			this.coords.old = this.coords.current;
 			this.coords.oldMid = currentMid;
 		}
-
 
 		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 	},
