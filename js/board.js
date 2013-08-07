@@ -288,8 +288,12 @@ DrawingBoard.Board.prototype = {
 	setImg: function(src, ctx) {
 		ctx = ctx || this.ctx;
 		var img = new Image();
+		var oldGCO = ctx.globalCompositeOperation;
 		img.onload = function() {
+			ctx.globalCompositeOperation = "source-over";
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
 			ctx.drawImage(img, 0, 0);
+			ctx.globalCompositeOperation = oldGCO;
 		};
 		img.src = src;
 	},
