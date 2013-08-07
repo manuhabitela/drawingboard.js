@@ -57,12 +57,14 @@ DrawingBoard.Board = function(id, opts) {
 	this.storage = this._getStorage();
 
 	this.initHistory();
-	//init default board values before controls are added
-	this.reset({ webStorage: false, history: false });
+	//init default board values before controls are added (mostly pencil color and size)
+	this.reset({ webStorage: false, history: false, background: false });
+	//init controls (they will need the default board values to work like pencil color and size)
 	this.initControls();
-	//reset again to set correct board size
+	//set board's size after the controls div is added
 	this.resize();
-	this.reset({ webStorage: false, background: true });
+	//reset the board to take all resized space
+	this.reset({ webStorage: false, history: true, background: true });
 	this.restoreWebStorage();
 	this.initDropEvents();
 	this.initDrawEvents();
