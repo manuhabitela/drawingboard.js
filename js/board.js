@@ -75,12 +75,12 @@ DrawingBoard.Board = function(id, opts) {
 DrawingBoard.Board.defaultOpts = {
 	controls: ['Color', 'DrawingMode', 'Size', 'Navigation'],
 	controlsPosition: "top left",
-	background: "#ff0",
+	background: "#fff",
 	webStorage: 'session',
 	color: "#000000",
 	size: 1,
 	droppable: false,
-	enlargeYourContainer: true,
+	enlargeYourContainer: false,
 	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
 };
 
