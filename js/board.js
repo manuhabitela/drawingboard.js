@@ -71,7 +71,7 @@ DrawingBoard.Board = function(id, opts) {
 
 
 DrawingBoard.Board.defaultOpts = {
-	controls: ['Color', 'Eraser', 'Size', 'Navigation'],
+	controls: ['Color', 'DrawingMode', 'Size', 'Navigation'],
 	controlsPosition: "top left",
 	background: "#ff0",
 	webStorage: 'session',
@@ -108,14 +108,18 @@ DrawingBoard.Board.prototype = {
 
 		if (opts.color) this.ctx.strokeStyle = opts.color;
 		if (opts.size) this.ctx.lineWidth = opts.size;
+
 		this.ctx.lineCap = "round";
 		this.ctx.lineJoin = "round";
 		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
 
 		if (opts.webStorage) this.saveWebStorage();
+
 		if (opts.history) this.saveHistory();
 
 		this.blankCanvas = this.getImg();
+
+		this.setMode('pencil');
 
 		this.ev.trigger('board:reset', opts);
 	},
@@ -372,6 +376,25 @@ DrawingBoard.Board.prototype = {
 
 
 	/**
+	 * set and get current drawing mode
+	 *
+	 * possible modes are "pencil" (draw normally) and "eraser" (draw transparent, like, erase, you know)
+	 */
+
+	setMode: function(mode, silent) {
+		silent = silent || false;
+		mode = mode || 'pencil';
+		this.ctx.globalCompositeOperation = mode === "eraser" ? "destination-out" : "source-over";
+		if (!silent)
+			this.ev.trigger('board:mode', mode);
+	},
+
+	getMode: function() {
+		return this.ctx.globalCompositeOperation === "destination-out" ? "eraser" : "pencil";
+	},
+
+
+	/**
 	 * Drawing handling, with mouse or touch
 	 */
 
@@ -436,7 +459,6 @@ DrawingBoard.Board.prototype = {
 			this.coords.old = this.coords.current;
 			this.coords.oldMid = currentMid;
 		}
-
 
 		if (window.requestAnimationFrame) requestAnimationFrame( $.proxy(function() { this.draw(); }, this) );
 	},
