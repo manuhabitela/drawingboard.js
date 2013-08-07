@@ -76,4 +76,5 @@ $controls-dropdown-top: $controls-height + $controls-margin;
 .drawing-board-control > button {
 	@extend %btn;
 	margin: 0;
+	vertical-align: middle;
 }
