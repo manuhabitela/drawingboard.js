@@ -1,4 +1,4 @@
-/* drawingboard.js v0.2 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.2.1 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = {};
@@ -92,15 +92,15 @@ DrawingBoard.Board.defaultOpts = {
 
 DrawingBoard.Board.prototype = {
 
-	/** 
+	/**
 	 * Canvas reset/resize methods: put back the canvas to its default values
 	 *
 	 * depending on options, can set color, size, background back to default values
 	 * and store the reseted canvas in webstorage and history queue
-	 * 
+	 *
 	 * resize values depend on the `enlargeYourContainer` option
 	 */
-	
+
 	reset: function(opts) {
 		opts = $.extend({
 			color: this.opts.color,
@@ -340,7 +340,14 @@ DrawingBoard.Board.prototype = {
 			this.ev.trigger('board:restore' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), window[this.storage].getItem('drawing-board-image-' + this.id));
 		}
 	},
-	
+
+	clearWebStorage: function() {
+		if (window[this.storage] && window[this.storage].getItem('drawing-board-image-' + this.id) !== null) {
+			window[this.storage].removeItem('drawing-board-image-' + this.id);
+			this.ev.trigger('board:clear' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1));
+		}
+	},
+
 	_getStorage: function() {
 		if (!this.opts.webStorage || !(this.opts.webStorage === 'session' || this.opts.webStorage === 'local')) return false;
 		return this.opts.webStorage + 'Storage';
