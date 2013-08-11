@@ -51,7 +51,7 @@ The drawingboard is tied to an HTML element with an #id. Set the dimensions of t
 
 When instantiating the drawingboard, you can pass a few options as the 2nd parameter in an object:
 
-* `controls`: an array containing the list of controls automatically loaded with the board. By default, the 'Color', 'Size' and 'Navigation' controls are loaded by default. You can pass an object instead of a string to pass control options (ie `['Color', { Navigation: { reset: false }}]`).
+* `controls`: an array containing the list of controls automatically loaded with the board. The 'Color', 'Size' and 'Navigation' controls are loaded by default. You can pass an object instead of a string to pass control options (ie `['Color', { Navigation: { reset: false }}]`).
 * `controlsPosition`: define where to put the controls: at the "top" or "bottom" of the canvas, aligned to "left"/"right"/"center". "top left" by default.
 * `color`: the board's pencil color. `#000000` (black) by default.
 * `size`: the board's pencil size (integer). `1`px radius by default.
@@ -77,7 +77,7 @@ The drawingboard has a few simple controls loaded by default, but you can easily
 
 ### Creating new controls
 
-Every control extends the `DrawingBoard.Control` class. You can define a new control by extending it in the same way [http://backbonejs.org/](Backbone.js) works:
+Every control extends the `DrawingBoard.Control` class. You can define a new control by extending it in the same way [Backbone.js](http://backbonejs.org/) works:
 
 ```javascript
 DrawingBoard.Control.Example = DrawingBoard.Control.extend({
