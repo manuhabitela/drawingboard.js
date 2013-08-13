@@ -2,40 +2,41 @@ DrawingBoard.Control.Color = DrawingBoard.Control.extend({
 	name: 'colors',
 
 	defaults: {
-		compact: true
+		background: false
 	},
 
 	initialize: function() {
 		this.initTemplate();
+		this.$el.attr('data-drawing-board-type', this.opts.background ? "background" : "color");
 
 		var that = this;
 		this.$el.on('click', '.drawing-board-control-colors-picker', function(e) {
-			that.board.ctx.strokeStyle = $(this).attr('data-color');
-			that.$el.find('.drawing-board-control-colors-current')
-				.css('background-color', $(this).attr('data-color'))
-				.attr('data-color', $(this).attr('data-color'));
-			if (that.opts.compact) {
-				that.$el.find('.drawing-board-control-colors-rainbows').addClass('drawing-board-utils-hidden');
-			}
+			var color = $(this).attr('data-color');
+			if (that.opts.background) {
+				that.board.resetBackground(color);
+				that.board.ev.trigger('color:bgchanged', color);
+			} else {
+				that.board.ctx.strokeStyle = color;
+				that.$el.find('.drawing-board-control-colors-current')
+					.css('background-color', color)
+					.attr('data-color', color);
 
-			that.board.ev.trigger('color:changed', $(this).attr('data-color'));
+				that.board.ev.trigger('color:changed', color);
+			}
+			that.$el.find('.drawing-board-control-colors-rainbows').addClass('drawing-board-utils-hidden');
 
 			e.preventDefault();
 		});
 
 		this.$el.on('click', '.drawing-board-control-colors-current', function(e) {
-			if (that.opts.compact) {
-				that.$el.find('.drawing-board-control-colors-rainbows').toggleClass('drawing-board-utils-hidden');
-			} else {
-				that.board.reset({ background: $(this).attr('data-color') });
-			}
+			that.$el.find('.drawing-board-control-colors-rainbows').toggleClass('drawing-board-utils-hidden');
 			e.preventDefault();
 		});
 	},
 
 	initTemplate: function() {
 		var tpl = '<div class="drawing-board-control-inner">' +
-			'<div class="drawing-board-control-colors-current" style="background-color: {{color}}" data-color="{{color}}"></div>' +
+			'<div class="drawing-board-control-colors-current"' + (!this.opts.background ? ' style="background-color: {{color}}" data-color="{{color}}"' : '') + '></div>' +
 			'<div class="drawing-board-control-colors-rainbows">{{rainbows}}</div>' +
 			'</div>';
 		var oneColorTpl = '<div class="drawing-board-control-colors-picker" data-color="{{color}}" style="background-color: {{color}}"></div>';
@@ -56,14 +57,12 @@ DrawingBoard.Control.Color = DrawingBoard.Control.extend({
 		}, this));
 
 		this.$el.append( $( DrawingBoard.Utils.tpl(tpl, {color: this.board.ctx.strokeStyle, rainbows: rainbows }) ) );
-		if (this.opts.compact) {
-			this.$el.find('.drawing-board-control-colors-rainbows').addClass('drawing-board-utils-hidden');
-		}
-		this.$el.attr('data-drawing-board-compact', (this.opts.compact ? "1" : "0"));
+		this.$el.find('.drawing-board-control-colors-rainbows').addClass('drawing-board-utils-hidden');
 	},
 
 	onBoardReset: function(opts) {
-		this.board.ctx.strokeStyle = this.$el.find('.drawing-board-control-colors-current').attr('data-color');
+		if (!this.opts.background)
+			this.board.ctx.strokeStyle = this.$el.find('.drawing-board-control-colors-current').attr('data-color');
 	},
 
 	_rgba: function(r, g, b, a) {

@@ -1,37 +1,36 @@
 .drawing-board-control-colors {
 	font-size: 0;
 	line-height: 0;
-	&[data-drawing-board-compact="0"] {
-		height: 52px;
-	}
 }
 
 .drawing-board-control-colors-current {
-	width: 52px;
-	height: 52px;
-	border: 1px solid #ccc;
-	cursor: pointer;
-	display: inline-block;
-	.drawing-board-control-colors[data-drawing-board-compact="1"] & {
+	.drawing-board-control-colors[data-drawing-board-type="color"] & {
+		border: 1px solid #ccc;
+		cursor: pointer;
+		display: inline-block;
 		width: $controls-height - 2px;
 		height: $controls-height - 2px;
 	}
+	.drawing-board-control-colors[data-drawing-board-type="background"] & {
+		@extend %btn;
+		vertical-align: middle;
+		@include image-replacement("paint-can.png");
+	}
 }
+
 
 .drawing-board-control-colors-rainbows {
 	display: inline-block;
 	margin-left: 5px;
-	.drawing-board-control-colors[data-drawing-board-compact="1"] & {
-		position: absolute;
-		left: 0;
-		top: $controls-dropdown-top;
-		@extend %box;
-		margin-left: 0;
-		z-index: 100;
-		width: 250px;
-		height: auto;
-		padding: 4px;
-	}
+	position: absolute;
+	left: 0;
+	top: $controls-dropdown-top;
+	@extend %box;
+	margin-left: 0;
+	z-index: 100;
+	width: 250px;
+	height: auto;
+	padding: 4px;
 }
 
 .drawing-board-control-colors-rainbow {
