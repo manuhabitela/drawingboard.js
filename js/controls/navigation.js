@@ -31,7 +31,7 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 
 		if (this.opts.reset) {
 			this.$el.on('click', '.drawing-board-control-navigation-reset', $.proxy(function(e) {
-				this.board.reset();
+				this.board.reset({ background: true });
 				e.preventDefault();
 			}, this));
 		}
