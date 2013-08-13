@@ -1,4 +1,4 @@
-/* drawingboard.js v0.2.1 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.2.2 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = {};
@@ -77,7 +77,7 @@ DrawingBoard.Board = function(id, opts) {
 
 
 DrawingBoard.Board.defaultOpts = {
-	controls: ['Color', 'DrawingMode', 'Size', 'Navigation'],
+	controls: ['Color', { Color: { background: true } }, 'DrawingMode', 'Size', 'Navigation', 'Download'],
 	controlsPosition: "top left",
 	background: "#fff",
 	webStorage: 'session',
@@ -130,14 +130,15 @@ DrawingBoard.Board.prototype = {
 		this.ev.trigger('board:reset', opts);
 	},
 
-	resetBackground: function() {
-		var background = this.opts.background;
+	resetBackground: function(background) {
+		background = background || this.opts.background;
 		var bgIsColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(background) || $.inArray(background.substring(0, 3), ['rgb', 'hsl']) !== -1;
 		if (bgIsColor) {
+			this.bgCtx.clearRect(0, 0, this.bgCtx.canvas.width, this.bgCtx.canvas.width);
 			this.bgCtx.fillStyle = background;
 			this.bgCtx.fillRect(0, 0, this.bgCtx.canvas.width, this.bgCtx.canvas.height);
 		} else {
-			this.setImg(background, this.bgCtx);
+			this.setImg(background, this.bgCanvas);
 		}
 	},
 
@@ -268,7 +269,7 @@ DrawingBoard.Board.prototype = {
 		} else {
 			this.history.position = this.history.values.length+1;
 		}
-		this.history.values.push(this.getImg());
+		this.history.values.push({ bg: this.getImg(this.bgCanvas), drawing: this.getImg() });
 	},
 
 	_goThroughHistory: function(goForth) {
@@ -278,7 +279,8 @@ DrawingBoard.Board.prototype = {
 		var pos = goForth ? this.history.position+1 : this.history.position-1;
 		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 			this.history.position = pos;
-			this.setImg(this.history.values[this.history.position-1]);
+			this.setImg(this.history.values[this.history.position-1].bg, this.bgCanvas);
+			this.setImg(this.history.values[this.history.position-1].drawing);
 		}
 		this.saveWebStorage();
 	},
@@ -297,8 +299,8 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	setImg: function(src, ctx) {
-		ctx = ctx || this.ctx;
+	setImg: function(src, canvas) {
+		var ctx = canvas && canvas.getContext('2d') || this.ctx;
 		var img = new Image();
 		var oldGCO = ctx.globalCompositeOperation;
 		img.onload = function() {
@@ -315,8 +317,18 @@ DrawingBoard.Board.prototype = {
 		return canvas.toDataURL("image/png");
 	},
 
+	getFullImg: function() {
+		var fullCanvas = document.createElement('canvas');
+		fullCanvas.width = this.canvas.width;
+		fullCanvas.height = this.canvas.height;
+		var ctx = fullCanvas.getContext('2d');
+		ctx.drawImage(this.bgCanvas, 0, 0);
+		ctx.drawImage(this.canvas, 0, 0);
+		return this.getImg(fullCanvas);
+	},
+
 	downloadImg: function() {
-		var img = this.getImg();
+		var img = this.getFullImg();
 		img = img.replace("image/png", "image/octet-stream");
 		window.location.href = img;
 	},
@@ -330,6 +342,7 @@ DrawingBoard.Board.prototype = {
 	saveWebStorage: function() {
 		if (window[this.storage]) {
 			window[this.storage].setItem('drawing-board-image-' + this.id, this.getImg());
+			window[this.storage].setItem('drawing-board-bg-' + this.id, this.getImg(this.bgCanvas));
 			this.ev.trigger('board:save' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), this.getImg());
 		}
 	},
@@ -337,6 +350,7 @@ DrawingBoard.Board.prototype = {
 	restoreWebStorage: function() {
 		if (window[this.storage] && window[this.storage].getItem('drawing-board-image-' + this.id) !== null) {
 			this.setImg(window[this.storage].getItem('drawing-board-image-' + this.id));
+			this.setImg(window[this.storage].getItem('drawing-board-bg-' + this.id), this.bgCanvas);
 			this.ev.trigger('board:restore' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), window[this.storage].getItem('drawing-board-image-' + this.id));
 		}
 	},
@@ -344,6 +358,7 @@ DrawingBoard.Board.prototype = {
 	clearWebStorage: function() {
 		if (window[this.storage] && window[this.storage].getItem('drawing-board-image-' + this.id) !== null) {
 			window[this.storage].removeItem('drawing-board-image-' + this.id);
+			window[this.storage].removeItem('drawing-board-bg-' + this.id);
 			this.ev.trigger('board:clear' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1));
 		}
 	},
