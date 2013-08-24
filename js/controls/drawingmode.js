@@ -3,7 +3,7 @@ DrawingBoard.Control.DrawingMode = DrawingBoard.Control.extend({
 	name: 'drawingmode',
 
 	defaults: {
-		pencil: false,
+		pencil: true,
 		eraser: true
 	},
 
