@@ -101,6 +101,11 @@ DrawingBoard.Utils.boxBorderHeight = function($el, withPadding, withMargin) {
 	return DrawingBoard.Utils._boxBorderSize($el, withPadding, withMargin, 'height');
 };
 
+DrawingBoard.Utils.isColor = function(string) {
+	console.log(string);
+	return (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i).test(string) || $.inArray(string.substring(0, 3), ['rgb', 'hsl']) !== -1;
+};
+
 (function() {
 	var lastTime = 0;
 	var vendors = ['ms', 'moz', 'webkit', 'o'];
