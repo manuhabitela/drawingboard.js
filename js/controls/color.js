@@ -32,6 +32,15 @@ DrawingBoard.Control.Color = DrawingBoard.Control.extend({
 			that.$el.find('.drawing-board-control-colors-rainbows').toggleClass('drawing-board-utils-hidden');
 			e.preventDefault();
 		});
+
+		$('body').on('click', function(e) {
+			var $target = $(e.target);
+			var $relatedButton = $target.hasClass('drawing-board-control-colors-current') ? $target : $target.closest('.drawing-board-control-colors-current');
+			var $myButton = that.$el.find('.drawing-board-control-colors-current');
+			var $popup = that.$el.find('.drawing-board-control-colors-rainbows');
+			if ( (!$relatedButton.length || $relatedButton.get(0) !== $myButton.get(0)) && !$popup.hasClass('drawing-board-utils-hidden') )
+				$popup.addClass('drawing-board-utils-hidden');
+		});
 	},
 
 	initTemplate: function() {
