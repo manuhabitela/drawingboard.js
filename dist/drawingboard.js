@@ -1,4 +1,4 @@
-/* drawingboard.js v0.2.2 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.3.0 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = {};
@@ -27,7 +27,7 @@ DrawingBoard.Board = function(id, opts) {
 	if (!this.$el.length)
 		return false;
 
-	var tpl = '<div class="drawing-board-canvas-wrapper"><canvas class="drawing-board-bg-canvas"></canvas><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor hidden"></div></div>';
+	var tpl = '<div class="drawing-board-canvas-wrapper"></canvas><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor drawing-board-utils-hidden"></div></div>';
 	if (this.opts.controlsPosition.indexOf("bottom") > -1) tpl += '<div class="drawing-board-controls"></div>';
 	else tpl = '<div class="drawing-board-controls"></div>' + tpl;
 
@@ -35,7 +35,6 @@ DrawingBoard.Board = function(id, opts) {
 	this.dom = {
 		$canvasWrapper: this.$el.find('.drawing-board-canvas-wrapper'),
 		$canvas: this.$el.find('.drawing-board-canvas'),
-		$bgCanvas: this.$el.find('.drawing-board-bg-canvas'),
 		$cursor: this.$el.find('.drawing-board-cursor'),
 		$controls: this.$el.find('.drawing-board-controls')
 	};
@@ -48,9 +47,7 @@ DrawingBoard.Board = function(id, opts) {
 	}, this));
 
 	this.canvas = this.dom.$canvas.get(0);
-	this.bgCanvas = this.dom.$bgCanvas.get(0);
 	this.ctx = this.canvas && this.canvas.getContext && this.canvas.getContext('2d') ? this.canvas.getContext('2d') : null;
-	this.bgCtx = this.bgCanvas && this.bgCanvas.getContext && this.bgCanvas.getContext('2d') ? this.bgCanvas.getContext('2d') : null;
 
 	if (!this.ctx) {
 		if (this.opts.errorMessage)
@@ -79,10 +76,11 @@ DrawingBoard.Board = function(id, opts) {
 DrawingBoard.Board.defaultOpts = {
 	controls: ['Color', { Color: { background: true } }, 'DrawingMode', 'Size', 'Navigation'],
 	controlsPosition: "top left",
-	background: "#fff",
-	webStorage: 'session',
 	color: "#000000",
 	size: 1,
+	background: "#fff",
+	eraserColor: "background",
+	webStorage: 'session',
 	droppable: false,
 	enlargeYourContainer: false,
 	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
@@ -110,14 +108,16 @@ DrawingBoard.Board.prototype = {
 			background: false
 		}, opts);
 
-		if (opts.background) this.resetBackground();
+		this.setMode('pencil');
+
+		if (opts.background) this.resetBackground(this.opts.background, opts.history);
 
 		if (opts.color) this.ctx.strokeStyle = opts.color;
 		if (opts.size) this.ctx.lineWidth = opts.size;
 
 		this.ctx.lineCap = "round";
 		this.ctx.lineJoin = "round";
-		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+		// this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
 
 		if (opts.webStorage) this.saveWebStorage();
 
@@ -125,21 +125,23 @@ DrawingBoard.Board.prototype = {
 
 		this.blankCanvas = this.getImg();
 
-		this.setMode('pencil');
-
 		this.ev.trigger('board:reset', opts);
 	},
 
-	resetBackground: function(background) {
+	resetBackground: function(background, historize) {
 		background = background || this.opts.background;
-		var bgIsColor = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(background) || $.inArray(background.substring(0, 3), ['rgb', 'hsl']) !== -1;
+		var bgIsColor = DrawingBoard.Utils.isColor(background);
+		var prevMode = this.getMode();
+		this.setMode('pencil');
 		if (bgIsColor) {
-			this.bgCtx.clearRect(0, 0, this.bgCtx.canvas.width, this.bgCtx.canvas.width);
-			this.bgCtx.fillStyle = background;
-			this.bgCtx.fillRect(0, 0, this.bgCtx.canvas.width, this.bgCtx.canvas.height);
+			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+			this.ctx.fillStyle = background;
+			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		} else {
-			this.setImg(background, this.bgCanvas);
+			this.setImg(background);
 		}
+		this.setMode(prevMode);
+		if (historize) this.saveHistory();
 	},
 
 	resize: function() {
@@ -183,15 +185,11 @@ DrawingBoard.Board.prototype = {
 		this.dom.$canvasWrapper.css('width', canvasWidth + 'px');
 		this.dom.$canvasWrapper.css('height', canvasHeight + 'px');
 
-		$.each([this.dom.$canvas, this.dom.$bgCanvas], function(n, $item) {
-			$item.css('width', canvasWidth + 'px');
-			$item.css('height', canvasHeight + 'px');
-		});
+		this.dom.$canvas.css('width', canvasWidth + 'px');
+		this.dom.$canvas.css('height', canvasHeight + 'px');
 
-		$.each([this.canvas, this.bgCanvas], function(n, item) {
-			item.width = canvasWidth;
-			item.height = canvasHeight;
-		});
+		this.canvas.width = canvasWidth;
+		this.canvas.height = canvasHeight;
 	},
 
 
@@ -256,7 +254,6 @@ DrawingBoard.Board.prototype = {
 			values: [],
 			position: 0
 		};
-		this.saveHistory();
 	},
 
 	saveHistory: function () {
@@ -269,7 +266,7 @@ DrawingBoard.Board.prototype = {
 		} else {
 			this.history.position = this.history.values.length+1;
 		}
-		this.history.values.push({ bg: this.getImg(this.bgCanvas), drawing: this.getImg() });
+		this.history.values.push(this.getImg());
 	},
 
 	_goThroughHistory: function(goForth) {
@@ -279,8 +276,7 @@ DrawingBoard.Board.prototype = {
 		var pos = goForth ? this.history.position+1 : this.history.position-1;
 		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 			this.history.position = pos;
-			this.setImg(this.history.values[this.history.position-1].bg, this.bgCanvas);
-			this.setImg(this.history.values[this.history.position-1].drawing);
+			this.setImg(this.history.values[this.history.position-1]);
 		}
 		this.saveWebStorage();
 	},
@@ -299,8 +295,8 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	setImg: function(src, canvas) {
-		var ctx = canvas && canvas.getContext('2d') || this.ctx;
+	setImg: function(src) {
+		var ctx = this.ctx;
 		var img = new Image();
 		var oldGCO = ctx.globalCompositeOperation;
 		img.onload = function() {
@@ -312,23 +308,12 @@ DrawingBoard.Board.prototype = {
 		img.src = src;
 	},
 
-	getImg: function(canvas) {
-		canvas = canvas || this.canvas;
-		return canvas.toDataURL("image/png");
-	},
-
-	getFullImg: function() {
-		var fullCanvas = document.createElement('canvas');
-		fullCanvas.width = this.canvas.width;
-		fullCanvas.height = this.canvas.height;
-		var ctx = fullCanvas.getContext('2d');
-		ctx.drawImage(this.bgCanvas, 0, 0);
-		ctx.drawImage(this.canvas, 0, 0);
-		return this.getImg(fullCanvas);
+	getImg: function() {
+		return this.canvas.toDataURL("image/png");
 	},
 
 	downloadImg: function() {
-		var img = this.getFullImg();
+		var img = this.getImg();
 		img = img.replace("image/png", "image/octet-stream");
 		window.location.href = img;
 	},
@@ -341,24 +326,21 @@ DrawingBoard.Board.prototype = {
 
 	saveWebStorage: function() {
 		if (window[this.storage]) {
-			window[this.storage].setItem('drawing-board-image-' + this.id, this.getImg());
-			window[this.storage].setItem('drawing-board-bg-' + this.id, this.getImg(this.bgCanvas));
+			window[this.storage].setItem('drawing-board-' + this.id, this.getImg());
 			this.ev.trigger('board:save' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), this.getImg());
 		}
 	},
 
 	restoreWebStorage: function() {
-		if (window[this.storage] && window[this.storage].getItem('drawing-board-image-' + this.id) !== null) {
-			this.setImg(window[this.storage].getItem('drawing-board-image-' + this.id));
-			this.setImg(window[this.storage].getItem('drawing-board-bg-' + this.id), this.bgCanvas);
-			this.ev.trigger('board:restore' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), window[this.storage].getItem('drawing-board-image-' + this.id));
+		if (window[this.storage] && window[this.storage].getItem('drawing-board-' + this.id) !== null) {
+			this.setImg(window[this.storage].getItem('drawing-board-' + this.id));
+			this.ev.trigger('board:restore' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1), window[this.storage].getItem('drawing-board-' + this.id));
 		}
 	},
 
 	clearWebStorage: function() {
-		if (window[this.storage] && window[this.storage].getItem('drawing-board-image-' + this.id) !== null) {
-			window[this.storage].removeItem('drawing-board-image-' + this.id);
-			window[this.storage].removeItem('drawing-board-bg-' + this.id);
+		if (window[this.storage] && window[this.storage].getItem('drawing-board-' + this.id) !== null) {
+			window[this.storage].removeItem('drawing-board-' + this.id);
 			this.ev.trigger('board:clear' + this.storage.charAt(0).toUpperCase() + this.storage.slice(1));
 		}
 	},
@@ -411,14 +393,27 @@ DrawingBoard.Board.prototype = {
 
 	setMode: function(mode, silent) {
 		silent = silent || false;
-		mode = mode || 'pencil';
-		this.ctx.globalCompositeOperation = mode === "eraser" ? "destination-out" : "source-over";
+		this.mode = mode || 'pencil';
+
+		if (this.opts.eraserColor === "transparent")
+			this.ctx.globalCompositeOperation = this.mode === "eraser" ? "destination-out" : "source-over";
+		else {
+			if (this.mode === "eraser") {
+				this._prevColor = this.ctx.strokeStyle;
+				if (this.opts.eraserColor === "background" && DrawingBoard.Utils.isColor(this.opts.background))
+					this.ctx.strokeStyle = this.opts.background;
+				else if (DrawingBoard.Utils.isColor(this.opts.eraserColor))
+					this.ctx.strokeStyle = this.opts.eraserColor;
+			} else if (this.mode === "pencil") {
+				this.ctx.strokeStyle = this._prevColor ? this._prevColor : this.opts.color;
+			}
+		}
 		if (!silent)
-			this.ev.trigger('board:mode', mode);
+			this.ev.trigger('board:mode', this.mode);
 	},
 
 	getMode: function() {
-		return this.ctx.globalCompositeOperation === "destination-out" ? "eraser" : "pencil";
+		return this.mode || "pencil";
 	},
 
 
@@ -647,6 +642,15 @@ DrawingBoard.Control.Color = DrawingBoard.Control.extend({
 			that.$el.find('.drawing-board-control-colors-rainbows').toggleClass('drawing-board-utils-hidden');
 			e.preventDefault();
 		});
+
+		$('body').on('click', function(e) {
+			var $target = $(e.target);
+			var $relatedButton = $target.hasClass('drawing-board-control-colors-current') ? $target : $target.closest('.drawing-board-control-colors-current');
+			var $myButton = that.$el.find('.drawing-board-control-colors-current');
+			var $popup = that.$el.find('.drawing-board-control-colors-rainbows');
+			if ( (!$relatedButton.length || $relatedButton.get(0) !== $myButton.get(0)) && !$popup.hasClass('drawing-board-utils-hidden') )
+				$popup.addClass('drawing-board-utils-hidden');
+		});
 	},
 
 	initTemplate: function() {
@@ -721,7 +725,7 @@ DrawingBoard.Control.DrawingMode = DrawingBoard.Control.extend({
 	name: 'drawingmode',
 
 	defaults: {
-		pencil: false,
+		pencil: true,
 		eraser: true
 	},
 
@@ -1035,6 +1039,11 @@ DrawingBoard.Utils.boxBorderWidth = function($el, withPadding, withMargin) {
 
 DrawingBoard.Utils.boxBorderHeight = function($el, withPadding, withMargin) {
 	return DrawingBoard.Utils._boxBorderSize($el, withPadding, withMargin, 'height');
+};
+
+DrawingBoard.Utils.isColor = function(string) {
+	console.log(string);
+	return (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i).test(string) || $.inArray(string.substring(0, 3), ['rgb', 'hsl']) !== -1;
 };
 
 (function() {

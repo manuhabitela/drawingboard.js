@@ -72,11 +72,11 @@ DrawingBoard.Board = function(id, opts) {
 DrawingBoard.Board.defaultOpts = {
 	controls: ['Color', { Color: { background: true } }, 'DrawingMode', 'Size', 'Navigation'],
 	controlsPosition: "top left",
-	background: "#fff",
-	transparentEraser: false,
-	webStorage: 'session',
 	color: "#000000",
 	size: 1,
+	background: "#fff",
+	eraserColor: "background",
+	webStorage: 'session',
 	droppable: false,
 	enlargeYourContainer: false,
 	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
@@ -391,15 +391,15 @@ DrawingBoard.Board.prototype = {
 		silent = silent || false;
 		this.mode = mode || 'pencil';
 
-		if (this.opts.transparentEraser)
+		if (this.opts.eraserColor === "transparent")
 			this.ctx.globalCompositeOperation = this.mode === "eraser" ? "destination-out" : "source-over";
 		else {
 			if (this.mode === "eraser") {
 				this._prevColor = this.ctx.strokeStyle;
-				if (DrawingBoard.Utils.isColor(this.opts.background))
+				if (this.opts.eraserColor === "background" && DrawingBoard.Utils.isColor(this.opts.background))
 					this.ctx.strokeStyle = this.opts.background;
-				else
-					this.ctx.strokeStyle = this.opts.backgroundColor;
+				else if (DrawingBoard.Utils.isColor(this.opts.eraserColor))
+					this.ctx.strokeStyle = this.opts.eraserColor;
 			} else if (this.mode === "pencil") {
 				this.ctx.strokeStyle = this._prevColor ? this._prevColor : this.opts.color;
 			}

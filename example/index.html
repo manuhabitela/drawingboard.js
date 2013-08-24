@@ -156,7 +156,7 @@
 				controls: [
 					{ Size: { type: "range" } },
 					{ Navigation: { back: false, forward: false } },
-					{ DrawingMode: { pencil: true, eraser: true } }
+					'DrawingMode'
 				],
 				webStorage: 'local'
 			});
@@ -175,8 +175,9 @@
 		<script data-example="3">
 			var customBoard2 = new DrawingBoard.Board('custom-board-2', {
 				controls: [
-					{ Color: { compact: false } },
-					{ Size: { type: 'dropdown', } },
+					'Color',
+					{ Size: { type: 'dropdown' } },
+					{ DrawingMode: { pencil: false } },
 					'Navigation',
 					'Download'
 				],
