@@ -126,6 +126,7 @@ DrawingBoard.Board.prototype = {
 
 	resetBackground: function(background, historize) {
 		background = background || this.opts.background;
+		historize = typeof historize !== "undefined" ? historize : true;
 		var bgIsColor = DrawingBoard.Utils.isColor(background);
 		var prevMode = this.getMode();
 		this.setMode('pencil');
