@@ -13,7 +13,7 @@ drawingboard.js consists of a blank canvas surrounded by a few UI elements that 
 
 You can draw with mouse or touch on pretty much [every browser that supports `<canvas>`](http://caniuse.com/#feat=canvas). Didn't test that much on IE but hey, WIP.
 
-local and session storage support is supported: your last drawing is restored when you come back on the website.
+local and session storage are supported: your last drawing is restored when you come back on the website.
 
 You can set a background image at initialization, or let the user drop one on the canvas.
 
