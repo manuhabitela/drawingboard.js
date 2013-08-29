@@ -70,7 +70,7 @@ DrawingBoard.Board = function(id, opts) {
 
 
 DrawingBoard.Board.defaultOpts = {
-	controls: ['Color', { Color: { background: true } }, 'DrawingMode', 'Size', 'Navigation'],
+	controls: ['Color', { Color: { background: true } }, 'DrawingMode', 'Size', 'Navigation', 'Filler'],
 	controlsPosition: "top left",
 	color: "#000000",
 	size: 1,
