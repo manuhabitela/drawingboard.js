@@ -4,14 +4,15 @@ DrawingBoard.Control.DrawingMode = DrawingBoard.Control.extend({
 
 	defaults: {
 		pencil: true,
-		eraser: true
+		eraser: true,
+		filler: true
 	},
 
 	initialize: function() {
 
 		this.prevMode = this.board.getMode();
 
-		$.each(["pencil", "eraser"], $.proxy(function(k, value) {
+		$.each(["pencil", "eraser", "filler"], $.proxy(function(k, value) {
 			if (this.opts[value]) {
 				this.$el.append('<button class="drawing-board-control-drawingmode-' + value + '-button" data-mode="' + value + '"></button>');
 			}
