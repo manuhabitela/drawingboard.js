@@ -1,7 +1,6 @@
 DrawingBoard.Control.Filler = DrawingBoard.Control.extend({
 
 	name: 'filler',
-	tolerance: 0,
 
 	initialize: function() {
 		this.$el.append('<button class="drawing-board-control-filler-button"></button>');
@@ -10,84 +9,101 @@ DrawingBoard.Control.Filler = DrawingBoard.Control.extend({
 			e.preventDefault();
 		}, this));
 
-		this.board.ev.bind('board:stopDrawing', $.proxy(this.fill, this));
+		this.board.ev.bind('board:startDrawing', $.proxy(this.fill, this));
 	},
-//http://beej.us/blog/data/html5s-canvas-2-pixel/
-	fill: function(e) {console.log('fill');
-		this.image = this.board.ctx.getImageData(0, 0, this.board.canvas.width, this.board.canvas.height);
-		var origin = this.pixelAt(e.coords.x, e.coords.y);
-		var target = {
-			r: 128,
-			g: 0,
-			b: 0,
-			a: 255
-		};
 
-		if (this.compare(origin, target)) {
+	/**
+	 * Fills an area with the current stroke color.
+	 */
+	fill: function(e) {
+		this.image = this.board.ctx.getImageData(0, 0, this.board.canvas.width, this.board.canvas.height);
+
+		// constants identifying pixels components
+		var INDEX = 0, X = 1, Y = 2, COLOR = 3;
+
+		// target color components
+		var stroke = this.board.ctx.strokeStyle;
+		var r = parseInt(stroke.substr(1, 2), 16);
+		var g = parseInt(stroke.substr(3, 2), 16);
+		var b = parseInt(stroke.substr(5, 2), 16);
+
+		// starting point
+		var start = this.pixelAt(
+			parseInt( e.coords.x, 10),
+			parseInt( e.coords.y, 10)
+		);
+
+		// no need to continue if starting and target colors are the same
+		if (start[COLOR] === this.pack(r, g, b)) {
 			return;
 		}
 
-		var queue = [origin];
-		var current, x, y, a=10;
+		// pixels to evaluate
+		var queue = [start];
 
-		while (current = queue.pop()) {
-			if (this.compare(current, origin)) {
-				this.colorize({
-					x: current.x,
-					y: current.y,
-					r: target.r,
-					g: target.g,
-					b: target.b,
-					a: target.a
-				});
+		// loop vars
+		var pixel, x, y;
+		var maxX = this.image.width - 1;
+		var maxY = this.image.height - 1;
 
-				for (x = current.x - 1; x != current.x + 1; x += 2) {
-					console.log(x,y);
-					for (y = current.y - 1; y != current.y + 1; y += 2) {
-						console.log(x,y);
-						if (x >= 0 && x < this.image.width && y >= 0 && y < this.image.height) {
-							queue.push(this.pixelAt(x, y));
-						}
-					}
+		while ((pixel = queue.pop())) {
+			if (pixel[COLOR] === start[COLOR]) {
+				this.image.data[pixel[INDEX]] = r;
+				this.image.data[pixel[INDEX] + 1] = g;
+				this.image.data[pixel[INDEX] + 2] = b;
+
+				// west
+				if (pixel[X] > 0) {
+					queue.push(this.pixelAt(pixel[X] - 1, pixel[Y]));
 				}
-			}
 
-			if (--a < 0) {
-				//break;
+				// east
+				if (pixel[X] < maxX) {
+					queue.push(this.pixelAt(pixel[X] + 1, pixel[Y]));
+				}
+
+				// north
+				if (pixel[Y] > 0) {
+					queue.push(this.pixelAt(pixel[X], pixel[Y] - 1));
+				}
+
+				// south
+				if (pixel[Y] < maxY) {
+					queue.push(this.pixelAt(pixel[X], pixel[Y] + 1));
+				}
 			}
 		}
 
-		this.board.ctx.clearRect(0, 0, this.board.canvas.width, this.board.canvas.height);
 		this.board.ctx.putImageData(this.image, 0, 0);
 	},
 
+	/**
+	 * Returns informations on the pixel located at (x,y).
+	 */
 	pixelAt: function(x, y) {
 		var i = (y * this.image.width + x) * 4;
+		var c = this.pack(
+			this.image.data[i],
+			this.image.data[i + 1],
+			this.image.data[i + 2]
+		);
 
-		return {
-			x: x,
-			y: y,
-			r: this.image.data[i],
-			g: this.image.data[i + 1],
-			b: this.image.data[i + 2],
-			a: this.image.data[i + 3]
-		};
+		return [
+			i, // INDEX
+			x, // X
+			y, // Y
+			c  // COLOR
+		];
 	},
 
-	colorize: function(pixel) {
-		var i = (pixel.y * this.image.width + pixel.x) * 4;
-
-		this.image.data[i] = pixel.r;
-		this.image.data[i + 1] = pixel.g;
-		this.image.data[i + 2] = pixel.b;
-		this.image.data[i + 3] = pixel.a;
-	},
-
-	compare: function(pixel,other) {
-		return (pixel.r === other.r)
-			&& (pixel.g === other.g)
-			&& (pixel.b === other.b)
-			&& (pixel.a === other.a);
+	/**
+	 * Packs an RGB color into a single integer.
+	 */
+	pack: function(r, g, b) {
+		var c = 0;
+		c |= (r & 255) << 16;
+		c |= (g & 255) << 8;
+		c |= (b & 255);
+		return c;
 	}
-
 });
