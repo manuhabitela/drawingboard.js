@@ -14,3 +14,7 @@
 .drawing-board-control-drawingmode-eraser-button {
 	@include image-replacement("eraser.png");
 }
+
+.drawing-board-control-drawingmode-filler-button {
+	@include image-replacement("paint-can.png");
+}

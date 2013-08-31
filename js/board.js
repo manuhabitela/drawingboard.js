@@ -70,7 +70,7 @@ DrawingBoard.Board = function(id, opts) {
 
 
 DrawingBoard.Board.defaultOpts = {
-	controls: ['Color', { Color: { background: true } }, 'DrawingMode', 'Size', 'Navigation', 'Filler'],
+	controls: ['Color', { Color: { background: true } }, 'DrawingMode', 'Size', 'Navigation'],
 	controlsPosition: "top left",
 	color: "#000000",
 	size: 1,
@@ -384,12 +384,14 @@ DrawingBoard.Board.prototype = {
 	/**
 	 * set and get current drawing mode
 	 *
-	 * possible modes are "pencil" (draw normally) and "eraser" (draw transparent, like, erase, you know)
+	 * possible modes are "pencil" (draw normally), "eraser" (draw transparent, like, erase, you know), "filler" (paint can)
 	 */
 
 	setMode: function(mode, silent) {
 		silent = silent || false;
 		this.mode = mode || 'pencil';
+
+		this.ev.unbind('board:startDrawing', $.proxy(this.fill, this));
 
 		if (this.opts.eraserColor === "transparent")
 			this.ctx.globalCompositeOperation = this.mode === "eraser" ? "destination-out" : "source-over";
@@ -402,6 +404,8 @@ DrawingBoard.Board.prototype = {
 					this.ctx.strokeStyle = this.opts.eraserColor;
 			} else if (this.mode === "pencil") {
 				this.ctx.strokeStyle = this._prevColor ? this._prevColor : this.opts.color;
+			} else if (this.mode === "filler") {
+				this.ev.bind('board:startDrawing', $.proxy(this.fill, this));
 			}
 		}
 		if (!silent)
@@ -410,6 +414,73 @@ DrawingBoard.Board.prototype = {
 
 	getMode: function() {
 		return this.mode || "pencil";
+	},
+
+	/**
+	 * Fills an area with the current stroke color.
+	 */
+	fill: function(e) {
+		console.log(this);
+		var img = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+
+		// constants identifying pixels components
+		var INDEX = 0, X = 1, Y = 2, COLOR = 3;
+
+		// target color components
+		var stroke = this.ctx.strokeStyle;
+		var r = parseInt(stroke.substr(1, 2), 16);
+		var g = parseInt(stroke.substr(3, 2), 16);
+		var b = parseInt(stroke.substr(5, 2), 16);
+
+		// starting point
+		var start = DrawingBoard.Utils.pixelAt(
+			img,
+			parseInt( e.coords.x, 10),
+			parseInt( e.coords.y, 10)
+		);
+
+		// no need to continue if starting and target colors are the same
+		if (start[COLOR] === DrawingBoard.Utils.RGBToInt(r, g, b)) {
+			return;
+		}
+
+		// pixels to evaluate
+		var queue = [start];
+
+		// loop vars
+		var pixel, x, y;
+		var maxX = img.width - 1;
+		var maxY = img.height - 1;
+
+		while ((pixel = queue.pop())) {
+			if (pixel[COLOR] === start[COLOR]) {
+				img.data[pixel[INDEX]] = r;
+				img.data[pixel[INDEX] + 1] = g;
+				img.data[pixel[INDEX] + 2] = b;
+
+				// west
+				if (pixel[X] > 0) {
+					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] - 1, pixel[Y]));
+				}
+
+				// east
+				if (pixel[X] < maxX) {
+					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] + 1, pixel[Y]));
+				}
+
+				// north
+				if (pixel[Y] > 0) {
+					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] - 1));
+				}
+
+				// south
+				if (pixel[Y] < maxY) {
+					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] + 1));
+				}
+			}
+		}
+
+		this.ctx.putImageData(img, 0, 0);
 	},
 
 
