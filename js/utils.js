@@ -43,7 +43,7 @@ DrawingBoard.Utils.tpl = (function(){
 /**
  * https://github.com/jeromeetienne/microevent.js
  * MicroEvent - to make any js object an event emitter (server or browser)
- * 
+ *
  * - pure javascript - server compatible, browser compatible
  * - dont rely on the browser doms
  * - super simple - you get it immediatly, no mistery, no magic involved
@@ -102,8 +102,38 @@ DrawingBoard.Utils.boxBorderHeight = function($el, withPadding, withMargin) {
 };
 
 DrawingBoard.Utils.isColor = function(string) {
-	console.log(string);
+	if (!string || !string.length) return false;
 	return (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i).test(string) || $.inArray(string.substring(0, 3), ['rgb', 'hsl']) !== -1;
+};
+
+/**
+ * Packs an RGB color into a single integer.
+ */
+DrawingBoard.Utils.RGBToInt = function(r, g, b) {
+	var c = 0;
+	c |= (r & 255) << 16;
+	c |= (g & 255) << 8;
+	c |= (b & 255);
+	return c;
+};
+
+/**
+ * Returns informations on the pixel located at (x,y).
+ */
+DrawingBoard.Utils.pixelAt = function(image, x, y) {
+	var i = (y * image.width + x) * 4;
+	var c = DrawingBoard.Utils.RGBToInt(
+		image.data[i],
+		image.data[i + 1],
+		image.data[i + 2]
+	);
+
+	return [
+		i, // INDEX
+		x, // X
+		y, // Y
+		c  // COLOR
+	];
 };
 
 (function() {
