@@ -14,7 +14,7 @@
 		height: 100%;
 	}
 	@if $img != none {
-		background-image: image-url($img);
+		background-image: inline-image($img);
 		background-position: $x $y;
 		background-repeat: no-repeat;
 	}
