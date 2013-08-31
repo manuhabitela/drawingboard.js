@@ -43,7 +43,7 @@ DrawingBoard.Utils.tpl = (function(){
 /**
  * https://github.com/jeromeetienne/microevent.js
  * MicroEvent - to make any js object an event emitter (server or browser)
- * 
+ *
  * - pure javascript - server compatible, browser compatible
  * - dont rely on the browser doms
  * - super simple - you get it immediatly, no mistery, no magic involved
@@ -102,9 +102,10 @@ DrawingBoard.Utils.boxBorderHeight = function($el, withPadding, withMargin) {
 };
 
 DrawingBoard.Utils.isColor = function(string) {
-	console.log(string);
+	if (!string || !string.length) return false;
 	return (/(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i).test(string) || $.inArray(string.substring(0, 3), ['rgb', 'hsl']) !== -1;
 };
+
 /**
  * Packs an RGB color into a single integer.
  */

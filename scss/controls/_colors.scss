@@ -4,18 +4,11 @@
 }
 
 .drawing-board-control-colors-current {
-	.drawing-board-control-colors[data-drawing-board-type="color"] & {
-		border: 1px solid #ccc;
-		cursor: pointer;
-		display: inline-block;
-		width: $controls-height - 2px;
-		height: $controls-height - 2px;
-	}
-	.drawing-board-control-colors[data-drawing-board-type="background"] & {
-		@extend %btn;
-		vertical-align: middle;
-		@include image-replacement("paint-can.png");
-	}
+	border: 1px solid #ccc;
+	cursor: pointer;
+	display: inline-block;
+	width: $controls-height - 2px;
+	height: $controls-height - 2px;
 }
 
 
