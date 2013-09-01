@@ -257,13 +257,16 @@ DrawingBoard.Board.prototype = {
 		while (this.history.values.length > 30) {
 			this.history.values.shift();
 		}
-		if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
+		var img = this.getImg();
+		if (this.history.values[ this.history.values.length-1 ] == img)
+			return;
+		if (this.history.position !== 0 && this.history.position < this.history.values.length) {
 			this.history.values = this.history.values.slice(0, this.history.position);
 			this.history.position++;
 		} else {
 			this.history.position = this.history.values.length+1;
 		}
-		this.history.values.push(this.getImg());
+			this.history.values.push(img);
 	},
 
 	_goThroughHistory: function(goForth) {
