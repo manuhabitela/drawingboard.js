@@ -256,6 +256,7 @@ DrawingBoard.Board.prototype = {
 	saveHistory: function () {
 		while (this.history.values.length > 30) {
 			this.history.values.shift();
+			this.history.position--;
 		}
 		var img = this.getImg();
 		if (this.history.values[ this.history.values.length-1 ] == img)
