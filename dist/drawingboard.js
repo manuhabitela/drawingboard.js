@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.0 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.1 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = {};
@@ -443,6 +443,13 @@ DrawingBoard.Board.prototype = {
 	 * Fills an area with the current stroke color.
 	 */
 	fill: function(e) {
+		if (this.getImg() === this.blankCanvas) {
+			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+			this.ctx.fillStyle = this.color;
+			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+			return;
+		}
+
 		var img = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 
 		// constants identifying pixels components

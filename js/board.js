@@ -439,6 +439,13 @@ DrawingBoard.Board.prototype = {
 	 * Fills an area with the current stroke color.
 	 */
 	fill: function(e) {
+		if (this.getImg() === this.blankCanvas) {
+			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+			this.ctx.fillStyle = this.color;
+			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+			return;
+		}
+
 		var img = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
 
 		// constants identifying pixels components
