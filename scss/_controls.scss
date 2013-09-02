@@ -26,6 +26,7 @@ $controls-dropdown-top: $controls-height + $controls-margin;
 		background-color: #ddd;
 	}
 	&[disabled] {
+		color: gray;
 		&:hover, &:focus, &:active, &.active {
 			background-color:#eee;
 			box-shadow: 0 1px 3px -2px hsl(0, 0%, 7%), inset 0 2px 5px 0 hsla(0, 100%, 100%, 0.3);
