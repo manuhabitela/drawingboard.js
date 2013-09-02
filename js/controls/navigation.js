@@ -16,6 +16,13 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 		this.$el.append(el);
 
 		if (this.opts.back) {
+			var $back = this.$el.find('.drawing-board-control-navigation-back');
+			this.board.ev.bind('historyNavigation', $.proxy(function(pos) {
+				if (pos === 1)
+					$back.attr('disabled', 'disabled');
+				else
+					$back.removeAttr('disabled');
+			}, this));
 			this.$el.on('click', '.drawing-board-control-navigation-back', $.proxy(function(e) {
 				this.board.goBackInHistory();
 				e.preventDefault();
@@ -23,6 +30,13 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 		}
 
 		if (this.opts.forward) {
+			var $forward = this.$el.find('.drawing-board-control-navigation-forward');
+			this.board.ev.bind('historyNavigation', $.proxy(function(pos) {
+				if (pos === this.board.history.values.length)
+					$forward.attr('disabled', 'disabled');
+				else
+					$forward.removeAttr('disabled');
+			}, this));
 			this.$el.on('click', '.drawing-board-control-navigation-forward', $.proxy(function(e) {
 				this.board.goForthInHistory();
 				e.preventDefault();

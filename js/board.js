@@ -107,7 +107,7 @@ DrawingBoard.Board.prototype = {
 
 		this.setMode('pencil');
 
-		if (opts.background) this.resetBackground(this.opts.background, opts.history);
+		if (opts.background) this.resetBackground(this.opts.background, false);
 
 		if (opts.color) this.setColor(opts.color);
 		if (opts.size) this.ctx.lineWidth = opts.size;
@@ -258,16 +258,14 @@ DrawingBoard.Board.prototype = {
 			this.history.values.shift();
 			this.history.position--;
 		}
-		var img = this.getImg();
-		if (this.history.values[ this.history.values.length-1 ] == img)
-			return;
 		if (this.history.position !== 0 && this.history.position < this.history.values.length) {
 			this.history.values = this.history.values.slice(0, this.history.position);
 			this.history.position++;
 		} else {
 			this.history.position = this.history.values.length+1;
 		}
-			this.history.values.push(img);
+		this.history.values.push(this.getImg());
+		this.ev.trigger('historyNavigation', this.history.position);
 	},
 
 	_goThroughHistory: function(goForth) {
@@ -277,8 +275,9 @@ DrawingBoard.Board.prototype = {
 		var pos = goForth ? this.history.position+1 : this.history.position-1;
 		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 			this.history.position = pos;
-			this.setImg(this.history.values[this.history.position-1]);
+			this.setImg(this.history.values[pos-1]);
 		}
+		this.ev.trigger('historyNavigation', pos);
 		this.saveWebStorage();
 	},
 
