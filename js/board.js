@@ -461,16 +461,11 @@ DrawingBoard.Board.prototype = {
 		var b = parseInt(stroke.substr(5, 2), 16);
 
 		// starting point
-		var start = DrawingBoard.Utils.pixelAt(
-			img,
-			parseInt( e.coords.x, 10),
-			parseInt( e.coords.y, 10)
-		);
+		var start = DrawingBoard.Utils.pixelAt(img, parseInt( e.coords.x, 10), parseInt( e.coords.y, 10));
 
 		// no need to continue if starting and target colors are the same
-		if (start[COLOR] === DrawingBoard.Utils.RGBToInt(r, g, b)) {
+		if (start[COLOR] === DrawingBoard.Utils.RGBToInt(r, g, b))
 			return;
-		}
 
 		// pixels to evaluate
 		var queue = [start];
@@ -485,26 +480,14 @@ DrawingBoard.Board.prototype = {
 				img.data[pixel[INDEX]] = r;
 				img.data[pixel[INDEX] + 1] = g;
 				img.data[pixel[INDEX] + 2] = b;
-
-				// west
-				if (pixel[X] > 0) {
+				if (pixel[X] > 0) // west
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] - 1, pixel[Y]));
-				}
-
-				// east
-				if (pixel[X] < maxX) {
+				if (pixel[X] < maxX) // east
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] + 1, pixel[Y]));
-				}
-
-				// north
-				if (pixel[Y] > 0) {
+				if (pixel[Y] > 0) // north
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] - 1));
-				}
-
-				// south
-				if (pixel[Y] < maxY) {
+				if (pixel[Y] < maxY) // south
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] + 1));
-				}
 			}
 		}
 
