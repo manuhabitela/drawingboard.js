@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.1 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.2 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = {};
@@ -111,7 +111,7 @@ DrawingBoard.Board.prototype = {
 
 		this.setMode('pencil');
 
-		if (opts.background) this.resetBackground(this.opts.background, opts.history);
+		if (opts.background) this.resetBackground(this.opts.background, false);
 
 		if (opts.color) this.setColor(opts.color);
 		if (opts.size) this.ctx.lineWidth = opts.size;
@@ -260,14 +260,16 @@ DrawingBoard.Board.prototype = {
 	saveHistory: function () {
 		while (this.history.values.length > 30) {
 			this.history.values.shift();
+			this.history.position--;
 		}
-		if (this.history.position !== 0 && this.history.position !== this.history.values.length) {
+		if (this.history.position !== 0 && this.history.position < this.history.values.length) {
 			this.history.values = this.history.values.slice(0, this.history.position);
 			this.history.position++;
 		} else {
 			this.history.position = this.history.values.length+1;
 		}
 		this.history.values.push(this.getImg());
+		this.ev.trigger('historyNavigation', this.history.position);
 	},
 
 	_goThroughHistory: function(goForth) {
@@ -277,8 +279,9 @@ DrawingBoard.Board.prototype = {
 		var pos = goForth ? this.history.position+1 : this.history.position-1;
 		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
 			this.history.position = pos;
-			this.setImg(this.history.values[this.history.position-1]);
+			this.setImg(this.history.values[pos-1]);
 		}
+		this.ev.trigger('historyNavigation', pos);
 		this.saveWebStorage();
 	},
 
@@ -462,16 +465,11 @@ DrawingBoard.Board.prototype = {
 		var b = parseInt(stroke.substr(5, 2), 16);
 
 		// starting point
-		var start = DrawingBoard.Utils.pixelAt(
-			img,
-			parseInt( e.coords.x, 10),
-			parseInt( e.coords.y, 10)
-		);
+		var start = DrawingBoard.Utils.pixelAt(img, parseInt( e.coords.x, 10), parseInt( e.coords.y, 10));
 
 		// no need to continue if starting and target colors are the same
-		if (start[COLOR] === DrawingBoard.Utils.RGBToInt(r, g, b)) {
+		if (start[COLOR] === DrawingBoard.Utils.RGBToInt(r, g, b))
 			return;
-		}
 
 		// pixels to evaluate
 		var queue = [start];
@@ -486,26 +484,14 @@ DrawingBoard.Board.prototype = {
 				img.data[pixel[INDEX]] = r;
 				img.data[pixel[INDEX] + 1] = g;
 				img.data[pixel[INDEX] + 2] = b;
-
-				// west
-				if (pixel[X] > 0) {
+				if (pixel[X] > 0) // west
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] - 1, pixel[Y]));
-				}
-
-				// east
-				if (pixel[X] < maxX) {
+				if (pixel[X] < maxX) // east
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] + 1, pixel[Y]));
-				}
-
-				// north
-				if (pixel[Y] > 0) {
+				if (pixel[Y] > 0) // north
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] - 1));
-				}
-
-				// south
-				if (pixel[Y] < maxY) {
+				if (pixel[Y] < maxY) // south
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X], pixel[Y] + 1));
-				}
 			}
 		}
 

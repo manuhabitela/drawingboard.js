@@ -1,4 +1,4 @@
-/* drawingboard.js v0.4.1 - https://github.com/Leimi/drawingboard.js
+/* drawingboard.js v0.4.2 - https://github.com/Leimi/drawingboard.js
 * Copyright (c) 2013 Emmanuel Pelletier
 * Licensed MIT */
 .drawing-board, .drawing-board * { -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; }
@@ -18,8 +18,9 @@
 .drawing-board-control > button, .drawing-board-control-colors-rainbows, .drawing-board-control-size .drawing-board-control-inner, .drawing-board-control-size-dropdown { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; overflow: hidden; border: none; background-color: #eee; padding: 2px 4px; border: 1px solid #ccc; box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); -webkit-box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); height: 28px; }
 
 .drawing-board-control > button { cursor: pointer; min-width: 28px; line-height: 14px; }
-.drawing-board-control > button:hover { background-color: #ddd; }
+.drawing-board-control > button:hover, .drawing-board-control > button:focus { background-color: #ddd; }
 .drawing-board-control > button:active, .drawing-board-control > button.active { box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); -webkit-box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.2); background-color: #ddd; }
+.drawing-board-control > button[disabled]:hover, .drawing-board-control > button[disabled]:focus, .drawing-board-control > button[disabled]:active, .drawing-board-control > button[disabled].active { background-color: #eee; box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); -webkit-box-shadow: 0 1px 3px -2px #121212, inset 0 2px 5px 0 rgba(255, 255, 255, 0.3); cursor: default; }
 
 .drawing-board-controls { margin: 0 auto; text-align: center; font-size: 0; display: table; border-spacing: 9.33333px 0; position: relative; min-height: 28px; }
 .drawing-board-controls[data-align="left"] { margin: 0; left: -9.33333px; }
