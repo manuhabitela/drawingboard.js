@@ -7,13 +7,13 @@
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
 
-		<link rel="stylesheet" href="https://raw.github.com/Leimi/drawingboard.js/master/example/prism.css">
-		<link rel="stylesheet" href="https://raw.github.com/Leimi/drawingboard.js/master/example/website.css">
+		<link rel="stylesheet" href="example/prism.css">
+		<link rel="stylesheet" href="example/website.css">
 
 
 		<!-- in a production environment, you can include the minified css. It contains the css of the board and the default controls (size, nav, colors):
-		<link rel="stylesheet" href="https://raw.github.com/Leimi/drawingboard.js/master/dist/drawingboard.min.css"> -->
-		<link rel="stylesheet" href="https://raw.github.com/Leimi/drawingboard.js/master/css/drawingboard.css">
+		<link rel="stylesheet" href="dist/drawingboard.min.css"> -->
+		<link rel="stylesheet" href="css/drawingboard.css">
 
 		<style>
 		/*
@@ -90,15 +90,15 @@
 		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors, download): -->
 		<!--<script src="../dist/drawingboard.min.js"></script>-->
 
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/drawingboard.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/board.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/controls/control.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/controls/color.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/controls/drawingmode.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/controls/navigation.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/controls/size.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/controls/download.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/js/utils.js"></script>
+		<script src="js/drawingboard.js"></script>
+		<script src="js/board.js"></script>
+		<script src="js/controls/control.js"></script>
+		<script src="js/controls/color.js"></script>
+		<script src="js/controls/drawingmode.js"></script>
+		<script src="js/controls/navigation.js"></script>
+		<script src="js/controls/size.js"></script>
+		<script src="js/controls/download.js"></script>
+		<script src="js/utils.js"></script>
 
 
 
@@ -113,7 +113,7 @@
 			the polyfill is loaded only if necessary via yepnope http://yepnopejs.com/
 
 			note this is totally not required if the size control is set to "auto" or "dropdown" - the control will work with every browser with an alternate view -->
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/example/yepnope.js"></script>
+		<script src="example/yepnope.js"></script>
 		<script>
 			var iHasRangeInput = function() {
 				var inputElem  = document.createElement('input'),
@@ -138,7 +138,7 @@
 
 			yepnope({
 				test : iHasRangeInput(),
-				nope : ['https://raw.github.com/Leimi/drawingboard.js/master/example/fd-slider.min.css', 'https://raw.github.com/Leimi/drawingboard.js/master/example/fd-slider.min.js'],
+				nope : ['example/fd-slider.min.css', 'example/fd-slider.min.js'],
 				callback: function(id, testResult) {
 					if("fdSlider" in window && typeof (fdSlider.onDomReady) != "undefined") {
 						try { fdSlider.onDomReady(); } catch(err) {}
@@ -204,7 +204,7 @@
 		</script>
 
 		<!-- totally not drawingboard-related code -->
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/example/prism.js"></script>
-		<script src="https://raw.github.com/Leimi/drawingboard.js/master/example/script.js"></script>
+		<script src="example/prism.js"></script>
+		<script src="example/script.js"></script>
 	</body>
 </html>
