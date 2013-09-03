@@ -1,0 +1,55 @@
+.drawing-board-control-colors {
+	font-size: 0;
+	line-height: 0;
+}
+
+.drawing-board-control-colors-current {
+	border: 1px solid #ccc;
+	cursor: pointer;
+	display: inline-block;
+	width: $controls-height - 2px;
+	height: $controls-height - 2px;
+}
+
+
+.drawing-board-control-colors-rainbows {
+	display: inline-block;
+	margin-left: 5px;
+	position: absolute;
+	left: 0;
+	top: $controls-dropdown-top;
+	@extend %box;
+	margin-left: 0;
+	z-index: 100;
+	width: 250px;
+	height: auto;
+	padding: 4px;
+}
+
+.drawing-board-control-colors-rainbow {
+	height: 18px;
+}
+
+.drawing-board-control-colors-picker:first-child {
+	margin-right: 5px;
+}
+
+.drawing-board-control-colors-picker {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	cursor: pointer;
+}
+
+.drawing-board-control-colors-picker[data-color="rgba(255, 255, 255, 1)"] {
+	width: 16px;
+	height: 17px;
+	border: 1px solid #ccc;
+	border-bottom: none;
+}
+
+.drawing-board-control-colors-picker:hover {
+	width: 16px;
+	height: 16px;
+	border: 1px solid #555;
+}

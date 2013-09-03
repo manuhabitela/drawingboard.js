@@ -1,0 +1,67 @@
+@mixin display-ib {
+	display: inline-block;
+	*display: inline;
+	*zoom: 1;
+}
+
+@mixin image-replacement($img: none, $x: 50%, $y: 50%) {
+	overflow: hidden;
+	*text-indent: -9999px;
+	&:before {
+		content: "";
+		display: block;
+		width: 0;
+		height: 100%;
+	}
+	@if $img != none {
+		background-image: inline-image($img);
+		background-position: $x $y;
+		background-repeat: no-repeat;
+	}
+}
+
+@mixin sized-image-replacement($img, $x: 50%, $y: 50%) {
+	@include image-replacement($img, $x, $y);
+	width: image-width($img);
+	height: image-height($img);
+}
+
+// Hide from both screenreaders and browsers: h5bp.com/u
+@mixin hidden {
+	display: none !important;
+	visibility: hidden;
+}
+
+// Hide only visually, but have it available for screenreaders: h5bp.com/v
+@mixin visually-hidden {
+	border: 0;
+	clip: rect(0 0 0 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	&.focusable:active, &.focusable:focus {
+		clip: auto;
+		height: auto;
+		margin: 0;
+		overflow: visible;
+		position: static;
+		width: auto;
+	}
+}
+
+// Hide visually and from screenreaders, but maintain layout
+@mixin invisible {
+	visibility: hidden;
+}
+
+@mixin micro-clearfix {
+	&:before, &:after {
+		content: " "; // 1
+		display: table; // 2
+	}
+	&:after { clear: both; }
+	& { *zoom: 1; }
+}

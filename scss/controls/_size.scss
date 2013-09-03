@@ -1,0 +1,78 @@
+.drawing-board-control-size {
+	.drawing-board-control-inner {
+		@extend %box;
+	}
+
+	&[data-drawing-board-type="range"] .drawing-board-control-inner {
+		width: 75px;
+	}
+
+	&[data-drawing-board-type="dropdown"] .drawing-board-control-inner {
+		overflow: visible;
+	}
+}
+
+.drawing-board-control-size-range-input {
+	position: relative;
+	width: 100%;
+	z-index: 100;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+%dot {
+	display: block;
+	background: #333;
+	opacity: .8;
+}
+
+.drawing-board-control-size-range-current {
+	@extend %dot;
+	display: inline-block;
+	opacity: .15;
+	position: absolute;
+	pointer-events: none;
+	left: 50%;
+	top: 50%;
+	z-index: 50;
+}
+
+.drawing-board-control-size-dropdown-current {
+	display: block;
+	height: 100%;
+	width: 40px;
+	overflow: hidden;
+	position: relative;
+	span {
+		@extend %dot;
+		position: absolute;
+		left: 50%;
+		top: 50%;
+	}
+}
+
+.drawing-board-control-size-dropdown {
+	position: absolute;
+	left: -6px;
+	top: $controls-dropdown-top;
+	@extend %box;
+	height: auto;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	z-index: 100;
+	li {
+		display: block;
+		padding: 4px;
+		margin: 3px 0;
+		min-height: 16px;
+		&:hover {
+			background: #ccc;
+		}
+	}
+	span {
+		@extend %dot;
+		margin: 0 auto;
+	}
+}

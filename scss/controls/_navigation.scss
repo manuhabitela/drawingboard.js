@@ -1,0 +1,13 @@
+.drawing-board-control-navigation {
+
+}
+
+.drawing-board-control-navigation > button {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	font-weight: bold;
+	margin-right: 2px;
+	&:last-child {
+		margin-right: 0;
+	}
+}

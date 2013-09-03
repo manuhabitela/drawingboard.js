@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>Drawingboard.js: a simple canvas based drawing app that you can integrate easily on your website.</title>
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width">
+
+		<link rel="stylesheet" href="prism.css">
+		<link rel="stylesheet" href="website.css">
+
+
+		<!-- in a production environment, you can include the minified css. It contains the css of the board and the default controls (size, nav, colors):
+		<link rel="stylesheet" href="../dist/drawingboard.min.css"> -->
+		<link rel="stylesheet" href="../css/drawingboard.css">
+
+		<style>
+		/*
+		* drawingboards styles: set the board dimensions you want with CSS
+		*/
+
+		.board {
+			margin: 0 auto;
+			width: 300px;
+			height: 300px;
+		}
+
+		#default-board {
+			width: 700px;
+			height: 400px;
+		}
+
+		#custom-board-2 {
+			width: 550px;
+			height: 300px;
+		}
+
+		#title-board {
+			width: 600px;
+			height: 270px;
+		}
+		/* custom board styles for the title? no problem*/
+		#title-board .drawing-board-canvas-wrapper {
+			border: none;
+			margin: 0;
+		}
+		</style>
+	</head>
+	<body>
+		<span id="forkongithub"><a href="https://github.com/Leimi/drawingboard.js">Fork me on GitHub!</a></span>
+
+		<noscript>JavaScript is required :(</noscript>
+
+		<div class="header">
+			<div class="board" id="title-board"></div>
+		</div>
+
+		<div id="container">
+			<div data-example="5">
+			</div>
+
+			<p><a href="https://github.com/Leimi/drawingboard.js#drawingboardjs">Detailed information is available in the <strong>readme</strong> on Github.</a></p>
+
+			<div class="example" data-example="1">
+				<h1>The default DrawingBoard</h1>
+				<div class="board" id="default-board"></div>
+			</div>
+
+			<div class="example" data-example="2">
+				<h1>A custom one</h1>
+				<div class="board" id="custom-board"></div>
+			</div>
+
+			<div class="example" data-example="3">
+				<h1>Another custom one</h1>
+				<div class="board" id="custom-board-2"></div>
+			</div>
+
+			<div class="example" data-example="4">
+				<h1>The simplest one</h1>
+				<div class="board" id="simple-board"></div>
+			</div>
+
+		</div>
+
+		<!-- jquery is required - zepto might do the trick too -->
+		<script src="../components/jquery/jquery.min.js"></script>
+
+		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors, download): -->
+		<!--<script src="../dist/drawingboard.min.js"></script>-->
+
+		<script src="../js/drawingboard.js"></script>
+		<script src="../js/board.js"></script>
+		<script src="../js/controls/control.js"></script>
+		<script src="../js/controls/color.js"></script>
+		<script src="../js/controls/drawingmode.js"></script>
+		<script src="../js/controls/navigation.js"></script>
+		<script src="../js/controls/size.js"></script>
+		<script src="../js/controls/download.js"></script>
+		<script src="../js/utils.js"></script>
+
+
+
+		<script data-example="1">
+			//create the drawingboard by passing it the #id of the wanted container
+			var defaultBoard = new DrawingBoard.Board('default-board');
+		</script>
+
+
+
+		<!-- an input[type=range] poyfill is more than recommanded if you want to use the default "size" control with the "range" type *on every browser*
+			the polyfill is loaded only if necessary via yepnope http://yepnopejs.com/
+
+			note this is totally not required if the size control is set to "auto" or "dropdown" - the control will work with every browser with an alternate view -->
+		<script src="yepnope.js"></script>
+		<script>
+			var iHasRangeInput = function() {
+				var inputElem  = document.createElement('input'),
+					smile = ':)',
+					docElement = document.documentElement,
+					inputElemType = 'range',
+					available;
+				inputElem.setAttribute('type', inputElemType);
+				available = inputElem.type !== 'text';
+				inputElem.value         = smile;
+				inputElem.style.cssText = 'position:absolute;visibility:hidden;';
+				if ( /^range$/.test(inputElemType) && inputElem.style.WebkitAppearance !== undefined ) {
+					docElement.appendChild(inputElem);
+					defaultView = document.defaultView;
+					available = defaultView.getComputedStyle &&
+						defaultView.getComputedStyle(inputElem, null).WebkitAppearance !== 'textfield' &&
+						(inputElem.offsetHeight !== 0);
+					docElement.removeChild(inputElem);
+				}
+				return !!available;
+			};
+
+			yepnope({
+				test : iHasRangeInput(),
+				nope : ['fd-slider.min.css', 'fd-slider.min.js'],
+				callback: function(id, testResult) {
+					if("fdSlider" in window && typeof (fdSlider.onDomReady) != "undefined") {
+						try { fdSlider.onDomReady(); } catch(err) {}
+					}
+				}
+			});
+		</script>
+
+		<script data-example="2">
+			//pass options and add custom controls to a board
+			var customBoard = new DrawingBoard.Board('custom-board', {
+				background: "#ff7ffe",
+				color: "#ff0",
+				size: 30,
+				controls: [
+					{ Size: { type: "range" } },
+					{ Navigation: { back: false, forward: false } },
+					'DrawingMode'
+				],
+				webStorage: 'local'
+			});
+
+			//There are multiple ways to add a control to a board after its initialization:
+			customBoard.addControl('Download'); //if the DrawingBoard.Control.Download class exists
+
+			//or...
+			//var downloadControl = new DrawingBoard.Control.Download(customBoard).addToBoard();
+
+			//or...
+			//var downloadControl = new DrawingBoard.Control.Download(customBoard);
+			//customBoard.addControl(downloadControl);
+		</script>
+
+		<script data-example="3">
+			var customBoard2 = new DrawingBoard.Board('custom-board-2', {
+				controls: [
+					'Color',
+					{ Size: { type: 'dropdown' } },
+					{ DrawingMode: { filler: false } },
+					'Navigation',
+					'Download'
+				],
+				size: 1,
+				webStorage: 'session',
+				enlargeYourContainer: true
+			});
+		</script>
+
+		<script data-example="4">
+			var simpleBoard = new DrawingBoard.Board('simple-board', {
+				controls: false,
+				webStorage: false
+			});
+		</script>
+
+		<script data-example="5">
+			var imageBoard = new DrawingBoard.Board('title-board', {
+				controls: false,
+				background: 'drawingboardjs.png',
+				color: '#ff0',
+				webStorage: false
+			});
+		</script>
+
+		<!-- totally not drawingboard-related code -->
+		<script src="prism.js"></script>
+		<script src="script.js"></script>
+	</body>
+</html>

@@ -1,0 +1,20 @@
+.drawing-board-control-drawingmode {
+	> button {
+		margin-right: 2px;
+		&:last-child {
+			margin-right: 0;
+		}
+	}
+}
+
+.drawing-board-control-drawingmode-pencil-button {
+	@include image-replacement("pencil.png");
+}
+
+.drawing-board-control-drawingmode-eraser-button {
+	@include image-replacement("eraser.png");
+}
+
+.drawing-board-control-drawingmode-filler-button {
+	@include image-replacement("paint-can.png");
+}
