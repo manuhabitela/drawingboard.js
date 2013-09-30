@@ -10,6 +10,8 @@ local and session storage are supported: your last drawing is restored when you 
 
 You can set a background image at initialization, or let the user drop one on the canvas.
 
+The drawingboard is really lightweight, but also really simple: if you want something more complete, go look at similar projects at the bottom of this doc.
+
 ## Requirements and Installation
 
 [Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
@@ -18,7 +20,7 @@ The board requires jQuery. Since its usage is pretty light, it may work as usual
 
 If you use [Bower](http://twitter.github.com/bower/), getting the files is easy with command line: `bower install drawingboard.js`.
 
-After jQuery, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` *(~5.3kb minified and gzipped)* contains everything whereas `drawingboard.nocontrol.min.js` *(~3.3kb)* [does not contain controls](http://manu.habite.la/drawingboard/img/moto.jpg).
+After jQuery, you can include the minified script and stylesheet contained in the `dist` folder. `drawingboard.min.js` *(~4.1kb minified and gzipped)* contains everything whereas `drawingboard.nocontrol.min.js` *(~2.6kb)* [does not contain controls](http://manu.habite.la/drawingboard/img/moto.jpg). Don't worry about having to store icon files on your server: they are directly embedded in the CSS as base64 strings.
 
 ## Creating a drawingboard
 
@@ -119,10 +121,38 @@ Events currently triggered are:
 * color:changed *(from the Color control)*
 * size:changed *(from the Size control)*
 
-
 ## Building your own
 
-If you've added some controls or changed the drawingboard a bit, you can rebuild the minified files with [grunt](http://gruntjs.com/):
+If you have style changes to make, you can use [Compass](http://compass-style.org/).
+If you've added some controls or changed the drawingboard a bit, you can rebuild the minified files with [Grunt](http://gruntjs.com/):
 
 * in the `Gruntfile.js` file, update the `concat` task by setting all the source files you want
 * [install grunt](http://gruntjs.com/getting-started) globally if necessary, and run `npm install` in your command line in the project to install the project-specific grunt tools. In the end, run `grunt`. Minified files in the `dist` folders are now updated.
+
+## Third party stuff used
+
+The drawingboard works thanks to:
+
+* [jQuery](http://jquery.com) for DOM manipulation,
+* [Compass](http://compass-style.org/) for styling,
+* [Yusuke Kamiyamane's Fugue Icons](http://p.yusukekamiyamane.com/) for icons,
+* [MicroEvent](https://github.com/jeromeetienne/microevent.js) for simple events,
+* [tim](http://github.com/premasagar/tim) for simple templates,
+* [Grunt](http://gruntjs.com) for all the building stuff.
+
+## Want more? Alternatives to drawingboard.js
+
+drawingboard.js is a library I built because I couldn't find anything like it in the beginning of 2013.
+
+It's really lightweight, simple to use and integrate, works great on mobile and draws really smooth lines! But it misses a few important features and it's not that extendable…
+
+Here are a couple of other tools you can try if the drawingboard doesn't satisfy you:
+
+* [Literally Canvas](http://literallycanvas.com/),
+* [wPaint.js](http://wpaint.websanova.com/).
+
+## License
+
+drawingboard.js is [MIT licensed](LICENSE).
+
+Copyright (c) 2013 Emmanuel "[@Leimina](http://twitter.com/Leimina)" Pelletier.
