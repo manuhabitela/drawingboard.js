@@ -12,7 +12,7 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 		var el = '';
 		if (this.opts.back) el += '<button class="drawing-board-control-navigation-back">&larr;</button>';
 		if (this.opts.forward) el += '<button class="drawing-board-control-navigation-forward">&rarr;</button>';
-		if (this.opts.reset) el += '<button class="drawing-board-control-navigation-reset">×</button>';
+		if (this.opts.reset) el += '<button class="drawing-board-control-navigation-reset">&times;</button>';
 		this.$el.append(el);
 
 		if (this.opts.back) {
