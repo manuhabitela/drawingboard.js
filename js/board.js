@@ -79,6 +79,7 @@ DrawingBoard.Board.defaultOpts = {
 	size: 1,
 	background: "#fff",
 	eraserColor: "background",
+	fillTolerance: 100,
 	webStorage: 'session',
 	droppable: false,
 	enlargeYourContainer: false,
@@ -465,7 +466,7 @@ DrawingBoard.Board.prototype = {
 		// starting point
 		var start = DrawingBoard.Utils.pixelAt(img, parseInt(e.coords.x, 10), parseInt(e.coords.y, 10));
 		var startColor = start[COLOR];
-		var tolerance = 0;
+		var tolerance = this.opts.fillTolerance;
 
 		// no need to continue if starting and target colors are the same
 		if (DrawingBoard.Utils.compareColors(startColor, DrawingBoard.Utils.RGBToInt(r, g, b), tolerance))
