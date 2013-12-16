@@ -16,7 +16,7 @@ window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
  * }
  */
 DrawingBoard.Board = function(id, opts) {
-	this.opts = $.extend({}, DrawingBoard.Board.defaultOpts, opts);
+	this.opts = this.mergeOptions(opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
 
@@ -89,6 +89,13 @@ DrawingBoard.Board.defaultOpts = {
 
 
 DrawingBoard.Board.prototype = {
+
+	mergeOptions: function(opts) {
+		opts = $.extend({}, DrawingBoard.Board.defaultOpts, opts);
+		if (!opts.background && opts.eraserColor === "background")
+			opts.eraserColor = "transparent";
+		return opts;
+	},
 
 	/**
 	 * Canvas reset/resize methods: put back the canvas to its default values

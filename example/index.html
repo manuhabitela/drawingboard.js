@@ -64,6 +64,17 @@
 				margin: 0;
 			}
 		</style>
+
+		<style data-example="6">
+			#transparent-board {
+				width: 600px;
+				height: 270px;
+			}
+
+			#transparent-board .drawing-board-canvas-wrapper {
+				border: 1px solid gray;
+			}
+		</style>
 	</head>
 	<body>
 		<span id="forkongithub"><a href="https://github.com/Leimi/drawingboard.js">Fork me on GitHub!</a></span>
@@ -98,6 +109,11 @@
 			<div class="example" data-example="4">
 				<h1>The simplest one</h1>
 				<div class="board" id="simple-board"></div>
+			</div>
+
+			<div class="example" data-example="6">
+				<h1>Transparent background</h1>
+				<div class="board" id="transparent-board"></div>
 			</div>
 
 		</div>
@@ -218,6 +234,15 @@
 				background: 'drawingboardjs.png',
 				color: '#ff0',
 				webStorage: false
+			});
+		</script>
+
+		<script data-example="6">
+			var transparentBoardControls = DrawingBoard.Board.defaultOpts.controls.slice();
+			transparentBoardControls.splice(DrawingBoard.Board.defaultOpts.controls.indexOf('DrawingMode'), 1, { DrawingMode: { filler: false } });
+			var transparentBoard = new DrawingBoard.Board('transparent-board', {
+				background: false,
+				controls: transparentBoardControls
 			});
 		</script>
 
