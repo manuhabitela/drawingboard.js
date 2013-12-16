@@ -577,6 +577,7 @@ DrawingBoard.Board.prototype = {
 		if (!window.requestAnimationFrame) this.draw();
 
 		this.ev.trigger('board:startDrawing', {e: e, coords: coords});
+		e.stopPropagation();
 		e.preventDefault();
 	},
 
@@ -586,6 +587,7 @@ DrawingBoard.Board.prototype = {
 
 		if (!window.requestAnimationFrame) this.draw();
 
+		e.stopPropagation();
 		e.preventDefault();
 	},
 
@@ -598,6 +600,7 @@ DrawingBoard.Board.prototype = {
 
 			this.ev.trigger('board:stopDrawing', {e: e, coords: coords});
 			this.ev.trigger('board:userAction');
+			e.stopPropagation();
 			e.preventDefault();
 		}
 	},
