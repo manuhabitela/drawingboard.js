@@ -1,3 +1,6 @@
+window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
+
+
 DrawingBoard.Utils = {};
 
 /*!

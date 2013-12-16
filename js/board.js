@@ -1,3 +1,5 @@
+window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
+
 /**
  * pass the id of the html element to put the drawing board into
  * and some options : {
