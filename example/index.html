@@ -238,6 +238,8 @@
 		</script>
 
 		<script data-example="6">
+			//the "filler" mode currently doesn't work with transparent boards...
+			//keeping default controls, replacing the DrawingMode one with a filler-less version
 			var transparentBoardControls = DrawingBoard.Board.defaultOpts.controls.slice();
 			transparentBoardControls.splice(DrawingBoard.Board.defaultOpts.controls.indexOf('DrawingMode'), 1, { DrawingMode: { filler: false } });
 			var transparentBoard = new DrawingBoard.Board('transparent-board', {
