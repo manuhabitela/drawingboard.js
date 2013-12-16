@@ -1,9 +1,9 @@
 var content;
-$('script[data-example]').each(function(n, item) {
+$('script[data-example], style[data-example]').each(function(n, item) {
 	content = $(this).html();
 	$('div[data-example="' + $(this).attr('data-example') + '"]')
 		.append(
-			'<pre><code class="language-javascript">' +
+			'<pre><code class="language-' + ( $(this).prop('tagName').toLowerCase() === 'script' ? 'javascript' : 'css') + '">' +
 			$(this).html()
 				.replace(/[<>]/g, function(m) { return {'<':'&lt;','>':'&gt;'}[m];})
 				.replace(/\t\t\t/g, "")
