@@ -463,10 +463,12 @@ DrawingBoard.Board.prototype = {
 		var b = parseInt(stroke.substr(5, 2), 16);
 
 		// starting point
-		var start = DrawingBoard.Utils.pixelAt(img, parseInt( e.coords.x, 10), parseInt( e.coords.y, 10));
+		var start = DrawingBoard.Utils.pixelAt(img, parseInt(e.coords.x, 10), parseInt(e.coords.y, 10));
+		var startColor = start[COLOR];
+		var tolerance = 0;
 
 		// no need to continue if starting and target colors are the same
-		if (start[COLOR] === DrawingBoard.Utils.RGBToInt(r, g, b))
+		if (DrawingBoard.Utils.compareColors(startColor, DrawingBoard.Utils.RGBToInt(r, g, b), tolerance))
 			return;
 
 		// pixels to evaluate
@@ -478,7 +480,7 @@ DrawingBoard.Board.prototype = {
 		var maxY = img.height - 1;
 
 		while ((pixel = queue.pop())) {
-			if (pixel[COLOR] === start[COLOR]) {
+			if (DrawingBoard.Utils.compareColors(pixel[COLOR], startColor, tolerance)) {
 				img.data[pixel[INDEX]] = r;
 				img.data[pixel[INDEX] + 1] = g;
 				img.data[pixel[INDEX] + 2] = b;

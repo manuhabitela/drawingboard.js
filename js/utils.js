@@ -139,6 +139,23 @@ DrawingBoard.Utils.pixelAt = function(image, x, y) {
 	];
 };
 
+/**
+ * Compares two colors with the given tolerance (between 0 and 255).
+ */
+DrawingBoard.Utils.compareColors = function(a, b, tolerance) {
+	if (tolerance === 0) {
+		return (a === b);
+	}
+
+	var ra = (a >> 16) & 255, rb = (b >> 16) & 255,
+		ga = (a >> 8) & 255, gb = (b >> 8) & 255,
+		ba = a & 255, bb = b & 255;
+
+	return (Math.abs(ra - rb) <= tolerance)
+		&& (Math.abs(ga - gb) <= tolerance)
+		&& (Math.abs(ba - bb) <= tolerance);
+};
+
 (function() {
 	var lastTime = 0;
 	var vendors = ['ms', 'moz', 'webkit', 'o'];
