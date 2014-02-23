@@ -121,6 +121,37 @@ Events currently triggered are:
 * color:changed *(from the Color control)*
 * size:changed *(from the Size control)*
 
+When using the drawingboard or adding features, follow the MicroEvent simple API:
+
+```javascript
+var myBoard = new DrawingBoard.Board('zbeubeu');
+
+//listen to an event
+myBoard.ev.bind('board:reset', why);
+
+//stop listening to it
+myBoard.ev.unbind('board:reset', why);
+
+function why() {
+    alert('OH GOD WHY');
+}
+
+//you can also trigger new events
+myBoard.ev.trigger('readme:example', 'what', 'up');
+
+//and listen to them
+myBoard.ev.bind('readme:example', function(one, two) {
+    console.log(one, two); // 'what', 'up'
+});
+```
+
+
+## Getting the image inside the board to store server-side
+
+A common thing you may want to do is to store images drawn with the board on your server. This is simple to do with the `getImg` method that returns the board content as a 64 bit encoded PNG URL.
+
+One very simple example of storing drawingboard images with PHP is shown [in this gist](https://gist.github.com/Leimi/9179019).
+
 ## Building your own
 
 If you have style changes to make, you can use [Compass](http://compass-style.org/).
