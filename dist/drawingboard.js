@@ -1,5 +1,5 @@
-/* drawingboard.js v0.4.3 - https://github.com/Leimi/drawingboard.js
-* Copyright (c) 2013 Emmanuel Pelletier
+/* drawingboard.js v0.4.4 - https://github.com/Leimi/drawingboard.js
+* Copyright (c) 2014 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
 
@@ -1076,7 +1076,9 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 
 	defaults: {
 		type: "auto",
-		dropdownValues: [1, 3, 6, 10, 20, 30, 40, 50]
+		dropdownValues: [1, 3, 6, 10, 20, 30, 40, 50],
+		min: 1,
+		max: 50
 	},
 
 	types: ['dropdown', 'range'],
@@ -1124,10 +1126,14 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 
 	_rangeTemplate: function() {
 		var tpl = '<div class="drawing-board-control-inner" title="{{size}}">' +
-			'<input type="range" min="1" max="50" value="{{size}}" step="1" class="drawing-board-control-size-range-input">' +
+			'<input type="range" min="{{min}}" max="{{max}}" value="{{size}}" step="1" class="drawing-board-control-size-range-input">' +
 			'<span class="drawing-board-control-size-range-current"></span>' +
 			'</div>';
-		return DrawingBoard.Utils.tpl(tpl, { size: this.board.opts.size });
+		return DrawingBoard.Utils.tpl(tpl, {
+			min: this.opts.min,
+			max: this.opts.max,
+			size: this.board.opts.size
+		});
 	},
 
 	_dropdownTemplate: function() {
