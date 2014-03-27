@@ -5,10 +5,8 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 	defaults: {
 		type: "auto",
 		dropdownValues: [1, 3, 6, 10, 20, 30, 40, 50],
-		range: {
-			min: 1,
-			max: 50
-		}
+		min: 1,
+		max: 50
 	},
 
 	types: ['dropdown', 'range'],
@@ -60,8 +58,8 @@ DrawingBoard.Control.Size = DrawingBoard.Control.extend({
 			'<span class="drawing-board-control-size-range-current"></span>' +
 			'</div>';
 		return DrawingBoard.Utils.tpl(tpl, {
-			min: this.opts.range.min,
-			max: this.opts.range.max,
+			min: this.opts.min,
+			max: this.opts.max,
 			size: this.board.opts.size
 		});
 	},
