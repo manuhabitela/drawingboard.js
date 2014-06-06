@@ -141,7 +141,7 @@ DrawingBoard.Board.prototype = {
 		var bgIsColor = DrawingBoard.Utils.isColor(background);
 		var prevMode = this.getMode();
 		this.setMode('pencil');
-		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		if (bgIsColor) {
 			this.ctx.fillStyle = background;
 			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
