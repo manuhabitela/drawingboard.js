@@ -305,14 +305,19 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	setImg: function(src) {
+	setImg: function(src, cover) {
 		var ctx = this.ctx;
 		var img = new Image();
 		var oldGCO = ctx.globalCompositeOperation;
 		img.onload = function() {
 			ctx.globalCompositeOperation = "source-over";
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
-			ctx.drawImage(img, 0, 0);
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			if (cover) {
+				ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+			}
+			else {
+				ctx.drawImage(img, 0, 0);
+			}
 			ctx.globalCompositeOperation = oldGCO;
 		};
 		img.src = src;
