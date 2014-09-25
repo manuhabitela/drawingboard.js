@@ -499,10 +499,10 @@ DrawingBoard.Board.prototype = {
 		var maxY = img.height - 1;
 
 		while ((pixel = queue.pop())) {
+			img.data[pixel[INDEX]] = r;
+			img.data[pixel[INDEX] + 1] = g;
+			img.data[pixel[INDEX] + 2] = b;
 			if (DrawingBoard.Utils.compareColors(pixel[COLOR], startColor, tolerance)) {
-				img.data[pixel[INDEX]] = r;
-				img.data[pixel[INDEX] + 1] = g;
-				img.data[pixel[INDEX] + 2] = b;
 				if (pixel[X] > 0) // west
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] - 1, pixel[Y]));
 				if (pixel[X] < maxX) // east
