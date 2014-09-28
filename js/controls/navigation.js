@@ -17,30 +17,24 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 
 		if (this.opts.back) {
 			var $back = this.$el.find('.drawing-board-control-navigation-back');
-			this.board.ev.bind('historyNavigation', $.proxy(function(pos) {
-				if (pos === 1)
-					$back.attr('disabled', 'disabled');
-				else
-					$back.removeAttr('disabled');
-			}, this));
+			this.board.ev.bind('historyNavigation', $.proxy(this.updateBack, this, $back));
 			this.$el.on('click', '.drawing-board-control-navigation-back', $.proxy(function(e) {
 				this.board.goBackInHistory();
 				e.preventDefault();
 			}, this));
+			
+			this.updateBack($back);
 		}
 
 		if (this.opts.forward) {
 			var $forward = this.$el.find('.drawing-board-control-navigation-forward');
-			this.board.ev.bind('historyNavigation', $.proxy(function(pos) {
-				if (pos === this.board.history.values.length)
-					$forward.attr('disabled', 'disabled');
-				else
-					$forward.removeAttr('disabled');
-			}, this));
+			this.board.ev.bind('historyNavigation', $.proxy(this.updateForward, this, $forward));
 			this.$el.on('click', '.drawing-board-control-navigation-forward', $.proxy(function(e) {
 				this.board.goForthInHistory();
 				e.preventDefault();
 			}, this));
+			
+			this.updateForward($forward);
 		}
 
 		if (this.opts.reset) {
@@ -48,6 +42,22 @@ DrawingBoard.Control.Navigation = DrawingBoard.Control.extend({
 				this.board.reset({ background: true });
 				e.preventDefault();
 			}, this));
+		}
+	},
+	
+	updateBack: function($back) {
+		if (this.board.history.canUndo()) {
+			$back.removeAttr('disabled');
+		} else {
+			$back.attr('disabled','disabled');
+		}
+	},
+	
+	updateForward: function($forward) {
+		if (this.board.history.canRedo()) {
+			$forward.removeAttr('disabled');
+		} else {
+			$forward.attr('disabled','disabled');
 		}
 	}
 });
