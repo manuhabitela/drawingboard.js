@@ -192,7 +192,8 @@
 					{ Navigation: { back: false, forward: false } },
 					'DrawingMode'
 				],
-				webStorage: 'local'
+				webStorage: 'local',
+				droppable: true //try dropping an image on the canvas!
 			});
 
 			//There are multiple ways to add a control to a board after its initialization:
@@ -217,7 +218,9 @@
 				],
 				size: 1,
 				webStorage: 'session',
-				enlargeYourContainer: true
+				enlargeYourContainer: true,
+				droppable: true, //try dropping an image on the canvas!
+				stretchImg: true //the dropped image can be automatically ugly resized to to take the canvas size
 			});
 		</script>
 
