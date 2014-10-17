@@ -57,6 +57,7 @@ When instantiating the drawingboard, you can pass a few options as the 2nd param
 * `droppable`: do we allow the user to drop an image on the board to draw on it? `false` by default.
 * `enlargeYourContainer`: how should be sized the drawingboard? When `true`, the CSS width and height will be set on the final board's *canvas*, ie the drawing zone. In the example above, that means the board's container will be taller than 400px because of the controls height. If `false`, the CSS width and height will be set on the board's container. That means the addition of the canvas and the controls will be 400px high. `false` by default.
 * `errorMessage`: html string to put in the board's element on browsers that don't support canvas.
+* `stretchImg`: default behavior of image setting on the canvas: set to the canvas width/height or not? `false` by default
 
 ## Controls
 

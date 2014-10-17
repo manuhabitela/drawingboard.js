@@ -13,6 +13,7 @@ window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
  *	webStorage: 'session', 'local' or false ('session' by default). store the current drawing in session or local storage and restore it when you come back
  *	droppable: true or false (false by default). If true, dropping an image on the canvas will include it and allow you to draw on it,
  *	errorMessage: html string to put in the board's element on browsers that don't support canvas.
+ *	stretchImg: default behavior of image setting on the canvas: set to the canvas width/height or not? false by default
  * }
  */
 DrawingBoard.Board = function(id, opts) {
@@ -83,7 +84,8 @@ DrawingBoard.Board.defaultOpts = {
 	webStorage: 'session',
 	droppable: false,
 	enlargeYourContainer: false,
-	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
+	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>",
+	stretchImg: false //when setting the canvas img, strech the image at the whole canvas size when this opt is true
 };
 
 
@@ -305,14 +307,23 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	setImg: function(src) {
+	setImg: function(src, opts) {
+		opts = $.extend({
+			stretch: this.opts.stretchImg
+		}, opts);
 		var ctx = this.ctx;
 		var img = new Image();
 		var oldGCO = ctx.globalCompositeOperation;
 		img.onload = function() {
 			ctx.globalCompositeOperation = "source-over";
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
-			ctx.drawImage(img, 0, 0);
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+			if (opts.stretch) {
+				ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+			} else {
+				ctx.drawImage(img, 0, 0);
+			}
+
 			ctx.globalCompositeOperation = oldGCO;
 		};
 		img.src = src;
