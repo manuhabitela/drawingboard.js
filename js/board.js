@@ -81,7 +81,7 @@ DrawingBoard.Board.defaultOpts = {
 	background: "#fff",
 	eraserColor: "background",
 	fillTolerance: 100,
-	fillHack: false, //try to prevent issues with anti-aliasing with a little hack by default
+	fillHack: true, //try to prevent issues with anti-aliasing with a little hack by default
 	webStorage: 'session',
 	droppable: false,
 	enlargeYourContainer: false,
