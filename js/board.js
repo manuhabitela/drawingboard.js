@@ -81,6 +81,7 @@ DrawingBoard.Board.defaultOpts = {
 	background: "#fff",
 	eraserColor: "background",
 	fillTolerance: 100,
+	fillHack: false, //try to prevent issues with anti-aliasing with a little hack by default
 	webStorage: 'session',
 	droppable: false,
 	enlargeYourContainer: false,
@@ -485,6 +486,7 @@ DrawingBoard.Board.prototype = {
 		var start = DrawingBoard.Utils.pixelAt(img, parseInt(e.coords.x, 10), parseInt(e.coords.y, 10));
 		var startColor = start[COLOR];
 		var tolerance = this.opts.fillTolerance;
+		var useHack = this.opts.fillHack; //see https://github.com/Leimi/drawingboard.js/pull/38
 
 		// no need to continue if starting and target colors are the same
 		if (DrawingBoard.Utils.compareColors(startColor, DrawingBoard.Utils.RGBToInt(r, g, b), tolerance))
@@ -498,11 +500,19 @@ DrawingBoard.Board.prototype = {
 		var maxX = img.width - 1;
 		var maxY = img.height - 1;
 
+		function updatePixelColor(pixel) {
+			img.data[pixel[INDEX]] = r;
+			img.data[pixel[INDEX] + 1] = g;
+			img.data[pixel[INDEX] + 2] = b;
+		}
+
 		while ((pixel = queue.pop())) {
+			if (useHack)
+				updatePixelColor(pixel);
+
 			if (DrawingBoard.Utils.compareColors(pixel[COLOR], startColor, tolerance)) {
-				img.data[pixel[INDEX]] = r;
-				img.data[pixel[INDEX] + 1] = g;
-				img.data[pixel[INDEX] + 2] = b;
+				if (!useHack)
+					updatePixelColor(pixel);
 				if (pixel[X] > 0) // west
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] - 1, pixel[Y]));
 				if (pixel[X] < maxX) // east
