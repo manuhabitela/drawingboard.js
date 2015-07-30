@@ -649,6 +649,11 @@ DrawingBoard.Board.prototype = {
 
 	_getInputCoords: function(e) {
 		e = e.originalEvent ? e.originalEvent : e;
+		var
+			rect = this.dom.$canvas[0].getBoundingClientRect(),
+			width = this.dom.$canvas.width(),
+			height = this.dom.$canvas.height()
+		;
 		var x, y;
 		if (e.touches && e.touches.length == 1) {
 			x = e.touches[0].pageX;
@@ -657,9 +662,13 @@ DrawingBoard.Board.prototype = {
 			x = e.pageX;
 			y = e.pageY;
 		}
+		x = x - this.dom.$canvas.offset().left;
+		y = y - this.dom.$canvas.offset().top;
+		x *= (width / rect.width);
+		y *= (height / rect.height);
 		return {
-			x: x - this.dom.$canvas.offset().left,
-			y: y - this.dom.$canvas.offset().top
+			x: x,
+			y: y
 		};
 	},
 
