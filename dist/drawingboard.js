@@ -1,5 +1,5 @@
-/* drawingboard.js v0.4.4 - https://github.com/Leimi/drawingboard.js
-* Copyright (c) 2014 Emmanuel Pelletier
+/* drawingboard.js v0.4.5 - https://github.com/Leimi/drawingboard.js
+* Copyright (c) 2015 Emmanuel Pelletier
 * Licensed MIT */
 window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
 
@@ -183,6 +183,7 @@ window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
  *	webStorage: 'session', 'local' or false ('session' by default). store the current drawing in session or local storage and restore it when you come back
  *	droppable: true or false (false by default). If true, dropping an image on the canvas will include it and allow you to draw on it,
  *	errorMessage: html string to put in the board's element on browsers that don't support canvas.
+ *	stretchImg: default behavior of image setting on the canvas: set to the canvas width/height or not? false by default
  * }
  */
 DrawingBoard.Board = function(id, opts) {
@@ -250,10 +251,12 @@ DrawingBoard.Board.defaultOpts = {
 	background: "#fff",
 	eraserColor: "background",
 	fillTolerance: 100,
+	fillHack: true, //try to prevent issues with anti-aliasing with a little hack by default
 	webStorage: 'session',
 	droppable: false,
 	enlargeYourContainer: false,
-	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>"
+	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>",
+	stretchImg: false //when setting the canvas img, strech the image at the whole canvas size when this opt is true
 };
 
 
@@ -311,7 +314,7 @@ DrawingBoard.Board.prototype = {
 		var bgIsColor = DrawingBoard.Utils.isColor(background);
 		var prevMode = this.getMode();
 		this.setMode('pencil');
-		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+		this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 		if (bgIsColor) {
 			this.ctx.fillStyle = background;
 			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
@@ -475,14 +478,23 @@ DrawingBoard.Board.prototype = {
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
 	 */
 
-	setImg: function(src) {
+	setImg: function(src, opts) {
+		opts = $.extend({
+			stretch: this.opts.stretchImg
+		}, opts);
 		var ctx = this.ctx;
 		var img = new Image();
 		var oldGCO = ctx.globalCompositeOperation;
 		img.onload = function() {
 			ctx.globalCompositeOperation = "source-over";
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
-			ctx.drawImage(img, 0, 0);
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+			if (opts.stretch) {
+				ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+			} else {
+				ctx.drawImage(img, 0, 0);
+			}
+
 			ctx.globalCompositeOperation = oldGCO;
 		};
 		img.src = src;
@@ -623,7 +635,7 @@ DrawingBoard.Board.prototype = {
 	 */
 	fill: function(e) {
 		if (this.getImg() === this.blankCanvas) {
-			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 			this.ctx.fillStyle = this.color;
 			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 			return;
@@ -644,6 +656,7 @@ DrawingBoard.Board.prototype = {
 		var start = DrawingBoard.Utils.pixelAt(img, parseInt(e.coords.x, 10), parseInt(e.coords.y, 10));
 		var startColor = start[COLOR];
 		var tolerance = this.opts.fillTolerance;
+		var useHack = this.opts.fillHack; //see https://github.com/Leimi/drawingboard.js/pull/38
 
 		// no need to continue if starting and target colors are the same
 		if (DrawingBoard.Utils.compareColors(startColor, DrawingBoard.Utils.RGBToInt(r, g, b), tolerance))
@@ -657,11 +670,19 @@ DrawingBoard.Board.prototype = {
 		var maxX = img.width - 1;
 		var maxY = img.height - 1;
 
+		function updatePixelColor(pixel) {
+			img.data[pixel[INDEX]] = r;
+			img.data[pixel[INDEX] + 1] = g;
+			img.data[pixel[INDEX] + 2] = b;
+		}
+
 		while ((pixel = queue.pop())) {
+			if (useHack)
+				updatePixelColor(pixel);
+
 			if (DrawingBoard.Utils.compareColors(pixel[COLOR], startColor, tolerance)) {
-				img.data[pixel[INDEX]] = r;
-				img.data[pixel[INDEX] + 1] = g;
-				img.data[pixel[INDEX] + 2] = b;
+				if (!useHack)
+					updatePixelColor(pixel);
 				if (pixel[X] > 0) // west
 					queue.push(DrawingBoard.Utils.pixelAt(img, pixel[X] - 1, pixel[Y]));
 				if (pixel[X] < maxX) // east
@@ -798,6 +819,11 @@ DrawingBoard.Board.prototype = {
 
 	_getInputCoords: function(e) {
 		e = e.originalEvent ? e.originalEvent : e;
+		var
+			rect = this.canvas.getBoundingClientRect(),
+			width = this.dom.$canvas.width(),
+			height = this.dom.$canvas.height()
+		;
 		var x, y;
 		if (e.touches && e.touches.length == 1) {
 			x = e.touches[0].pageX;
@@ -806,9 +832,13 @@ DrawingBoard.Board.prototype = {
 			x = e.pageX;
 			y = e.pageY;
 		}
+		x = x - this.dom.$canvas.offset().left;
+		y = y - this.dom.$canvas.offset().top;
+		x *= (width / rect.width);
+		y *= (height / rect.height);
 		return {
-			x: x - this.dom.$canvas.offset().left,
-			y: y - this.dom.$canvas.offset().top
+			x: x,
+			y: y
 		};
 	},
 

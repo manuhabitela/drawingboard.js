@@ -7,4 +7,5 @@
 *en conflit*
 node_modules
 sftp-config.json
+bower_components
 components
