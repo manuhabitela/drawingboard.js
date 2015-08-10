@@ -1,0 +1,35 @@
+{
+  "name": "simple-undo",
+  "version": "1.0.1",
+  "description": "a very basic javascript undo/redo stack for managing histories of basically anything",
+  "main": "./lib/simple-undo.js",
+  "scripts": {
+    "test": "node_modules/.bin/gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattjmattj/simple-undo.git"
+  },
+  "keywords": [
+    "undo",
+    "redo",
+    "history"
+  ],
+  "author": "Matthias Jouan",
+  "license": {
+    "type": "THE BEER-WARE LICENSE",
+    "url": "https://fedoraproject.org/wiki/Licensing/Beerware"
+  },
+  "bugs": {
+    "url": "https://github.com/mattjmattj/simple-undo/issues"
+  },
+  "homepage": "https://github.com/mattjmattj/simple-undo",
+  "devDependencies": {
+    "gulp": "^3.8.8",
+    "gulp-jshint": "^1.8.5",
+    "gulp-mocha": "^1.1.0",
+    "jshint": "^2.5.6",
+    "mocha": "^1.21.4",
+    "should": "^4.0.4"
+  }
+}

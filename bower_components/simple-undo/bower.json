@@ -1,0 +1,26 @@
+{
+  "name": "simple-undo",
+  "version": "1.0.1",
+  "authors": [
+    "Matthias Jouan <matthias.jouan@gmail.com>"
+  ],
+  "description": "a very basic javascript undo/redo stack for managing histories of basically anything",
+  "main": "./lib/simple-undo.js",
+  "moduleType": [
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "undo",
+    "redo",
+    "history"
+  ],
+  "license": "THE BEER-WARE LICENSE",
+  "homepage": "https://github.com/mattjmattj/simple-undo",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "tests"
+  ]
+}

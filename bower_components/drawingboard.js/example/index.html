@@ -7,43 +7,77 @@
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
 
-		<link rel="stylesheet" href="bower_components/drawingboard.js/example/prism.css">
-		<link rel="stylesheet" href="bower_components/drawingboard.js/example/website.css">
+		<link rel="stylesheet" href="prism.css">
+		<link rel="stylesheet" href="website.css">
 
 
-		<!-- in a production environment, just include the minified css. It contains the css of the board and the default controls (size, nav, colors): -->
-		<link rel="stylesheet" href="bower_components/drawingboard.js/dist/drawingboard.min.css">
+		<!-- in a production environment, you can include the minified css. It contains the css of the board and the default controls (size, nav, colors):
+		<link rel="stylesheet" href="../dist/drawingboard.min.css"> -->
+		<link rel="stylesheet" href="../css/drawingboard.css">
 
 		<style>
 		/*
 		* drawingboards styles: set the board dimensions you want with CSS
 		*/
-
 		.board {
 			margin: 0 auto;
-			width: 300px;
-			height: 300px;
-		}
-
-		#default-board {
-			width: 700px;
+			width: 400px;
 			height: 400px;
 		}
+		</style>
 
-		#custom-board-2 {
-			width: 550px;
-			height: 300px;
-		}
+		<style data-example="2">
+			#custom-board {
+				width: 400px;
+				height: 400px;
+			}
+		</style>
 
-		#title-board {
-			width: 600px;
-			height: 270px;
-		}
-		/* custom board styles for the title? no problem*/
-		#title-board .drawing-board-canvas-wrapper {
-			border: none;
-			margin: 0;
-		}
+		<style data-example="4">
+			#simple-board {
+				width: 400px;
+				height: 400px;
+			}
+		</style>
+
+		<style data-example="1">
+			#default-board {
+				width: 700px;
+				height: 400px;
+			}
+		</style>
+
+		<style data-example="3">
+			#custom-board-2 {
+				width: 550px;
+				height: 300px;
+			}
+
+			#custom-board-2 canvas {
+				transform: scale(0.95);
+			}
+		</style>
+
+		<style data-example="5">
+			#title-board {
+				width: 600px;
+				height: 270px;
+			}
+			#title-board .drawing-board-canvas-wrapper {
+				border: none;
+				margin: 0;
+			}
+		</style>
+
+		<style data-example="6">
+			#transparent-board {
+				width: 600px;
+				height: 270px;
+			}
+
+			#transparent-board .drawing-board-canvas-wrapper {
+				border: 1px solid gray;
+			}
 		</style>
 	</head>
 	<body>
@@ -81,28 +115,28 @@
 				<div class="board" id="simple-board"></div>
 			</div>
 
-			<div>
-				<h1>Real world usage</h1>
-				
-				<p>The drawingboard was originally made for a French website with a dubious humor (that you'll definitely understand even if you're not French): <a href="http://jaiunegrosseteu.be" target="_blank">jaiunegrosseteu.be</a></p>
-				<p>Other websites using it:</p>
-				<ul>
-					<li><a href="http://jdraw.it/" target="_blank">Just draw it</a></li>
-					<li><a href="http://www.peinto.org/" target="_blank">peinto.org</a></li>
-				</ul>
-			</div>
-
-			<div>
-				<p>Made by <a href="http://twitter.com/Leimina">@Leimina</a>.</p>
+			<div class="example" data-example="6">
+				<h1>Transparent background</h1>
+				<div class="board" id="transparent-board"></div>
 			</div>
 
 		</div>
 
 		<!-- jquery is required - zepto might do the trick too -->
-		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="../bower_components/jquery/dist/jquery.min.js"></script>
+		<script src="../bower_components/simple-undo/lib/simple-undo.js"></script>
 
 		<!-- in a production environment, just include the minified script. It contains the board and the default controls (size, nav, colors, download): -->
-		<script src="bower_components/drawingboard.js/dist/drawingboard.min.js"></script>
+		<!--<script src="../dist/drawingboard.min.js"></script>-->
+
+		<script src="../js/utils.js"></script>
+		<script src="../js/board.js"></script>
+		<script src="../js/controls/control.js"></script>
+		<script src="../js/controls/color.js"></script>
+		<script src="../js/controls/drawingmode.js"></script>
+		<script src="../js/controls/navigation.js"></script>
+		<script src="../js/controls/size.js"></script>
+		<script src="../js/controls/download.js"></script>
 
 
 
@@ -117,7 +151,7 @@
 			the polyfill is loaded only if necessary via yepnope http://yepnopejs.com/
 
 			note this is totally not required if the size control is set to "auto" or "dropdown" - the control will work with every browser with an alternate view -->
-		<script src="bower_components/drawingboard.js/example/yepnope.js"></script>
+		<script src="yepnope.js"></script>
 		<script>
 			var iHasRangeInput = function() {
 				var inputElem  = document.createElement('input'),
@@ -142,7 +176,7 @@
 
 			yepnope({
 				test : iHasRangeInput(),
-				nope : ['bower_components/drawingboard.js/example/fd-slider.min.css', 'bower_components/drawingboard.js/example/fd-slider.min.js'],
+				nope : ['fd-slider.min.css', 'fd-slider.min.js'],
 				callback: function(id, testResult) {
 					if("fdSlider" in window && typeof (fdSlider.onDomReady) != "undefined") {
 						try { fdSlider.onDomReady(); } catch(err) {}
@@ -157,12 +191,14 @@
 				background: "#ff7ffe",
 				color: "#ff0",
 				size: 30,
+				fillTolerance: 150,
 				controls: [
-					{ Size: { type: "range" } },
+					{ Size: { type: "range", min: 12, max: 42 } },
 					{ Navigation: { back: false, forward: false } },
 					'DrawingMode'
 				],
-				webStorage: 'local'
+				webStorage: 'local',
+				droppable: true //try dropping an image on the canvas!
 			});
 
 			//There are multiple ways to add a control to a board after its initialization:
@@ -187,7 +223,9 @@
 				],
 				size: 1,
 				webStorage: 'session',
-				enlargeYourContainer: true
+				enlargeYourContainer: true,
+				droppable: true, //try dropping an image on the canvas!
+				stretchImg: true //the dropped image can be automatically ugly resized to to take the canvas size
 			});
 		</script>
 
@@ -201,24 +239,25 @@
 		<script data-example="5">
 			var imageBoard = new DrawingBoard.Board('title-board', {
 				controls: false,
-				background: 'bower_components/drawingboard.js/example/drawingboardjs.png',
+				background: 'drawingboardjs.png',
 				color: '#ff0',
 				webStorage: false
 			});
 		</script>
 
+		<script data-example="6">
+			//the "filler" mode currently doesn't work with transparent boards...
+			//keeping default controls, replacing the DrawingMode one with a filler-less version
+			var transparentBoardControls = DrawingBoard.Board.defaultOpts.controls.slice();
+			transparentBoardControls.splice(DrawingBoard.Board.defaultOpts.controls.indexOf('DrawingMode'), 1, { DrawingMode: { filler: false } });
+			var transparentBoard = new DrawingBoard.Board('transparent-board', {
+				background: false,
+				controls: transparentBoardControls
+			});
+		</script>
+
 		<!-- totally not drawingboard-related code -->
-		<script src="bower_components/drawingboard.js/example/prism.js"></script>
-		<script src="bower_components/drawingboard.js/example/script.js"></script>
-		<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-13184829-7', 'leimi.github.io');
-  ga('send', 'pageview');
-
-</script>
+		<script src="prism.js"></script>
+		<script src="script.js"></script>
 	</body>
 </html>

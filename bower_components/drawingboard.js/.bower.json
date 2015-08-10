@@ -1,0 +1,22 @@
+{
+  "name": "drawingboard.js",
+  "version": "0.4.6",
+  "main": [
+    "dist/drawingboard.js",
+    "dist/drawingboard.css"
+  ],
+  "dependencies": {
+    "jquery": "*",
+    "simple-undo": "*"
+  },
+  "homepage": "https://github.com/Leimi/drawingboard.js",
+  "_release": "0.4.6",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.4.6",
+    "commit": "fb5d4ace077f1fdd40802ebcf69410e8e721ecde"
+  },
+  "_source": "git://github.com/Leimi/drawingboard.js.git",
+  "_target": "*",
+  "_originalSource": "drawingboard.js"
+}

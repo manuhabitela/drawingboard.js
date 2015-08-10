@@ -1,0 +1,9 @@
+{
+	"name": "drawingboard.js",
+	"version": "0.4.6",
+	"main": ["dist/drawingboard.js", "dist/drawingboard.css"],
+	"dependencies": {
+		"jquery": "*",
+		"simple-undo": "*"
+	}
+}

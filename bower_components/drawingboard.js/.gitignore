@@ -1,0 +1,11 @@
+/img/drawingboard.js.png
+/img/moto.jpg
+.sass-cache
+.livereload
+*.sublime-project
+*.sublime-workspace
+*en conflit*
+node_modules
+sftp-config.json
+bower_components
+components
