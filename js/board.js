@@ -465,7 +465,7 @@ DrawingBoard.Board.prototype = {
 	 */
 	fill: function(e) {
 		if (this.getImg() === this.blankCanvas) {
-			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.width);
+			this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 			this.ctx.fillStyle = this.color;
 			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 			return;
