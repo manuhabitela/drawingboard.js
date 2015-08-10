@@ -16,11 +16,15 @@ module.exports = function(grunt) {
 				banner: "<%= meta.banner %>"
 			},
 			light: {
-				src: ['js/utils.js', 'js/board.js'],
+				src: [
+					'bower_components/simple-undo/lib/simple-undo.js',
+					'js/utils.js',
+					'js/board.js'
+				],
 				dest: 'dist/drawingboard.nocontrol.js'
 			},
 			full: {
-				src: ['js/utils.js', 'js/board.js', 'js/controls/control.js', 'js/controls/color.js', 'js/controls/drawingmode.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js'],
+				src: ['bower_components/simple-undo/lib/simple-undo.js', 'js/utils.js', 'js/board.js', 'js/controls/control.js', 'js/controls/color.js', 'js/controls/drawingmode.js', 'js/controls/navigation.js', 'js/controls/size.js', 'js/controls/download.js'],
 				dest: 'dist/drawingboard.js'
 			},
 			cssLight: { //simple copy in order to have everything in dist/
