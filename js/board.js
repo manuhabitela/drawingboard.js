@@ -65,7 +65,7 @@ DrawingBoard.Board = function(id, opts) {
 	//set board's size after the controls div is added
 	this.resize();
 	//reset the board to take all resized space
-	this.reset({ webStorage: false, history: true, background: true });
+	this.reset({ webStorage: false, history: false, background: true });
 	this.restoreWebStorage();
 	this.initDropEvents();
 	this.initDrawEvents();
@@ -120,7 +120,11 @@ DrawingBoard.Board.prototype = {
 
 		this.setMode('pencil');
 
-		if (opts.background) this.resetBackground(this.opts.background, false);
+		if (opts.background) {
+			this.resetBackground(this.opts.background, $.proxy(function() {
+				if (opts.history) this.saveHistory();
+			}, this));
+		}
 
 		if (opts.color) this.setColor(opts.color);
 		if (opts.size) this.ctx.lineWidth = opts.size;
@@ -131,16 +135,17 @@ DrawingBoard.Board.prototype = {
 
 		if (opts.webStorage) this.saveWebStorage();
 
-		if (opts.history) this.saveHistory();
+		// if opts.background we already dealt with the history
+		if (opts.history && !opts.background) this.saveHistory();
 
 		this.blankCanvas = this.getImg();
 
 		this.ev.trigger('board:reset', opts);
 	},
 
-	resetBackground: function(background, historize) {
+	resetBackground: function(background, callback) {
 		background = background || this.opts.background;
-		historize = typeof historize !== "undefined" ? historize : true;
+
 		var bgIsColor = DrawingBoard.Utils.isColor(background);
 		var prevMode = this.getMode();
 		this.setMode('pencil');
@@ -148,10 +153,16 @@ DrawingBoard.Board.prototype = {
 		if (bgIsColor) {
 			this.ctx.fillStyle = background;
 			this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+			this.history.initialize(this.getImg());
+			if (callback) callback();
 		} else if (background)
-			this.setImg(background);
+			this.setImg(background, {
+				callback: $.proxy(function() {
+					this.history.initialize(this.getImg());
+					if (callback) callback();
+				}, this)
+			});
 		this.setMode(prevMode);
-		if (historize) this.saveHistory();
 	},
 
 	resize: function() {
@@ -260,49 +271,36 @@ DrawingBoard.Board.prototype = {
 	 */
 
 	initHistory: function() {
-		this.history = {
-			values: [],
-			position: 0
-		};
+		this.history = new SimpleUndo({
+			maxLength: 30,
+			provider: $.proxy(function(done) {
+				done(this.getImg());
+			}, this),
+			onUpdate: $.proxy(function() {
+				this.ev.trigger('historyNavigation');
+			}, this)
+		});
 	},
 
-	saveHistory: function () {
-		while (this.history.values.length > 30) {
-			this.history.values.shift();
-			this.history.position--;
-		}
-		if (this.history.position !== 0 && this.history.position < this.history.values.length) {
-			this.history.values = this.history.values.slice(0, this.history.position);
-			this.history.position++;
-		} else {
-			this.history.position = this.history.values.length+1;
-		}
-		this.history.values.push(this.getImg());
-		this.ev.trigger('historyNavigation', this.history.position);
+	saveHistory: function() {
+		this.history.save();
 	},
 
-	_goThroughHistory: function(goForth) {
-		if ((goForth && this.history.position == this.history.values.length) ||
-			(!goForth && this.history.position == 1))
-			return;
-		var pos = goForth ? this.history.position+1 : this.history.position-1;
-		if (this.history.values.length && this.history.values[pos-1] !== undefined) {
-			this.history.position = pos;
-			this.setImg(this.history.values[pos-1]);
-		}
-		this.ev.trigger('historyNavigation', pos);
-		this.saveWebStorage();
+	restoreHistory: function(image) {
+		this.setImg(image, {
+			callback: $.proxy(function() {
+				this.saveWebStorage();
+			}, this)
+		});
 	},
 
 	goBackInHistory: function() {
-		this._goThroughHistory(false);
+		this.history.undo($.proxy(this.restoreHistory, this));
 	},
 
 	goForthInHistory: function() {
-		this._goThroughHistory(true);
+		this.history.redo($.proxy(this.restoreHistory, this));
 	},
-
-
 
 	/**
 	 * Image methods: you can directly put an image on the canvas, get it in base64 data url or start a download
@@ -310,8 +308,10 @@ DrawingBoard.Board.prototype = {
 
 	setImg: function(src, opts) {
 		opts = $.extend({
-			stretch: this.opts.stretchImg
+			stretch: this.opts.stretchImg,
+			callback: null
 		}, opts);
+
 		var ctx = this.ctx;
 		var img = new Image();
 		var oldGCO = ctx.globalCompositeOperation;
@@ -326,6 +326,10 @@ DrawingBoard.Board.prototype = {
 			}
 
 			ctx.globalCompositeOperation = oldGCO;
+
+			if (opts.callback) {
+				opts.callback();
+			}
 		};
 		img.src = src;
 	},
@@ -398,10 +402,13 @@ DrawingBoard.Board.prototype = {
 		var fr = new FileReader();
 		fr.readAsDataURL(files[0]);
 		fr.onload = $.proxy(function(ev) {
-			this.setImg(ev.target.result);
+			this.setImg(ev.target.result, {
+				callback: $.proxy(function() {
+					this.saveHistory();
+				}, this)
+			});
 			this.ev.trigger('board:imageDropped', ev.target.result);
 			this.ev.trigger('board:userAction');
-			this.saveHistory();
 		}, this);
 	},
 
