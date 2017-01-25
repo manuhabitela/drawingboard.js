@@ -14,7 +14,7 @@ The drawingboard is really lightweight, but also really simple: if you want some
 
 ## Requirements and Installation
 
-[Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
+[Check the source of the demo page to see how to integrate the drawingboard in practice](http://leimi.github.io/drawingboard.js/)
 
 The board requires jQuery. Since its usage is pretty light, it may work as usual if you use zepto but I didn't test it.
 
@@ -24,7 +24,7 @@ After jQuery, you can include the minified script and stylesheet contained in th
 
 ## Creating a drawingboard
 
-[Check the source of the demo page to see how to integrate the drawingboard in practice](http://manu.habite.la/drawingboard/example/)
+[Check the source of the demo page to see how to integrate the drawingboard in practice](http://leimi.github.io/drawingboard.js/)
 
 The drawingboard is tied to an HTML element with an #id. Set the dimensions of the desired board with CSS on the HTML element, and create it with one line of JavaScript:
 
