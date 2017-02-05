@@ -22,9 +22,14 @@ DrawingBoard.Board = function(id, opts) {
 	this.ev = new DrawingBoard.Utils.MicroEvent();
 
 	this.id = id;
-	this.$el = $(document.getElementById(id));
-	if (!this.$el.length)
-		return false;
+
+    if(id instanceof jQuery){
+        this.$el = id; 
+    } else {
+        this.$el = $(document.getElementById(id));
+        if (!this.$el.length)
+            return false;
+    }
 
 	var tpl = '<div class="drawing-board-canvas-wrapper"></canvas><canvas class="drawing-board-canvas"></canvas><div class="drawing-board-cursor drawing-board-utils-hidden"></div></div>';
 	if (this.opts.controlsPosition.indexOf("bottom") > -1) tpl += '<div class="drawing-board-controls"></div>';
