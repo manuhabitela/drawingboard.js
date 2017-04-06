@@ -1,5 +1,5 @@
 /* drawingboard.js v0.4.6 - https://github.com/Leimi/drawingboard.js
-* Copyright (c) 2015 Emmanuel Pelletier
+* Copyright (c) 2017 Emmanuel Pelletier
 * Licensed MIT */
 (function() {
 	
@@ -369,7 +369,8 @@ DrawingBoard.Board.defaultOpts = {
 	droppable: false,
 	enlargeYourContainer: false,
 	errorMessage: "<p>It seems you use an obsolete browser. <a href=\"http://browsehappy.com/\" target=\"_blank\">Update it</a> to start drawing.</p>",
-	stretchImg: false //when setting the canvas img, strech the image at the whole canvas size when this opt is true
+	stretchImg: false, //when setting the canvas img, strech the image at the whole canvas size when this opt is true
+	keepImgRatio: true, // when stretch the image to the canvas size, keep image ratio when this opt is true
 };
 
 
@@ -592,6 +593,7 @@ DrawingBoard.Board.prototype = {
 	setImg: function(src, opts) {
 		opts = $.extend({
 			stretch: this.opts.stretchImg,
+			keepRatio: this.opts.keepImgRatio,
 			callback: null
 		}, opts);
 
@@ -603,7 +605,18 @@ DrawingBoard.Board.prototype = {
 			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 			if (opts.stretch) {
-				ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+				if(opts.keepRatio) {
+                    var canvasRatio = ctx.canvas.width / ctx.canvas.height; // measure of wide
+                    var imgRatio = img.width / img.height;
+                    var rWidth = ctx.canvas.width * (imgRatio / canvasRatio);
+                    var rHeight = ctx.canvas.height * (imgRatio * canvasRatio);
+                    if(canvasRatio > imgRatio) //  canvas is more wide, keep height
+						ctx.drawImage(img, (ctx.canvas.width - rWidth) / 2, 0, rWidth, ctx.canvas.height);
+                    else // canvas is more narrow, keep width
+						ctx.drawImage(img, 0, (ctx.canvas.height - rHeight) / 2, ctx.canvas.width, rHeight);
+				} else {
+                    ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+				}
 			} else {
 				ctx.drawImage(img, 0, 0);
 			}
