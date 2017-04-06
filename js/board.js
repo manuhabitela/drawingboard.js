@@ -326,7 +326,7 @@ DrawingBoard.Board.prototype = {
                     var canvasRatio = ctx.canvas.width / ctx.canvas.height; // measure of wide
                     var imgRatio = img.width / img.height;
                     var rWidth = ctx.canvas.width * (imgRatio / canvasRatio);
-                    var rHeight = ctx.canvas.height * (canvasRatio/ imgRatio);
+                    var rHeight = ctx.canvas.height * (canvasRatio / imgRatio);
                     if(canvasRatio > imgRatio) //  canvas is more wide, keep height
 						ctx.drawImage(img, (ctx.canvas.width - rWidth) / 2, 0, rWidth, ctx.canvas.height);
                     else // canvas is more narrow, keep width
