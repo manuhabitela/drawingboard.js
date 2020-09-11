@@ -16,8 +16,11 @@ window.DrawingBoard = typeof DrawingBoard !== "undefined" ? DrawingBoard : {};
  *	stretchImg: default behavior of image setting on the canvas: set to the canvas width/height or not? false by default
  * }
  */
+
 DrawingBoard.Board = function(id, opts) {
-	this.opts = this.mergeOptions(opts);
+ var test = null;
+
+  this.opts = this.mergeOptions(opts);
 
 	this.ev = new DrawingBoard.Utils.MicroEvent();
 
